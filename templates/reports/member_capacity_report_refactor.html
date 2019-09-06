@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        {{ report_type }}
+                    </h4>
+                    <hr>
+                    <div class="columns">
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Actual Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ actual_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Allocated Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ allocated_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Available Hours
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ available_aggregate|round_to_two }}
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Utilization Rate
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ utilization_rate|round_to_two }}%
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column is-one-fifth has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    Total Capacity Rate
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ capacity_rate|round_to_two }}%
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="width: 100%; overflow: auto;">
+                        <table class="table dataTable is-hoverable is-striped is-fullwidth">
+                            <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>
+                                    Actual Hours
+                                </th>
+                                <th>
+                                    Allocated Hours
+                                </th>
+                                <th>
+                                    Available Hours
+                                </th>
+                                <th>
+                                    Utilization Rate
+                                </th>
+                                <th>
+                                    Capacity Rate
+                                </th>
+                                <th>
+                                    Value Added Hours
+                                </th>
+                                <th>
+                                    Active Accounts
+                                </th>
+                                <th>
+                                    Onboarding Accounts
+                                </th>
+                                <th>
+                                    Backup Hours
+                                </th>
+                                <th>
+                                    Last Updated Hours
+                                </th>
+                                <th>
+                                    Outstanding 90 Days
+                                </th>
+                                <th>
+                                    Training Hours
+                                </th>
+                                <th>
+                                    Training Hours Assigned
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for member in members %}
+                                <tr>
+                                    <td>
+                                        <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                    </td>
+                                    <td>
+                                        {{ member.actual_hours_this_month|round_to_two }}
+                                    </td>
+                                    <td>
+                                        {{ member.allocated_hours_month|round_to_two }}
+                                    </td>
+                                    <td>
+                                        {{ member.hours_available|round_to_two }}
+                                    </td>
+                                    <td>
+                                        {{ member.utilization_rate|round_to_two }}%
+                                    </td>
+                                    <td>
+                                        {{ member.capacity_rate|round_to_two }}%
+                                    </td>
+                                    <td>
+                                        {{ member.value_added_hours_this_month|round_to_two }}
+                                    </td>
+                                    <td>
+                                        {{ member.active_accounts_including_backups_count }}
+                                    </td>
+                                    <td>
+                                        {{ member.onboarding_accounts_count }}
+                                    </td>
+                                    <td class="{% if member.backup_hours_plus_minus > 0 %}text-success{% elif member.backup_hours_plus_minus < 0 %}text-danger{% endif %}">
+                                        {{ member.backup_hours_plus_minus }}
+                                    </td>
+                                    <td>
+                                        {{ member.last_updated_hours }}
+                                    </td>
+                                    <td>
+                                        {{ member.phase_tasks.count }}
+                                    </td>
+                                    <td>
+                                        {{ member.training_hours_month }}%
+                                    </td>
+                                    <td>
+                                        {{ member.training_hours }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

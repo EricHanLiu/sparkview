@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h4 class="title is-4">Oops</h4>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <a href="/reports/oops/new" class="button is-info">New Oops</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="width: 100%; overflow: auto;">
+                        <table class="table is-hoverable is-striped dataTable is-fullwidth">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Timestamp
+                                </th>
+                                <th>
+                                    Date Of Issue
+                                </th>
+                                <th>
+                                    Reported By
+                                </th>
+                                <th>
+                                    Issue Description
+                                </th>
+                                <th>
+                                    Type of Issue
+                                </th>
+                                <th>
+                                    Budget Error Amount
+                                </th>
+                                <th>
+                                    Member(s) Responsible
+                                </th>
+                                <th>
+                                    Account
+                                </th>
+                                <th>
+                                    Client Aware?
+                                </th>
+                                <th>
+                                    Client At Risk?
+                                </th>
+                                <th>
+                                    Addressed With Member(s)?
+                                </th>
+                                <th>
+                                    Platform
+                                </th>
+                                <th>
+                                    Justification
+                                </th>
+                                <th>
+                                    Refund Amount
+                                </th>
+                                <th>
+                                    Approved
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for incident in incidents %}
+                                <tr>
+                                    <td>
+                                        {{ incident.timestamp }}
+                                    </td>
+                                    <td>
+                                        {{ incident.date }}
+                                    </td>
+                                    <td>
+                                        <a href="/user_management/members/{{ incident.reporter.id }}">{{ incident.reporter.user.get_full_name }}</a>
+                                    </td>
+                                    <td>
+                                        <div style="max-height: 70px; overflow: auto;">
+                                            {{ incident.description }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ incident.issue_name }}
+                                    </td>
+                                    <td>
+                                        {% if incident.budget_error_amount == 0 %}
+                                            None
+                                        {% else %}
+                                            {{ incident.budget_error_amount|round_to_two }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% for member in incident.members.all %}
+                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        {% if incident.account is not None %}
+                                            <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if incident.client_aware %} Yes {% else %} No {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if incident.addressed_with_member %} Yes {% else %} No {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ incident.platform_name }}
+                                    </td>
+                                    <td>
+                                        <div style="max-height: 70px; overflow: auto;">
+                                            {{ incident.justification }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ incident.refund_amount }}
+                                    </td>
+                                    <td>
+                                        {{ incident.approved }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

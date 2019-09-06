@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h4 class="title is-4">High Fives</h4>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <a href="/reports/high_fives/new" class="button is-info">New High Five</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <table class="table is-hoverable is-striped is-fullwidth dataTable">
+                        <thead>
+                        <tr>
+                            <th>
+                                Date
+                            </th>
+                            <th>
+                                Nominator
+                            </th>
+                            <th>
+                                Member
+                            </th>
+                            <th>
+                                Description
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for hf in high_fives %}
+                            <tr>
+                                <td>
+                                    {{ hf.date }}
+                                </td>
+                                <td>
+                                    {{ hf.nominator }}
+                                </td>
+                                <td>
+                                    <a href="/user_management/members/{{ hf.member.id }}">{{ hf.member.user.get_full_name }}</a>
+                                </td>
+                                <td>
+                                    {{ hf.description }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

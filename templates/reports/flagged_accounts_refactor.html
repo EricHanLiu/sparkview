@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Flagged Accounts</h4>
+                    <hr>
+                    <table class="table dataTable is-hoverable is-striped is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Client
+                            </th>
+                            <th>Account</th>
+                            <th>
+                                Total Actual Hours
+                            </th>
+                            <th>
+                                Total Allocated Hours
+                            </th>
+                            <th>
+                                Assigned Member
+                            </th>
+                            <th>
+                                Basecamp link
+                            </th>
+                            <th>
+                                Timestamp
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in accounts %}
+                            <tr>
+                                <td>
+                                    {{ account.parentClient.name }}
+                                </td>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ account.hoursWorkedThisMonth|round_to_two }}
+                                </td>
+                                <td>
+                                    {{ account.all_hours|round_to_two }}
+                                </td>
+                                <td>
+                                    {% if account.flagged_assigned_member != None %}
+                                        {{ account.flagged_assigned_member.user.get_full_name }}
+                                    {% else %}
+                                        <button type="button" class="button is-small is-info assign-member-button"
+                                                data-account="{{ account.id }}">Assign Member
+                                        </button>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if account.flagged_bc_link != None %}
+                                        <a href="{{ account.flagged_bc_link }}">Basecamp</a>
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ account.flagged_datetime }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flag member -->
+    <div class="modal modal-fx-fadeInScale" id="assign_member_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <h5 class="title is-5">Flag Account {{ account.client_name }}</h5>
+                <form method="POST" action="/clients/accounts/flag/member">{% csrf_token %}
+                    <input name="account" id="member_account_id" type="hidden"/>
+                    <div class="field">
+                        <label class="label">Assign a member:</label>
+                        <div class="select is-fullwidth">
+                            <select name="member">
+                                <option value="0">
+                                    None
+                                </option>
+                                {% for member in members %}
+                                    <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <button class="button is-info" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End Flag member modal -->
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $(document).ready(function () {
+            let $modal = $('#assign_member_modal');
+            $modal.on('show.bs.modal', function (e) {
+                let acc_id = $(e.relatedTarget).data('account');
+                $('#member_account_id').attr('value', acc_id);
+            });
+
+            $('.assign-member-button').click(() => {
+                $('#assign_member_modal').addClass('is-active');
+            });
+        });
+    </script>
+{% endblock %}

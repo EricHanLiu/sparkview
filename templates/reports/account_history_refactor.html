@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">Account History</h4>
+                    <hr>
+                    <div class="message is-warning">
+                        <div class="message-body">
+                            <strong>Warning:</strong> December 2018 and February 2019 data is only partly accurate. Only
+                            data that can be completely trusted is actual hours.
+                            <button class="delete" style="float: right;"></button>
+                        </div>
+                    </div>
+                    <form method="post">{% csrf_token %}
+                        <div class="columns">
+                            <div class="column is-3">
+                                <label class="label" for="account">Account:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="account">
+                                        <option value="all" {% if selected.account == 'all' %}selected{% endif %}>
+                                            All
+                                        </option>
+                                        {% for account in all_accounts %}
+                                            <option value="{{ account.id }}"
+                                                    {% if selected.account == account.id %}selected{% endif %}>{{ account.client_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label" for="month">Month:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="month">
+                                        <option value="all" {% if selected.month == 'all' %}selected{% endif %}>
+                                            All
+                                        </option>
+                                        {% for month_num, month_name in months %}
+                                            <option value="{{ month_num }}"
+                                                    {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label" for="year">Year:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="year">
+                                        <option value="all" {% if selected.year == 'all' %}selected{% endif %}>
+                                            All
+                                        </option>
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label">&nbsp;</label>
+                                <button class="button is-fullwidth" type="submit">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr/>
+                    <table class="table dataTable is-fullwidth is-hoverable is-striped">
+                        <thead>
+                        <tr>
+                            <th>Account</th>
+                            <th>Actual Hours</th>
+                            <th>
+                                Value Added Hours
+                            </th>
+                            <th>
+                                Mandate Hours
+                            </th>
+                            <th>
+                                All Hours
+                            </th>
+                            <th>
+                                Allocated Hours
+                            </th>
+                            <th>
+                                All/Allocated
+                            </th>
+                            <th>
+                                Spend
+                            </th>
+                            <th>
+                                Budget
+                            </th>
+                            <th>
+                                Management Fee
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in accounts_array %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.0.id }}">{{ account.0.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ account.7|round_to_two }}
+                                </td>
+                                <td>
+                                    <!-- Value added hours -->
+                                    {{ account.5|round_to_two }}
+                                </td>
+                                <td>
+                                    <!-- Mandate hours -->
+                                    {{ account.6|round_to_two }}
+                                </td>
+                                <td>
+                                    <!-- All hours -->
+                                    {{ account.3|round_to_two }}
+                                </td>
+                                <td>
+                                    {{ account.2|round_to_two }}
+                                </td>
+                                <td>
+                                    {{ account.4|round_to_two }}
+                                </td>
+                                <td>
+                                    ${{ account.1.spend|format_money }}
+                                </td>
+                                <td>
+                                    ${{ account.1.budget|format_money }}
+                                </td>
+                                <td>
+                                    ${{ account.1.management_fee|format_money }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
