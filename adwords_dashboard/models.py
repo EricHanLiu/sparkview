@@ -363,6 +363,9 @@ class CampaignSpendDateRange(models.Model):
     end_date = models.DateTimeField()
     updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return str(self.campaign) if self.campaign is not None else 'No campaign'
+
 
 class Adgroup(models.Model):
     account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True, blank=True)

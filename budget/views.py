@@ -963,8 +963,8 @@ def get_campaigns_in_budget(request):
                 try:
                     csdr = CampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
                                                               end_date=budget.end_date)
-                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
-                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                    corresponding_daterange_spends[campaign.campaign_id + campaign.campaign_name] = csdr.spend
+                    corresponding_updated[campaign.campaign_id + campaign.campaign_name] = csdr.updated
                 except CampaignSpendDateRange.DoesNotExist:
                     campaigns.remove(campaign)
                     continue
@@ -972,8 +972,8 @@ def get_campaigns_in_budget(request):
                 try:
                     csdr = FacebookCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
                                                                       end_date=budget.end_date)
-                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
-                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                    corresponding_daterange_spends[campaign.campaign_id + campaign.campaign_name] = csdr.spend
+                    corresponding_updated[campaign.campaign_id + campaign.campaign_name] = csdr.updated
                 except FacebookCampaignSpendDateRange.DoesNotExist:
                     campaigns.remove(campaign)
                     continue
@@ -981,8 +981,8 @@ def get_campaigns_in_budget(request):
                 try:
                     csdr = BingCampaignSpendDateRange.objects.get(campaign=campaign, start_date=budget.start_date,
                                                                   end_date=budget.end_date)
-                    corresponding_daterange_spends[campaign.campaign_id] = csdr.spend
-                    corresponding_updated[campaign.campaign_id] = csdr.updated
+                    corresponding_daterange_spends[campaign.campaign_id + campaign.campaign_name] = csdr.spend
+                    corresponding_updated[campaign.campaign_id + campaign.campaign_name] = csdr.updated
                 except BingCampaignSpendDateRange.DoesNotExist:
                     campaigns.remove(campaign)
                     continue

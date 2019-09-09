@@ -996,7 +996,7 @@
                     if (data['is_monthly']) {
                         spend = document.createTextNode(camp['fields']['campaign_cost']);
                     } else {
-                        spend = document.createTextNode(data['cdrs'][camp['fields']['campaign_id']]);
+                        spend = document.createTextNode(data['cdrs'][camp['fields']['campaign_id'] + camp['fields']['campaign_name']]);
                     }
                     td2.appendChild(spend);
 
@@ -1005,7 +1005,7 @@
                     if (data['is_monthly']) {
                         last_updated = document.createTextNode(camp['fields']['updated'].split('.')[0]);
                     } else {
-                        last_updated = document.createTextNode(data['cupdate'][camp['fields']['campaign_id']]);
+                        last_updated = document.createTextNode(data['cupdate'][camp['fields']['campaign_id'] + camp['fields']['campaign_name']]);
                     }
                     td3.appendChild(last_updated);
 

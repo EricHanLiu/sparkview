@@ -106,11 +106,11 @@ def get_all_spend_by_facebook_campaign_custom(self):
     """
     budgets = Budget.objects.filter(has_facebook=True, is_monthly=False)
     for budget in budgets:
-        for fb_camp in budget.fb_campaigns_without_excluded:
+        for fb_account in budget.account.facebook.all():
             if settings.DEBUG:
-                get_spend_by_facebook_campaign_custom(fb_camp.id, budget.id)
+                get_spend_by_facebook_campaign_custom(budget.id, fb_account.id)
             else:
-                get_spend_by_facebook_campaign_custom.delay(fb_camp.id, budget.id)
+                get_spend_by_facebook_campaign_custom.delay(budget.id, fb_account.id)
 
 
 @celery_app.task(bind=True)
@@ -166,7 +166,6 @@ def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
         tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
                                                                   account=fb_account,
                                                                   campaign_name=campaign_row['campaign_name'])
-        tmp_cmp.campaign_name = campaign_row['campaign_name']
         tmp_cmp.save()
         fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
                                                                               start_date=budget.start_date,
@@ -194,7 +193,6 @@ def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
         tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
                                                                   account=fb_account,
                                                                   campaign_name=campaign_row['campaign_name'])
-        tmp_cmp.campaign_name = campaign_row['campaign_name']
         tmp_cmp.save()
         fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
                                                                               start_date=budget.start_date,
