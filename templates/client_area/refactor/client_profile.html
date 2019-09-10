@@ -228,6 +228,11 @@
                                     </td>
                                 </tr>
                             </table>
+                            <div class="tags" style="margin-top: 1em;">
+                                {% for tag in account.tags.all %}
+                                    <div class="tag">{{ tag }}</div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
