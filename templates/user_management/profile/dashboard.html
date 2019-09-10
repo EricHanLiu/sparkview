@@ -162,7 +162,11 @@
                                                             Would you like to renew it?
                                                         </p>
                                                         <button class="button is-rounded is-small renew-overall-budget-button"
-                                                                style="margin-top: 1em;" data-id="{{ account.id }}">
+                                                                style="margin-top: 1em;" data-id="{{ account.id }}"
+                                                                data-aw="{{ account.aw_budget }}"
+                                                                data-fb="{{ account.fb_budget }}"
+                                                                data-bing="{{ account.bing_budget }}"
+                                                                data-flex="{{ account.flex_budget }}">
                                                             Renew
                                                         </button>
                                                     </div>
@@ -405,6 +409,45 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="renew_overall_budget_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <form id="renew_overall_budget_form">
+                    <div class="level">
+                        <div class="level-left">
+                            <h5 class="title is-5">Renew Overall Budget</h5>
+                        </div>
+                        <div class="level-right">
+                            <button class="button" type="submit">Submit</button>
+                        </div>
+                    </div>
+                    <p style="margin-bottom: 1em;">
+                        You will renew the following budget structure - make any necessary changes.
+                    </p>
+                    <input name="account_id" type="hidden" id="budget_account_id">
+                    <div class="columns">
+                        <div class="column is-3">
+                            <label class="label">AdWords</label>
+                            <input class="input is-fullwidth" name="aw_budget" type="text" id="aw_budget"/>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Facebook</label>
+                            <input class="input is-fullwidth" name="fb_budget" type="text" id="fb_budget"/>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Bing</label>
+                            <input class="input is-fullwidth" name="bing_budget" type="text" id="bing_budget"/>
+                        </div>
+                        <div class="column is-3">
+                            <label class="label">Flex</label>
+                            <input class="input is-fullwidth" name="flex_budget" type="text" id="flex_budget"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extraJs %}
@@ -614,13 +657,20 @@
         $('#accounts_tab').addClass('is-active');
 
         $('.renew-overall-budget-button').click(function () {
-            let accountID = $(this).data('id');
+            $('#renew_overall_budget_modal').addClass('is-active');
+            $('#budget_account_id').val($(this).data('id'));
+            $('#aw_budget').val($(this).data('aw'));
+            $('#fb_budget').val($(this).data('fb'));
+            $('#bing_budget').val($(this).data('bing'));
+            $('#flex_budget').val($(this).data('flex'));
+        });
+
+        $('#renew_overall_budget_form').submit(function (e) {
+            e.preventDefault();
 
             $.ajax({
-                url: '/budget/quick_renew_overall_budget',
-                data: {
-                    'account_id': accountID
-                },
+                url: '/budget/renew_overall_budget',
+                data: $(this).serialize(),
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 type: 'POST',
                 success: () => {
