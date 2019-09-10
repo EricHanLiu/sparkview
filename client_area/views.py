@@ -2280,7 +2280,7 @@ def ten_insights_report(request, account_id):
     }
 
     try:
-        insights = TenInsightsReport.objects.get(account=account, month=month, year=year)
+        insights = TenInsightsReport.objects.get(account=account, month=month-1, year=year)
     except TenInsightsReport.DoesNotExist:
         return HttpResponseNotFound('Could not find any insights for the given time period!')
 

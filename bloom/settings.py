@@ -256,7 +256,7 @@ ACCESS_TOKEN = 'ya29.GlsFBWxsC2vXxFe52v0roxsypsGipRsVl1yxipBvE-L1JIgT1v1zkH_Yntf
 
 if DEBUG:
     REDIRECT_URI = 'http://localhost:8000/dashboards/bing/auth/exchange'
-    INSIGHTS_PATH = '/home/sam/Projects/bloom-master/insights/'
+    INSIGHTS_PATH = '/home/eric/repositories/bloom-master/insights/'
 else:
     REDIRECT_URI = 'https://app.mibhub.com/dashboards/bing/auth/exchange'
     INSIGHTS_PATH = '/home/sam/bloom-master/insights/'

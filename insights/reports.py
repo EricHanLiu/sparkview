@@ -12,7 +12,7 @@ import datetime
 
 SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
 DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
-CLIENT_SECRETS_PATH = '/home/sam/Projects/bloom-master/insights/client_secrets.json'
+CLIENT_SECRETS_PATH = '/home/eric/repositories/bloom-master/insights/client_secrets.json'
 
 
 def initialize_analyticsreporting():
