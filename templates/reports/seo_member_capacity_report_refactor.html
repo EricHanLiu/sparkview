@@ -157,7 +157,9 @@
                     <table class="table dataTable is-hoverable is-striped is-fullwidth">
                         <thead>
                         <tr>
-                            <th>Account</th>
+                            <th>
+                                Account
+                            </th>
                             <th>
                                 Status
                             </th>
@@ -182,7 +184,8 @@
                                     {{ account.client_name }}
                                 </td>
                                 <td>
-                                    <div class="tag is-rounded is-{{ status_badges|get_item_from_list:account.status }}">
+                                    <div class="tag is-rounded is-
+                                            {{ status_badges|get_item_from_list:account.status }}">
                                         &nbsp;&nbsp;
                                         <div style="display:none;">{{ account.get_status_display }}</div>
                                     </div>
