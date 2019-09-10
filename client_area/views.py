@@ -14,6 +14,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch, Tag
+from insights.models import TenInsightsReport
 from .forms import NewClientForm
 from budget.cron import create_default_budget
 from tasks.logger import Logger
@@ -2263,12 +2264,32 @@ def ten_insights_report(request, account_id):
     except Client.DoesNotExist:
         return HttpResponseNotFound('That client does not exist')
 
+    now = datetime.datetime.now()
+
+    month = now.month
+    year = now.year
     if 'month' in request.GET and 'year' in request.GET:
         month = request.GET.get('month')
         year = request.GET.get('year')
 
-    context = {
-        'account': account
+    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
+    years = [str(i) for i in range(2018, now.year + 1)]
+    selected = {
+        'month': str(month),
+        'year': str(year)
     }
 
-    return render(request, 'client_area/refactor/ten_insights_tmp.html', context)
+    try:
+        insights = TenInsightsReport.objects.get(account=account, month=month, year=year)
+    except TenInsightsReport.DoesNotExist:
+        return HttpResponseNotFound('Could not find any insights for the given time period!')
+
+    context = {
+        'account': account,
+        'months': months,
+        'years': years,
+        'selected': selected,
+        'insights': insights
+    }
+
+    return render(request, 'client_area/refactor/ten_insights.html', context)

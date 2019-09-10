@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+{% load budget_tags %}
+
+{% block main_body %}
+    <section class="section has-background-light">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        {{ account.client_name }} - Ten Insights Report
+                    </h4>
+                    <hr>
+                    <form method="GET">
+                        <div class="columns">
+                            <div class="column is-3">
+                                <label class="label" for="month">Month:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="month">
+                                        {% for month_num, month_name in months %}
+                                            <option value="{{ month_num }}"
+                                                    {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label" for="year">Year:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="year">
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2">
+                                <label class="label">&nbsp;</label>
+                                <button class="button">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    {{ insights }}
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
