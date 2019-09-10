@@ -161,6 +161,8 @@ def cm_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
+    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
+
     report_type = 'CM Member Dashboard'
 
     context = {
@@ -170,7 +172,8 @@ def cm_capacity(request):
         'utilization_rate': utilization_rate,
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
-        'report_type': report_type
+        'report_type': report_type,
+        'outstanding_budget_accounts': outstanding_budget_accounts
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
@@ -208,6 +211,8 @@ def am_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
+    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
+
     report_type = 'AM Member Dashboard'
 
     context = {
@@ -217,7 +222,8 @@ def am_capacity(request):
         'utilization_rate': utilization_rate,
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
-        'report_type': report_type
+        'report_type': report_type,
+        'outstanding_budget_accounts': outstanding_budget_accounts
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
@@ -267,6 +273,8 @@ def seo_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
+    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
+
     report_type = 'SEO Member Dashboard'
 
     context = {
@@ -280,7 +288,8 @@ def seo_capacity(request):
         'seo_accounts': seo_accounts,
         'status_badges': status_badges,
         'total_seo_hours': total_seo_hours,
-        'total_cro_hours': total_cro_hours
+        'total_cro_hours': total_cro_hours,
+        'outstanding_budget_accounts': outstanding_budget_accounts
     }
 
     return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
@@ -317,6 +326,8 @@ def strat_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
+    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
+
     report_type = 'Strat Member Dashboard'
 
     context = {
@@ -326,7 +337,8 @@ def strat_capacity(request):
         'utilization_rate': utilization_rate,
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
-        'report_type': report_type
+        'report_type': report_type,
+        'outstanding_budget_accounts': outstanding_budget_accounts
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
