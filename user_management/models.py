@@ -280,7 +280,7 @@ class Member(models.Model):
     user = models.OneToOneField(User, models.CASCADE)
     team = models.ManyToManyField('Team', blank=True, related_name='member_team')
     role = models.ForeignKey('Role', models.SET_NULL, default=None, null=True)
-    image = models.ImageField(upload_to='bloomers/', null=True)
+    image = models.ImageField(upload_to='bloomers/', null=True, blank=True)
     last_viewed_summary = models.DateField(blank=True, default=None, null=True)
 
     # Buffer Time Allocation (from Member sheet)
