@@ -2280,9 +2280,21 @@ def ten_insights_report(request, account_id):
     }
 
     try:
-        insights = TenInsightsReport.objects.get(account=account, month=month-1, year=year)
+        insights = TenInsightsReport.objects.get(account=account, month=month - 1, year=year)
     except TenInsightsReport.DoesNotExist:
         return HttpResponseNotFound('Could not find any insights for the given time period!')
+
+    # prepare for some jank
+    reports = []
+    for field in TenInsightsReport._meta.get_fields():
+        field_name = str(field).split('.')[2]
+        if field_name in ['id', 'account', 'ga_view', 'month', 'year', 'transaction_total_per_product_report',
+                          'created']:
+            continue
+        report = getattr(insights, field_name)
+        print(json.dumps(json.loads(report), indent=4))
+        # TODO: do some parsing of the json
+        reports.append(report)
 
     context = {
         'account': account,
