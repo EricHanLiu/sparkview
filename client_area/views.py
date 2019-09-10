@@ -2269,8 +2269,8 @@ def ten_insights_report(request, account_id):
     month = now.month
     year = now.year
     if 'month' in request.GET and 'year' in request.GET:
-        month = request.GET.get('month')
-        year = request.GET.get('year')
+        month = int(request.GET.get('month'))
+        year = int(request.GET.get('year'))
 
     months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
     years = [str(i) for i in range(2018, now.year + 1)]
@@ -2280,7 +2280,7 @@ def ten_insights_report(request, account_id):
     }
 
     try:
-        insights = TenInsightsReport.objects.get(account=account, month=month - 1, year=year)
+        ten_insights_report_obj = TenInsightsReport.objects.get(account=account, month=month-1, year=year)
     except TenInsightsReport.DoesNotExist:
         return HttpResponseNotFound('Could not find any insights for the given time period!')
 
@@ -2291,9 +2291,17 @@ def ten_insights_report(request, account_id):
         if field_name in ['id', 'account', 'ga_view', 'month', 'year', 'transaction_total_per_product_report',
                           'created']:
             continue
-        report = getattr(insights, field_name)
-        print(json.dumps(json.loads(report), indent=4))
-        # TODO: do some parsing of the json
+        report_json = json.loads(getattr(ten_insights_report_obj, field_name))
+        header = report_json['reports'][0]['columnHeader']
+        rows = report_json['reports'][0]['data']['rows']
+        report = {
+            'name': ' '.join(field_name.split('_')).title(),
+            'dimension_header': header['dimensions'],
+            'metric_header': header['metricHeader']['metricHeaderEntries'][0]['name'],
+            'rows': [
+                (row['dimensions'][0], row['metrics'][0]['values'][0]) for row in rows
+            ]
+        }
         reports.append(report)
 
     context = {
@@ -2301,7 +2309,7 @@ def ten_insights_report(request, account_id):
         'months': months,
         'years': years,
         'selected': selected,
-        'insights': insights
+        'reports': reports
     }
 
     return render(request, 'client_area/refactor/ten_insights.html', context)
