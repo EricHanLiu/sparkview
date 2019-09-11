@@ -1404,43 +1404,6 @@ def renew_overall_budget(request):
 
 
 @login_required
-def quick_renew_overall_budget(request):
-    """
-    Quickly renews the overall budget without taking in params for new aw/fb/etc. budgets (they stay the same)
-    TODO: this can be refactored to just be a flag in the other method, but didn't think of it till now lol
-    :param request:
-    :return:
-    """
-    if request.method != 'POST':
-        return HttpResponse('Invalid request type')
-
-    member = Member.objects.get(user=request.user)
-    account_id = int(request.POST.get('account_id'))
-    if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    now = datetime.now()
-    account = Client.objects.get(id=account_id)
-
-    budget_update, created = BudgetUpdate.objects.get_or_create(account=account, month=now.month, year=now.year)
-    budget_update.updated = True
-    budget_update.save()
-    # temp fix for bug with overridden save not affecting the account
-    account.budget_updated = True
-    account.save()
-
-    # check off todos
-    todos = Todo.objects.filter(Q(description__contains='unapproved budget'), date_created=now,
-                                member__in=account.assigned_members_array).filter(
-        description__contains=account.client_name)
-    for todo in todos:
-        todo.completed = True
-        todo.save()
-
-    return HttpResponse('Success')
-
-
-@login_required
 def renew_monthly_budget(request):
     if request.method != 'POST':
         return HttpResponse('Invalid request type')

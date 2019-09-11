@@ -14,6 +14,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
     PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch, Tag
+from insights.models import TenInsightsReport
 from .forms import NewClientForm
 from budget.cron import create_default_budget
 from tasks.logger import Logger
@@ -1259,7 +1260,7 @@ def set_due_date(request):
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
+    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'), year=request.POST.get('year'))
 
     report.due_date = datetime.datetime.strptime(request.POST.get('due_date'), "%m/%d/%Y")
     report.save()
@@ -2263,12 +2264,52 @@ def ten_insights_report(request, account_id):
     except Client.DoesNotExist:
         return HttpResponseNotFound('That client does not exist')
 
-    if 'month' in request.GET and 'year' in request.GET:
-        month = request.GET.get('month')
-        year = request.GET.get('year')
+    now = datetime.datetime.now()
 
-    context = {
-        'account': account
+    month = now.month
+    year = now.year
+    if 'month' in request.GET and 'year' in request.GET:
+        month = int(request.GET.get('month'))
+        year = int(request.GET.get('year'))
+
+    months = [(str(i), calendar.month_name[i]) for i in range(1, 13)]
+    years = [str(i) for i in range(2018, now.year + 1)]
+    selected = {
+        'month': str(month),
+        'year': str(year)
     }
 
-    return render(request, 'client_area/refactor/ten_insights_tmp.html', context)
+    try:
+        ten_insights_report_obj = TenInsightsReport.objects.get(account=account, month=month-1, year=year)
+    except TenInsightsReport.DoesNotExist:
+        return HttpResponseNotFound('Could not find any insights for the given time period!')
+
+    # prepare for some jank
+    reports = []
+    for field in TenInsightsReport._meta.get_fields():
+        field_name = str(field).split('.')[2]
+        if field_name in ['id', 'account', 'ga_view', 'month', 'year', 'transaction_total_per_product_report',
+                          'created']:
+            continue
+        report_json = json.loads(getattr(ten_insights_report_obj, field_name))
+        header = report_json['reports'][0]['columnHeader']
+        rows = report_json['reports'][0]['data']['rows']
+        report = {
+            'name': ' '.join(field_name.split('_')).title(),
+            'dimension_header': header['dimensions'],
+            'metric_header': header['metricHeader']['metricHeaderEntries'][0]['name'],
+            'rows': [
+                (row['dimensions'][0], row['metrics'][0]['values'][0]) for row in rows
+            ]
+        }
+        reports.append(report)
+
+    context = {
+        'account': account,
+        'months': months,
+        'years': years,
+        'selected': selected,
+        'reports': reports
+    }
+
+    return render(request, 'client_area/refactor/ten_insights.html', context)

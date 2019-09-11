@@ -67,7 +67,7 @@ def create_or_update_ten_insights_report(self, view_id, month, year):
     analytics = initialize_analyticsreporting()
     ten_insights_report.aov_per_age_bracket_report = aov_per_age_bracket(analytics, view_id)
     ten_insights_report.transaction_total_per_region_report = transaction_total_per_region(analytics, view_id)
-    ten_insights_report.transaction_total_per_product_report = transaction_total_per_product(analytics, view_id)
+    # ten_insights_report.transaction_total_per_product_report = transaction_total_per_product(analytics, view_id)
     ten_insights_report.average_session_duration_per_region_report = average_session_duration_per_region(analytics,
                                                                                                          view_id)
     ten_insights_report.total_goal_completions_per_age_bracket_report = total_goal_completions_per_age_bracket(
