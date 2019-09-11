@@ -42,31 +42,34 @@
                             </thead>
                             <tbody>
                             {% for account in accounts %}
-                                <tr class="table-row">
-                                    <td>
-                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
-                                    </td>
-                                    <td>${{ account.current_budget|format_money }}</td>
-                                    <td>${{ account.current_spend|format_money }}</td>
-                                    <td>${{ account.yesterday_spend|format_money }}</td>
-                                    <td style="{% if account.project_average > account.current_budget %}color:#f00;{% elif account.underpacing_average %}{% endif %}">
-                                        ${{ account.project_average|format_money }}</td>
-                                    <td>
-                                        <div class="tag is-rounded is-{{ status_badges|get_item_from_list:account.status }}">
-                                            &nbsp&nbsp
-                                        </div>
-                                    </td>
-                                    <td>
-                                        ${{ account.total_fee|format_money }}
-                                    </td>
-                                    <td>
-                                        <!-- Actual hours -->
-                                        {{ account.hoursWorkedThisMonth }}
-                                    </td>
-                                    <td>
-                                        {{ account.all_hours }}
-                                    </td>
-                                </tr>
+                                {% if account.default_budget is not None %}
+                                    <tr class="table-row">
+                                        <td>
+                                            <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                        </td>
+                                        <td>${{ account.default_budget.calculated_budget|format_money }}</td>
+                                        <td>${{ account.default_budget.calculated_spend|format_money }}</td>
+                                        <td>${{ account.default_budget.yesterday_spend|format_money }}</td>
+                                        <td style="{% if account.default_budget.projected_spend_avg > account.default_budget.calculated_budget %}color:#f00;{% endif %}">
+                                            ${{ account.default_budget.projected_spend_avg|format_money }}</td>
+                                        <td>
+                                            <div class="tag is-rounded is-
+                                                    {{ status_badges|get_item_from_list:account.status }}">
+                                                &nbsp&nbsp
+                                            </div>
+                                        </td>
+                                        <td>
+                                            ${{ account.total_fee|format_money }}
+                                        </td>
+                                        <td>
+                                            <!-- Actual hours -->
+                                            {{ account.hoursWorkedThisMonth }}
+                                        </td>
+                                        <td>
+                                            {{ account.all_hours }}
+                                        </td>
+                                    </tr>
+                                {% endif %}
                             {% endfor %}
                             </tbody>
                         </table>
@@ -147,7 +150,8 @@
                                         {{ backup.account.tier }}
                                     </td>
                                     <td>
-                                        <div class="tag is-rounded is-{{ status_badges|get_item_from_list:backup.account.status }}">
+                                        <div class="tag is-rounded is-
+                                                {{ status_badges|get_item_from_list:backup.account.status }}">
                                             &nbsp&nbsp
                                         </div>
                                     </td>
