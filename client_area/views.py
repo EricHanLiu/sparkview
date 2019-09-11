@@ -33,7 +33,7 @@ def accounts(request):
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backup_accounts = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
-    status_badges = ['info', 'primary', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'member': member,
@@ -73,7 +73,7 @@ def accounts_all(request):
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
-    status_badges = ['info', 'primary', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'page_type': 'Active',

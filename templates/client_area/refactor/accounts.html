@@ -53,8 +53,7 @@
                                         <td style="{% if account.default_budget.projected_spend_avg > account.default_budget.calculated_budget %}color:#f00;{% endif %}">
                                             ${{ account.default_budget.projected_spend_avg|format_money }}</td>
                                         <td>
-                                            <div class="tag is-rounded is-
-                                                    {{ status_badges|get_item_from_list:account.status }}">
+                                            <div class="tag is-rounded is-{{ status_badges|get_item_from_list:account.status }}">
                                                 &nbsp&nbsp
                                             </div>
                                         </td>
