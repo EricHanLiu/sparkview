@@ -228,6 +228,11 @@
                                     </td>
                                 </tr>
                             </table>
+                            <div class="tags" style="margin-top: 1em;">
+                                {% for tag in account.tags.all %}
+                                    <div class="tag">{{ tag }}</div>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -510,14 +515,18 @@
                             <div class="card">
                                 <div class="card-content">
                                     <div class="columns">
-                                        <div class="column is-7">
+                                        <div class="column is-3">
                                             <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                                                 <span class="tag is-rounded {% if account.adwords.all %}tag-color-4{% endif %}">G</span>
                                                 <span class="tag is-rounded {% if account.facebook.all %}tag-color-4{% endif %}">F</span>
                                                 <span class="tag is-rounded {% if account.bing.all %}tag-color-4{% endif %}">B</span>
                                             </div>
                                         </div>
-                                        <div class="column is-5 has-text-right">
+                                        <div class="column is-9 has-text-right">
+                                            <a class="button button-color is-rounded is-small"
+                                               href="/clients/accounts/{{ account.id }}/insights">
+                                                Insights
+                                            </a>
                                             <button class="button button-color is-rounded is-small" id="ga_btn">
                                                 Google Analytics
                                             </button>
@@ -808,8 +817,9 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="level">You will renew the following budget structure - make any necessary changes.
-                        </div>
+                        <p style="margin-bottom: 1em;">
+                            You will renew the following budget structure - make any necessary changes.
+                        </p>
                         <form id="renew_overall_budget_form">
                             <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
                             <div class="columns">

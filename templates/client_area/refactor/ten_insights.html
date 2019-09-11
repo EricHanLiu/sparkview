@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+{% load budget_tags %}
+
+{% block main_body %}
+    <section class="section has-background-light">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        {{ account.client_name }} - Ten Insights Report
+                    </h4>
+                    <hr>
+                    <form method="GET">
+                        <div class="columns">
+                            <div class="column is-3">
+                                <label class="label" for="month">Month:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="month">
+                                        {% for month_num, month_name in months %}
+                                            <option value="{{ month_num }}"
+                                                    {% if selected.month == month_num %}selected{% endif %}>{{ month_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label" for="year">Year:</label>
+                                <div class="select is-fullwidth">
+                                    <select name="year">
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if selected.year == year %}selected{% endif %}>{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-2">
+                                <label class="label">&nbsp;</label>
+                                <button class="button">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <div class="columns is-multiline">
+                        {% for report in reports %}
+                            <div class="column is-one-third">
+                                <div class="box">
+                                    <h5 class="title is-5">
+                                        {{ report.name }}
+                                    </h5>
+                                    <table class="table is-hoverable dataTable is-fullwidth is-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>
+                                                {{ report.dimension_header }}
+                                            </th>
+                                            <th>
+                                                {{ report.metric_header }}
+                                            </th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for dimension, metric in report.rows %}
+                                            <tr>
+                                                <td>
+                                                    {{ dimension }}
+                                                </td>
+                                                <td>
+                                                    {{ metric }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

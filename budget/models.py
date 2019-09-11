@@ -1161,13 +1161,13 @@ class Client(models.Model):
             members['SEO']['member'] = self.seo1
             members['SEO']['allocated_percentage'] = self.seo1percent
         if self.seo2 is not None:
-            members['SEO 2'] = {}
-            members['SEO 2']['member'] = self.seo2
-            members['SEO 2']['allocated_percentage'] = self.seo2percent
+            members['SEO2'] = {}
+            members['SEO2']['member'] = self.seo2
+            members['SEO2']['allocated_percentage'] = self.seo2percent
         if self.seo3 is not None:
-            members['SEO 3'] = {}
-            members['SEO 3']['member'] = self.seo3
-            members['SEO 3']['allocated_percentage'] = self.seo3percent
+            members['SEO3'] = {}
+            members['SEO3']['member'] = self.seo3
+            members['SEO3']['allocated_percentage'] = self.seo3percent
         return members
 
     @property
@@ -1182,13 +1182,13 @@ class Client(models.Model):
             members['Strat']['member'] = self.strat1
             members['Strat']['allocated_percentage'] = self.strat1percent
         if self.strat2 is not None:
-            members['Strat 2'] = {}
-            members['Strat 2']['member'] = self.strat2
-            members['Strat 2']['allocated_percentage'] = self.strat2percent
+            members['Strat2'] = {}
+            members['Strat2']['member'] = self.strat2
+            members['Strat2']['allocated_percentage'] = self.strat2percent
         if self.strat3 is not None:
-            members['Strat 3'] = {}
-            members['Strat 3']['member'] = self.strat3
-            members['Strat 3']['allocated_percentage'] = self.strat3percent
+            members['Strat3'] = {}
+            members['Strat3']['member'] = self.strat3
+            members['Strat3']['allocated_percentage'] = self.strat3percent
 
         return members
 

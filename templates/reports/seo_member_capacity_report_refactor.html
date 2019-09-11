@@ -220,6 +220,34 @@
                         </tr>
                         </tfoot>
                     </table>
+                    <hr>
+                    <h5 class="title is-5">Outstanding Renewed Budgets</h5>
+                    <table class="table dataTable is-hoverable is-fullwidth is-striped">
+                        <thead>
+                        <tr>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Member(s)
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in outstanding_budget_accounts %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ account.assigned_seos.SEO.member }}
+                                    {{ account.assigned_seos.SEO2.member }}
+                                    {{ account.assigned_seos.SEO3.member }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
