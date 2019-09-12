@@ -169,6 +169,20 @@ def prepare_todos(self):
             link = '/user_management/members/' + str(member.id) + '/input_hours'
             Todo.objects.create(member=member, description=description, link=link, type=5)
 
+        # ACCOUNT STATUS MISMATCHING SERVICE STATUSES
+        # repetitive calculations across different members, but not a big performance concern
+        for account in member_accounts:
+            sp = account.sales_profile
+            if account.is_active and sp.ppc_status != 1 and sp.seo_status != 1 and sp.cro_status != 1:
+                description = 'Warning! ' + account.client_name + ' is active, but none of its services are active.'
+                link = '/clients/accounts/' + str(account.id)
+                Todo.objects.create(member=member, description=description, link=link, type=2)
+            elif account.is_onboarding and sp.ppc_status != 0 and sp.seo_status != 0 and sp.cro_status != 0:
+                description = 'Warning! ' + account.client_name + ' is onboarding, but none of its services ' \
+                                                                  'are onboarding.'
+                link = '/clients/accounts/' + str(account.id)
+                Todo.objects.create(member=member, description=description, link=link, type=2)
+
         print('Successfully created todos for member %s' % str(member))
 
     return 'prepare_todos'
