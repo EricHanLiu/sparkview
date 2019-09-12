@@ -285,7 +285,6 @@ class Member(models.Model):
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage = models.FloatField(default=100)
-    buffer_learning_percentage = models.FloatField(default=0)
     buffer_trainers_percentage = models.FloatField(default=0)
     buffer_sales_percentage = models.FloatField(default=0)
     buffer_other_percentage = models.FloatField(default=0)
@@ -305,10 +304,6 @@ class Member(models.Model):
     @property
     def viewed_summary_today(self):
         return self.last_viewed_summary == datetime.date.today()
-
-    @property
-    def learning_hours(self):
-        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_learning_percentage / 100.0), 2)
 
     @property
     def training_hours(self):
@@ -496,13 +491,13 @@ class Member(models.Model):
     def buffer_percentage(self):
         if self.deactivated:
             return 100.0
-        return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
+        return self.buffer_trainers_percentage + self.buffer_sales_percentage + \
                self.buffer_other_percentage + self.buffer_internal_percentage
 
     def buffer_percentage_old(self):
         if self.deactivated:
             return 100.0
-        return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
+        return self.buffer_trainers_percentage + self.buffer_sales_percentage + \
                self.buffer_other_percentage + self.buffer_internal_percentage + self.buffer_seniority_percentage
 
     @property

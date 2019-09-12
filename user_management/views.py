@@ -75,7 +75,6 @@ def members(request):
     members = Member.objects.only('team',
                                   'role',
                                   'buffer_total_percentage',
-                                  'buffer_learning_percentage',
                                   'buffer_trainers_percentage',
                                   'buffer_sales_percentage',
                                   'buffer_other_percentage',
@@ -392,7 +391,6 @@ def new_member(request):
 
         # Hours
         buffer_total_percentage = request.POST.get('buffer_total_percentage')
-        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
         buffer_other_percentage = request.POST.get('buffer_other_percentage')
@@ -404,7 +402,6 @@ def new_member(request):
         member = Member.objects.create(
             user=user,
             buffer_total_percentage=buffer_total_percentage,
-            buffer_learning_percentage=buffer_learning_percentage,
             buffer_trainers_percentage=buffer_trainers_percentage,
             buffer_sales_percentage=buffer_sales_percentage,
             buffer_other_percentage=buffer_other_percentage,
@@ -463,7 +460,6 @@ def edit_member(request, id):
 
         # Hours
         buffer_total_percentage = request.POST.get('buffer_total_percentage')
-        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
         buffer_other_percentage = request.POST.get('buffer_other_percentage')
@@ -495,7 +491,6 @@ def edit_member(request, id):
 
         # Hours
         member.buffer_total_percentage = buffer_total_percentage
-        member.buffer_learning_percentage = buffer_learning_percentage
         member.buffer_trainers_percentage = buffer_trainers_percentage
         member.buffer_sales_percentage = buffer_sales_percentage
         member.buffer_other_percentage = buffer_other_percentage
