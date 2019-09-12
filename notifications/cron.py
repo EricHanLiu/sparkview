@@ -52,6 +52,16 @@ def prepare_todos(self):
                 link = '/clients/accounts/' + str(promo.account.id)
                 Todo.objects.create(member=member, description=description, link=link, type=1)
 
+        # NEW MEMBER NOTIFICATIONS
+        member_days_elapsed = (today - member.created.date()).days
+        if member_days_elapsed == 30 or member_days_elapsed == 60 or member_days_elapsed == 90:
+            description = member.user.get_full_name() + ' has been a Bloomer for ' + str(
+                member_days_elapsed) + ' days! Please raise their negative seniority buffer.'
+            link = '/user_management/members/' + str(member.id)
+            team_leads = member.team.team_leads
+            for team_lead in team_leads:
+                Todo.objects.create(member=team_lead, description=description, link=link, type=5)
+
         # NOTIFICATIONS
         notifications = Notification.objects.filter(member=member, created__gte=today_start, created__lte=today_end)
 

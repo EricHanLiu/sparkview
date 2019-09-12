@@ -41,7 +41,7 @@ class Team(models.Model):
         return list(Member.objects.filter(team=self))
 
     @property
-    def team_lead(self):
+    def team_leads(self):
         role = Role.objects.get(name='Team Lead')
         return Member.objects.filter(team__in=[self], role=role)
 
