@@ -18,7 +18,6 @@ urlpatterns = [
     url(r'^members/(\d*)/promos$', views.members_single_promos, name='members_single_promos'),
     url(r'^members/(\d*)/kpis$', views.members_single_kpis, name='members_single_kpis'),
     url(r'^members/(\d*)/timesheet$', views.members_single_timesheet, name='members_single_timesheet'),
-    url(r'^members/(\d*)/high_fives$', views.member_high_fives, name='high_fives'),
     url(r'^members/(\d*)/performance$', views.performance, name='performance'),
     url(r'^members/(\d*)/input_hours$', views.input_hours_profile, name='input_hours'),
     url(r'^members/(\d*)/input_mandate$', views.input_mandate_profile, name='input_mandate'),
