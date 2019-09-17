@@ -193,7 +193,7 @@
                 url: '/clients/reports/' + url,
                 data: {
                     'account_id': account_id,
-                    'month': {{ reports.0.month }}
+                    'month': '{{ reports.0.month }}'
                 },
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 type: 'POST',
