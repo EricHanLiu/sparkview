@@ -165,8 +165,8 @@
                 url: '/clients/reports/set_due_date',
                 data: {
                     'account_id': accountID,
-                    'month': {{ reports.0.month }},
-                    'year': {{ reports.0.year }},
+                    'month': '{{ reports.0.month }}',
+                    'year': '{{ reports.0.year }}',
                     'due_date': dueDate
                 },
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
