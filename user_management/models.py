@@ -76,7 +76,7 @@ class IncidentReason(models.Model):
 class Incident(models.Model):
     """
     An incident/oops relating to a specific client
-    """
+    """ 
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other'), (4, 'None')]
     SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
                 (6, 'None')]
@@ -87,7 +87,7 @@ class Incident(models.Model):
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
     timestamp = models.DateTimeField(default=None, null=True, blank=True)
     date = models.DateField(default=None, null=True, blank=True)
-    members = models.ManyToManyField('Member', default=None, related_name='client_oops_members')
+    members = models.ManyToManyField('Member', default=None, related_name='incident_members')
     description = models.CharField(max_length=2000, default='')
     issue = models.ForeignKey(IncidentReason, on_delete=models.DO_NOTHING, default=None, null=True)
     budget_error_amount = models.FloatField(default=0.0)
