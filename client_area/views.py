@@ -328,6 +328,12 @@ def account_new(request):
             lc_event.members.set(account.assigned_members_array)
             lc_event.save()
 
+            # set onboarding hours bank
+            now = datetime.datetime.now()
+            account.onboarding_hours_allocated_this_month_field = account.onboarding_hours_remaining_total()
+            account.onboarding_hours_allocated_updated_timestamp = now
+            account.save()
+
             return redirect('/clients/accounts/all')
         else:
             return HttpResponse('Invalid form entries')
