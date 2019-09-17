@@ -15,9 +15,9 @@
                         <div class="field">
                             <div class="columns">
                                 <div class="column is-6">
-                                    <label class="label" for="reporting-member">Who is reporting?</label>
+                                    <label class="label" for="reporting_member">Who is reporting?</label>
                                     <div class="select is-fullwidth">
-                                        <select name="reporting-member" id="reporting-member-incident" required>
+                                        <select name="reporting_member" id="reporting_member_incident" required>
                                             {% for member in members %}
                                                 <option value="{{ member.id }}"
                                                         {% if request.user.member == member %}selected{% endif %}>
@@ -53,14 +53,14 @@
                                     </div>
                                 </div>
                                 <div class="column is-2">
-                                    <label class="label" for="incident-date">Date of Incident:</label>
-                                    <input type="text" name="incident-date" class="input datepicker-here"
+                                    <label class="label" for="incident_date">Date of Incident:</label>
+                                    <input type="text" name="incident_date" class="input datepicker-here"
                                            data-language="en" placeholder="Enter Date..." required autocomplete="off">
                                 </div>
                                 <div class="column is-6">
                                     <label class="label">Member(s) Responsible:</label>
                                     <div class="select is-fullwidth">
-                                        <select name="member" multiple id="member-incident" required>
+                                        <select name="member" multiple id="member_incident" required>
                                             {% for member in members %}
                                                 <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
                                             {% endfor %}
@@ -72,14 +72,14 @@
                         <div class="field">
                             <div class="columns">
                                 <div class="column is-6">
-                                    <label class="label" for="issue-description">Issue Description:</label>
-                                    <input type="text" name="issue-description"
+                                    <label class="label" for="issue_description">Issue Description:</label>
+                                    <input type="text" name="issue_description"
                                            class="input" required>
                                 </div>
                                 <div class="column is-6">
-                                    <label class="label">Type of Issue:</label>
+                                    <label class="label" for="issue_type">Type of Issue:</label>
                                     <div class="select is-fullwidth">
-                                        <select name="issue-type" id="issue_selector">
+                                        <select name="issue_type" id="issue_selector">
                                             {% for issue_type in issue_types %}
                                                 <option value="{{ issue_type.id }}">{{ issue_type }}</option>
                                             {% endfor %}
@@ -91,8 +91,8 @@
                         <div class="field">
                             <div class="columns">
                                 <div class="column is-6">
-                                    <label class="label" for="budget-error">Budget Error Amount:</label>
-                                    <input type="text" name="budget-error" class="input" disabled id="budget_error">
+                                    <label class="label" for="budget_error">Budget Error Amount:</label>
+                                    <input type="text" name="budget_error" class="input" disabled id="budget_error">
                                 </div>
                                 <div class="column is-6">
                                     <label class="label">Platform:</label>
@@ -111,7 +111,7 @@
                                 <div class="column is-2">
                                     <label class="label">Client Aware:</label>
                                     <div class="select is-fullwidth">
-                                        <select name="client-aware">
+                                        <select name="client_aware">
                                             <option value="0">No</option>
                                             <option value="1">Yes</option>
                                         </select>
@@ -120,7 +120,7 @@
                                 <div class="column is-2">
                                     <label class="label">Client At Risk:</label>
                                     <div class="select is-fullwidth">
-                                        <select name="client-at-risk">
+                                        <select name="client_at_risk">
                                             <option value="0">No</option>
                                             <option value="1">Yes</option>
                                         </select>
@@ -129,7 +129,7 @@
                                 <div class="column is-2">
                                     <label class="label">Addressed With Member(s):</label>
                                     <div class="select is-fullwidth">
-                                        <select name="members-addressed">
+                                        <select name="members_addressed">
                                             <option value="0">No</option>
                                             <option value="1">Yes</option>
                                         </select>
@@ -145,7 +145,7 @@
                             <div class="columns">
                                 <div class="column is-2">
                                     <label class="label">Refund Amount:</label>
-                                    <input type="text" name="refund-amount" class="input">
+                                    <input type="text" name="refund_amount" class="input">
                                 </div>
                             </div>
                         </div>
@@ -166,7 +166,7 @@
 {% block extraJs %}
     <script>
         $(document).ready(() => {
-            $('#member-incident').selectize();
+            $('#member_incident').selectize();
 
             let issueSelector = document.getElementById('issue_selector');
             toggleBudgetError(issueSelector);

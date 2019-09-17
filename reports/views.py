@@ -5,7 +5,7 @@ from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from user_management.models import Member, Team, ClientOops, Role, HighFive, IncidentReason
+from user_management.models import Member, Team, ClientOops, Role, HighFive, IncidentReason, InternalOops
 from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
@@ -918,19 +918,76 @@ def incidents(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    incidents = ClientOops.objects.all()
+    client_oops = ClientOops.objects.all()
+    internal_oops = InternalOops.objects.all()
 
     context = {
-        'incidents': incidents
+        'client_oops': client_oops,
+        'internal_oops': internal_oops
     }
 
     return render(request, 'reports/oops_refactor.html', context)
 
 
 @login_required
-def new_incident(request):
+def new_internal_oops(request):
     """
-    New incident page
+    New internal oops page
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    if request.method == 'GET':
+        members = Member.objects.exclude(deactivated=True).order_by('user__first_name')
+        issue_types = IncidentReason.objects.all()
+
+        context = {
+            'members': members,
+            'issue_types': issue_types
+        }
+
+        return render(request, 'reports/new_internal_oops.html', context)
+    elif request.method == 'POST':
+        reporter_id = request.POST.get('reporting_member')
+        try:
+            reporter = Member.objects.get(id=reporter_id)
+        except Member.DoesNotExist:
+            return HttpResponseNotFound('The reporting member does not exist!')
+        date = request.POST.get('incident_date')
+        try:
+            date = datetime.datetime.strptime(date, '%m/%d/%Y')
+        except ValueError:
+            return HttpResponse('Invalid date format! Please use the datepicker.')
+        members = []
+        for member_id in request.POST.getlist('members'):
+            try:
+                members.append(Member.objects.get(id=member_id))
+            except Member.DoesNotExist:
+                return HttpResponseNotFound('One of the responsible members does not exist!')
+        issue_type = request.POST.get('issue_type')
+        if issue_type is not None:
+            try:
+                issue_type = IncidentReason.objects.get(id=issue_type)
+            except IncidentReason.DoesNotExist:
+                return HttpResponseNotFound('The issue type does not exist!')
+        description = request.POST.get('issue_description')
+
+        internal_oops = InternalOops()
+        internal_oops.reporter = reporter
+        internal_oops.date = date
+        internal_oops.save()
+        internal_oops.members.set(members)
+        internal_oops.issue = issue_type
+        internal_oops.description = description
+        internal_oops.save()
+
+        return redirect('/reports/oops')
+
+
+@login_required
+def new_client_oops(request):
+    """
+    New client page
     """
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
@@ -950,12 +1007,12 @@ def new_incident(request):
             'issue_types': issue_types
         }
 
-        return render(request, 'reports/new_oops_refactor.html', context)
+        return render(request, 'reports/new_client_oops.html', context)
     elif request.method == 'POST':
         r = request.POST
         # get form data
         try:
-            reporter_id = int(r.get('reporting-member'))
+            reporter_id = int(r.get('reporting_member'))
         except ValueError:
             reporter_id = 0
         try:
@@ -966,14 +1023,14 @@ def new_incident(request):
             account = int(r.get('account'))
         except ValueError:
             account = 0
-        date = r.get('incident-date')
-        description = r.get('issue-description')
+        date = r.get('incident_date')
+        description = r.get('issue_description')
         try:
-            issue_type = int(r.get('issue-type'))
+            issue_type = int(r.get('issue_type'))
         except (ValueError, TypeError):
             issue_type = None
         try:
-            budget_error_amt = float(r.get('budget-error'))
+            budget_error_amt = float(r.get('budget_error'))
         except ValueError:
             budget_error_amt = 0.0
         try:
@@ -981,9 +1038,9 @@ def new_incident(request):
         except ValueError:
             platform = 3  # set to other by default
 
-        client_aware = r.get('client-aware') == '1'
-        client_at_risk = r.get('client-at-risk') == '1'
-        members_addressed = r.get('members-addressed') == '1'
+        client_aware = r.get('client_aware') == '1'
+        client_at_risk = r.get('client_at_risk') == '1'
+        members_addressed = r.get('members_addressed') == '1'
         justification = r.get('justification')
 
         # create incident
@@ -1021,7 +1078,7 @@ def new_incident(request):
         incident.justification = justification
 
         try:
-            refund_amount = float(r.get('refund-amount'))
+            refund_amount = float(r.get('refund_amount'))
             incident.refund_amount = refund_amount
         except ValueError:
             pass

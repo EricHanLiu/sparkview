@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <h4 class="title is-4">
+                        New Oops
+                    </h4>
+                    <hr>
+                    <form method="POST">{% csrf_token %}
+                        <div class="field">
+                            <div class="columns is-multiline">
+                                <div class="column is-4">
+                                    <label class="label">Who is reporting?</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="reporting_member" required>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}"
+                                                        {% if request.user.member == member %}selected{% endif %}>
+                                                    {{ member.user.get_full_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-2">
+                                    <label class="label">Date of Incident:</label>
+                                    <input type="text" name="incident_date" class="input datepicker-here"
+                                           data-language="en" placeholder="Enter Date..." required autocomplete="off">
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label">Member(s) Responsible:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="members" multiple id="members_incident" required>
+                                            {% for member in members %}
+                                                <option value="{{ member.id }}">{{ member.user.get_full_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label">Type of Issue:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="issue_type" id="issue_selector">
+                                            {% for issue_type in issue_types %}
+                                                <option value="{{ issue_type.id }}">{{ issue_type }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-6">
+                                    <label class="label">Issue Description:</label>
+                                    <input type="text" name="issue_description"
+                                           class="input" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <button type="submit" class="button is-info">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $(document).ready(() => {
+            $('#members_incident').selectize();
+        });
+    </script>
+{% endblock %}
