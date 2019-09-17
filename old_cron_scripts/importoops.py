@@ -5,7 +5,7 @@ from datetime import datetime
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 django.setup()
 from budget.models import Client
-from user_management.models import Member, Incident, IncidentReason
+from user_management.models import Member, ClientOops, IncidentReason
 
 
 file = open('oopsreports.csv', 'r')
@@ -18,7 +18,7 @@ for row in reader:
         continue
 
     # Add incident
-    incident = Incident()
+    incident = ClientOops()
 
     email = row[1]
     try:
