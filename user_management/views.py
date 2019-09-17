@@ -7,7 +7,7 @@ from django.db.models import Sum, Q
 import datetime
 import calendar
 
-from .models import Member, ClientOops, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
+from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPeriod, Backup, TrainingHoursRecord, \
     HighFive, TrainingGroup, SkillHistory, SkillCategory, Badge
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
@@ -982,7 +982,7 @@ def performance(request, member_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     member = get_object_or_404(Member, id=member_id)
-    oops_reported = ClientOops.objects.filter(reporter=member)
+    oops_reported = Incident.objects.filter(reporter=member)
     high_fives = HighFive.objects.filter(member=member_id)
 
     tag_colors = SkillEntry.TAG_COLORS

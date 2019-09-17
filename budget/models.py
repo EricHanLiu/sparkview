@@ -8,7 +8,7 @@ from django.utils import timezone
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
-from user_management.models import Member, Team, Backup, BackupPeriod, ClientOops
+from user_management.models import Member, Team, Backup, BackupPeriod, Incident
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
     OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord, Tag
@@ -1669,7 +1669,7 @@ class Client(models.Model):
     @property
     def client_oops(self):
         if not hasattr(self, '_client_oops'):
-            self._client_oops = ClientOops.objects.filter(account=self)
+            self._client_oops = Incident.objects.filter(account=self)
         return self._client_oops
 
     def additional_fees_month(self, month, year):

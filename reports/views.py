@@ -5,7 +5,7 @@ from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from user_management.models import Member, Team, ClientOops, Role, HighFive, IncidentReason, InternalOops
+from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason, InternalOops
 from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
@@ -29,7 +29,7 @@ def agency_overview(request):
     total_inactive = Client.objects.filter(status=2).count()
     total_lost = Client.objects.filter(status=3).count()
 
-    incident_count = ClientOops.objects.all().count()
+    incident_count = Incident.objects.all().count()
 
     # Members
     members = Member.objects.all().order_by('user__first_name')
@@ -918,7 +918,7 @@ def incidents(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    client_oops = ClientOops.objects.all()
+    client_oops = Incident.objects.all()
     internal_oops = InternalOops.objects.all()
 
     context = {
@@ -995,8 +995,8 @@ def new_client_oops(request):
     if request.method == 'GET':
         accounts = Client.objects.all().order_by('client_name')
         members = Member.objects.exclude(deactivated=True).order_by('user__first_name')
-        platforms = ClientOops.PLATFORMS
-        services = ClientOops.SERVICES
+        platforms = Incident.PLATFORMS
+        services = Incident.SERVICES
         issue_types = IncidentReason.objects.all()
 
         context = {
@@ -1044,7 +1044,7 @@ def new_client_oops(request):
         justification = r.get('justification')
 
         # create incident
-        incident = ClientOops()
+        incident = Incident()
         incident.timestamp = datetime.datetime.now()
         incident.reporter = Member.objects.get(id=reporter_id)
         incident.service = service

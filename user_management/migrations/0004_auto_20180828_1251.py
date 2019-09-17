@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('description', models.CharField(max_length=355)),
                 ('date', models.DateTimeField()),
-                ('members', models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='user_management.ClientOops')),
+                ('members', models.ForeignKey(default=None, on_delete=django.db.models.deletion.CASCADE, to='budget.Incident')),
             ],
         ),
         migrations.CreateModel(

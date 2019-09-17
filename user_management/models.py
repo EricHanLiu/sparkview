@@ -73,7 +73,7 @@ class IncidentReason(models.Model):
         return self.name
 
 
-class ClientOops(models.Model):
+class Incident(models.Model):
     """
     An incident/oops relating to a specific client
     """
@@ -332,10 +332,10 @@ class Member(models.Model):
         return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_internal_percentage / 100.0), 2)
 
     def count_incidents(self):
-        return ClientOops.objects.filter(members=self).count()
+        return Incident.objects.filter(members=self).count()
 
     def get_most_recent_incident(self):
-        return ClientOops.objects.filter(members=self).latest('date')
+        return Incident.objects.filter(members=self).latest('date')
 
     def get_skills(self):
         return SkillEntry.objects.filter(member=self).order_by('skill')
