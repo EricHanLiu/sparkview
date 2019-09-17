@@ -79,7 +79,7 @@
                                 <div class="column is-6">
                                     <label class="label">Type of Issue:</label>
                                     <div class="select is-fullwidth">
-                                        <select name="issue-type" id="issue-selector">
+                                        <select name="issue-type" id="issue_selector">
                                             {% for issue_type in issue_types %}
                                                 <option value="{{ issue_type.id }}">{{ issue_type }}</option>
                                             {% endfor %}
@@ -92,7 +92,7 @@
                             <div class="columns">
                                 <div class="column is-6">
                                     <label class="label" for="budget-error">Budget Error Amount:</label>
-                                    <input type="text" name="budget-error" class="input">
+                                    <input type="text" name="budget-error" class="input" disabled id="budget_error">
                                 </div>
                                 <div class="column is-6">
                                     <label class="label">Platform:</label>
@@ -167,6 +167,26 @@
     <script>
         $(document).ready(() => {
             $('#member-incident').selectize();
+
+            let issueSelector = document.getElementById('issue_selector');
+            toggleBudgetError(issueSelector);
         });
+
+        let $budgetError = $('#budget_error');
+        let $issueSelector = $('#issue_selector');
+        $issueSelector.change(function () {
+            toggleBudgetError(this);
+        });
+
+        function toggleBudgetError(selectElement) {
+            let text = selectElement.options[selectElement.selectedIndex].text;
+            if (text.toUpperCase() === 'BUDGET ERROR') {
+                $budgetError.prop('required', true);
+                $budgetError.prop('disabled', false);
+            } else {
+                $budgetError.prop('required', false);
+                $budgetError.prop('disabled', true);
+            }
+        }
     </script>
 {% endblock %}
