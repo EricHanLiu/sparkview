@@ -97,6 +97,7 @@ class Incident(models.Model):
     client_at_risk = models.BooleanField(default=False)
     addressed_with_member = models.BooleanField(default=False)
     justification = models.CharField(max_length=2000, default='')
+    approved = models.BooleanField(default=False)
 
     @property
     def platform_name(self):
@@ -125,6 +126,7 @@ class InternalOops(models.Model):
     reporter = models.ForeignKey('Member', on_delete=models.SET_NULL, default=None, null=True,
                                  related_name='internal_oops_reporter')
     description = models.CharField(max_length=2000, default='')
+    approved = models.BooleanField(default=False)
 
     @property
     def members_string(self):
