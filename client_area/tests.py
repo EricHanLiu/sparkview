@@ -177,3 +177,14 @@ class ClientTestCase(TestCase):
         self.assertIn(test_tag1, test_account.tags.all())
         self.assertNotIn(test_tag2, test_account.tags.all())
 
+    def test_assign_flagged_account_member(self):
+        user = User.objects.get(username='test3')
+        member = user.member
+        account = Client.objects.get(client_name='ctest')
+
+        self.client.login(username='test3', password='123456')
+        response = self.client.post('/clients/accounts/flag/member', {
+            'account': str(account.id),
+            'member': str(member.id)
+        })
+        self.assertEqual(response.status_code, 302)
