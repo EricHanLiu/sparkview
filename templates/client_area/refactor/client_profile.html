@@ -228,7 +228,11 @@
                                     </td>
                                 </tr>
                             </table>
-                            <div class="tags" style="margin-top: 1em;">
+                            <div class="tags">
+                                <div class="tag is-danger" id="client_oops_button"
+                                     {% if request.user.is_staff %}style="cursor: pointer"{% endif %}>
+                                    {{ account.client_oops.count }} Oops
+                                </div>
                                 {% for tag in account.tags.all %}
                                     <div class="tag">{{ tag }}</div>
                                 {% endfor %}
@@ -2607,6 +2611,62 @@
                     </form>
                 </div>
             </div>
+            {% if request.user.is_staff and account.client_oops.count > 0 %}
+                <div class="modal modal-fx-fadeInScale" id="client_oops_modal">
+                    <div class="modal-background"></div>
+                    <div class="modal-content">
+                        <div class="box">
+                            <div class="level">
+                                <div class="level-left">
+                                    <h5 class="title is-5">
+                                        Oops Reports For {{ account.client_name }}
+                                    </h5>
+                                </div>
+                                <div class="level-right">
+                                    <a href="/reports/oops" target="_blank">View More</a>
+                                </div>
+                            </div>
+                            <hr>
+                            <table class="table is-hoverable is-striped is-fullwidth">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        Date of Issue
+                                    </th>
+                                    <th>
+                                        Reporter
+                                    </th>
+                                    <th>
+                                        Issue
+                                    </th>
+                                    <th>
+                                        Members
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for oops in account.client_oops %}
+                                    <tr>
+                                        <td>
+                                            {{ oops.date }}
+                                        </td>
+                                        <td>
+                                            {{ oops.reporter }}
+                                        </td>
+                                        <td>
+                                            {{ oops.issue }}
+                                        </td>
+                                        <td>
+                                            {{ oops.members_string }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -3960,5 +4020,11 @@
                 setupViewSelect($accountSelect.val(), $(this).val());
             });
         });
+
+        {% if request.user.is_staff %}
+            $('#client_oops_button').click(() => {
+                $('#client_oops_modal').addClass('is-active');
+            });
+        {% endif %}
     </script>
 {% endblock %}
