@@ -66,8 +66,8 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
         campaign_name = campaign_row['campaign_name']
         campaign_id = campaign_row['campaign_id']
         in_use_ids.append(campaign_id)
-        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account,
-                                                                   campaign_name=campaign_name)
+        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account)
+        campaign.campaign_name = campaign_name
         campaign.campaign_cost = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
@@ -90,8 +90,8 @@ def get_spend_by_facebook_campaign_this_month(self, account_id):
     for campaign_row in report:
         campaign_name = campaign_row['campaign_name']
         campaign_id = campaign_row['campaign_id']
-        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account,
-                                                                   campaign_name=campaign_name)
+        campaign, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id, account=account)
+        campaign.campaign_name = campaign_name
         campaign.spend_until_yesterday = float(campaign_row['spend'])
         campaign.save()
         print('Facebook Campaign: ' + str(campaign) + ' now has a spend this month (until yesterday) of $' + str(
@@ -163,9 +163,8 @@ def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
 
     for campaign_row in report:
         campaign_id_report = campaign_row['campaign_id']
-        tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
-                                                                  account=fb_account,
-                                                                  campaign_name=campaign_row['campaign_name'])
+        tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report, account=fb_account)
+        tmp_cmp.campaign_name = campaign_row['campaign_name']
         tmp_cmp.save()
         fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
                                                                               start_date=budget.start_date,
@@ -190,9 +189,8 @@ def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
 
     for campaign_row in report:
         campaign_id_report = campaign_row['campaign_id']
-        tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report,
-                                                                  account=fb_account,
-                                                                  campaign_name=campaign_row['campaign_name'])
+        tmp_cmp, created = FacebookCampaign.objects.get_or_create(campaign_id=campaign_id_report, account=fb_account)
+        tmp_cmp.campaign_name = campaign_row['campaign_name']
         tmp_cmp.save()
         fcsdr, created = FacebookCampaignSpendDateRange.objects.get_or_create(campaign=tmp_cmp,
                                                                               start_date=budget.start_date,
