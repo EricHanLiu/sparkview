@@ -112,7 +112,7 @@ class BingAccounts(models.Model):
 class BingAnomalies(models.Model):
     account = models.ForeignKey(BingAccounts, models.SET_NULL, default=None, null=True)
     performance_type = models.CharField(max_length=255, default='None')
-    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_id = models.CharField(max_length=255, default='None', unique=True)
     campaign_name = models.CharField(max_length=255, default='None')
     cpc = models.CharField(max_length=255, default=0)
     clicks = models.CharField(max_length=255, default=0)
@@ -125,9 +125,6 @@ class BingAnomalies(models.Model):
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
     metadata = JSONField(default=dict, blank=True)
-
-    class Meta:
-        ordering = ['created_time', 'updated_time']
 
     def __str__(self):
         return self.account.account_name
