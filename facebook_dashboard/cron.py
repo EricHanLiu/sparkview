@@ -198,8 +198,7 @@ def get_spend_by_facebook_campaign_custom(self, budget_id, fb_account_id):
         fcsdr.spend_until_yesterday = float(campaign_row['spend'])
         fcsdr.save()
         print('Facebook Campaign: ' + str(tmp_cmp) + ' now has a spend until yesterday of $' + str(
-            fcsdr.spend) + ' for dates ' + str(
-            fcsdr.start_date) + ' to ' + str(fcsdr.end_date))
+            fcsdr.spend) + ' for dates ' + str(fcsdr.start_date) + ' to ' + str(fcsdr.end_date))
 
     return 'get_spend_by_facebook_campaign_custom'
 
