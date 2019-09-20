@@ -745,6 +745,7 @@ def update_budget_spend_history():
 def set_onboarding_allocated_hours_this_month(self):
     """
     Run on the first of the month - sets the onboarding hours field to the proper amount based on the remaining bank
+    TODO: Eric how does this work for a new account?
     """
     accounts = Client.objects.filter(status=0)
     for account in accounts:

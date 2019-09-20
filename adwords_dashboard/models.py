@@ -320,7 +320,7 @@ class Alert(models.Model):
 
 class Campaign(models.Model):
     account = models.ForeignKey(DependentAccount, models.SET_NULL, null=True)
-    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_id = models.CharField(max_length=255, default='None', unique=True)
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
     spend_until_yesterday = models.FloatField(default=0.0)
@@ -329,9 +329,6 @@ class Campaign(models.Model):
     campaign_status = models.CharField(max_length=255, default='None')
     campaign_serving_status = models.CharField(max_length=255, default='None')
     updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('campaign_id', 'campaign_name')
 
     @property
     def json(self):

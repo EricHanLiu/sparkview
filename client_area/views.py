@@ -17,6 +17,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
 from insights.models import TenInsightsReport
 from .forms import NewClientForm
 from budget.cron import create_default_budget
+from bloom.utils.utils import get_last_month
 from tasks.logger import Logger
 import json
 from django.core.serializers import serialize
@@ -32,7 +33,7 @@ def accounts(request):
     backup_periods = BackupPeriod.objects.filter(start_date__lte=now, end_date__gte=now)
     backup_accounts = Backup.objects.filter(members__in=[member], period__in=backup_periods, approved=True)
 
-    status_badges = ['info', 'primary', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'member': member,
@@ -72,7 +73,7 @@ def accounts_all(request):
 
     accounts = Client.objects.filter(Q(status=1) | Q(status=0)).order_by('client_name')
 
-    status_badges = ['info', 'primary', 'warning', 'danger']
+    status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
         'page_type': 'Active',
@@ -2279,8 +2280,11 @@ def ten_insights_report(request, account_id):
         'year': str(year)
     }
 
+    # Temporary fix for now TODO: Fix this
+    report_month, report_year = get_last_month(now)
+
     try:
-        ten_insights_report_obj = TenInsightsReport.objects.get(account=account, month=month-1, year=year)
+        ten_insights_report_obj = TenInsightsReport.objects.get(account=account, month=report_month, year=report_year)
     except TenInsightsReport.DoesNotExist:
         return HttpResponseNotFound('Could not find any insights for the given time period!')
 
