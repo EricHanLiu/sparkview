@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+{% extends 'main_refactor.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_body %}
+    <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="container is-fluid">
+            <div class="card">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h4 class="title is-4">SEO Forecasting</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <table class="table is-hoverable is-striped is-fullwidth dataTable">
+                        <thead>
+                        <tr>
+                            <th>
+                                Month
+                            </th>
+                            <th>
+                                Hours
+                            </th>
+                            <th>
+                                Billing
+                            </th>
+                            <th>
+                                Compared to target
+                            </th>
+                            <th>
+                                Compared to last year
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for seo_months in seo_months %}
+                            <tr>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                                <td>
+
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
