@@ -82,8 +82,9 @@ def get_spend_by_campaign_this_month(self, account_id):
         print(campaign_row)
         campaign_id = campaign_row['campaign_id']
         in_use_ids.append(campaign_row['campaign_id'])
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account,
-                                                           campaign_name=campaign_row['campaign'])
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account)
+        # Update campaign name
+        campaign.campaign_name = campaign_row['campaign']
         # This is the cost for this month
         cost = int(campaign_row['cost']) / 1000000
         campaign.campaign_cost = cost
@@ -124,8 +125,8 @@ def get_spend_by_campaign_this_month(self, account_id):
         report_downloader.DownloadReportAsString(campaign_report_query))
     for campaign_row in campaign_yest_report:
         campaign_id = campaign_row['campaign_id']
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account,
-                                                           campaign_name=campaign_row['campaign'])
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account)
+        campaign.campaign_name = campaign_row['campaign']
         # This is the cost for this month until yesterday
         spend_until_yesterday = int(campaign_row['cost']) / 1000000
         campaign.spend_until_yesterday = spend_until_yesterday
@@ -211,8 +212,9 @@ def get_spend_by_campaign_custom(self, budget_id, aw_account_id):
     for campaign_row in campaign_report:
         print(campaign_row)
         campaign_id = campaign_row['campaign_id']
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=google_ads_account,
-                                                           campaign_name=campaign_row['campaign'])
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=google_ads_account)
+        campaign.campaign_name = campaign_row['campaign']
+        campaign.save()
         campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                                       start_date=start_date,
                                                                                       end_date=end_date)
@@ -255,10 +257,10 @@ def get_spend_by_campaign_custom(self, budget_id, aw_account_id):
     campaign_report = Reporting.parse_report_csv_new(
         report_downloader.DownloadReportAsString(yest_campaign_report_query))
     for campaign_row in campaign_report:
-        print(campaign_row)
         campaign_id = campaign_row['campaign_id']
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=google_ads_account,
-                                                           campaign_name=campaign_row['campaign'])
+        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=google_ads_account)
+        campaign.campaign_name = campaign_row['campaign']
+        campaign.save()
         campaign_spend_object, created = CampaignSpendDateRange.objects.get_or_create(campaign=campaign,
                                                                                       start_date=start_date,
                                                                                       end_date=end_date)
