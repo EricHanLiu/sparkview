@@ -112,7 +112,7 @@ class BingAccounts(models.Model):
 class BingAnomalies(models.Model):
     account = models.ForeignKey(BingAccounts, models.SET_NULL, default=None, null=True)
     performance_type = models.CharField(max_length=255, default='None')
-    campaign_id = models.CharField(max_length=255, default='None', unique=True)
+    campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     cpc = models.CharField(max_length=255, default=0)
     clicks = models.CharField(max_length=255, default=0)
