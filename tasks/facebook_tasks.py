@@ -351,8 +351,7 @@ def facebook_cron_campaign_stats(self, account_id):
         cmps.append(cmp)
         cmp, created = FacebookCampaign.objects.get_or_create(
             account=account,
-            campaign_id=campaign_id,
-            campaign_name=campaign_name
+            campaign_id=campaign_id
         )
         cmp.campaign_yesterday_cost = campaign_cost
         cmp.save()
@@ -366,8 +365,7 @@ def facebook_cron_campaign_stats(self, account_id):
 
         cmp, created = FacebookCampaign.objects.get_or_create(
             account=account,
-            campaign_id=campaign_id,
-            campaign_name=campaign_name
+            campaign_id=campaign_id
         )
         # cmp.campaign_cost = campaign_cost
         # cmp.save()
