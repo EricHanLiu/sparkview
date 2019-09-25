@@ -11,4 +11,4 @@ django.setup()
 
 accounts = active_bing_accounts()
 for account in accounts:
-    bing_cron_campaign_stats(account.account_id)
+    bing_cron_campaign_stats.delay(account.account_id)

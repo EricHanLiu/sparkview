@@ -11,4 +11,4 @@ django.setup()
 
 accounts = active_facebook_accounts()
 for account in accounts:
-    facebook_cron_campaign_stats(account.account_id)
+    facebook_cron_campaign_stats.delay(account.account_id)
