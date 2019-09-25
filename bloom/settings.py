@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'insights',
     'notifications',
     'social_django',
+    'monitor',
     'corsheaders',
     'django_crontab',
     'django_extensions',
