@@ -112,7 +112,7 @@ class BingAccounts(models.Model):
 class BingAnomalies(models.Model):
     account = models.ForeignKey(BingAccounts, models.SET_NULL, default=None, null=True)
     performance_type = models.CharField(max_length=255, default='None')
-    campaign_id = models.CharField(max_length=255, default='None', unique=True)
+    campaign_id = models.CharField(max_length=255, default='None')
     campaign_name = models.CharField(max_length=255, default='None')
     cpc = models.CharField(max_length=255, default=0)
     clicks = models.CharField(max_length=255, default=0)
@@ -146,7 +146,7 @@ class BingAlerts(models.Model):
 
 class BingCampaign(models.Model):
     account = models.ForeignKey(BingAccounts, models.SET_NULL, default=None, null=True)
-    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_id = models.CharField(max_length=255, default='None', unique=True)
     campaign_name = models.CharField(max_length=255, default='None')
     campaign_cost = models.FloatField(default=0)
     spend_until_yesterday = models.FloatField(default=0.0)
@@ -154,9 +154,6 @@ class BingCampaign(models.Model):
     campaign_budget = models.FloatField(default=0)
     groupped = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('campaign_id', 'campaign_name')
 
     def __str__(self):
         return self.campaign_name
