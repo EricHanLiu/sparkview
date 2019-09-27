@@ -32,15 +32,6 @@
             </div>
         </article>
     {% endif %}
-    {% if flagged_accounts_count > 0 %}
-        <article class="message is-danger">
-            <div class="message-body">
-                <strong>Flagged account alert!</strong> You are assigned to {{ flagged_accounts_count }} flagged
-                accounts. They are marked by a <strong>Flagged</strong> tag.
-                <button class="delete" style="float:right;"></button>
-            </div>
-        </article>
-    {% endif %}
     <div class="columns">
         <div class="column is-9">
             {% if master_accounts_dictionary|length > 0 %}
@@ -143,7 +134,7 @@
                                             <div class="columns">
                                                 <div class="column">
                                                     <div class="progress-wrapper">
-                                                        <progress class="progress is-large {% if account.underpacing_average %}is-warning{% elif account.project_average > account.current_budget %}is-danger{% else %}is-success{% endif %}"
+                                                        <progress class="progress is-large {% if account.default_budget.underpacing_average %}is-warning{% elif account.default_budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
                                                                 value="{{ account.default_budget.spend_percentage }}"
                                                                 max="100"></progress>
                                                         <div class="progress-value">
