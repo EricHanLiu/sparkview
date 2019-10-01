@@ -75,7 +75,6 @@ def members(request):
     members = Member.objects.only('team',
                                   'role',
                                   'buffer_total_percentage',
-                                  'buffer_learning_percentage',
                                   'buffer_trainers_percentage',
                                   'buffer_sales_percentage',
                                   'buffer_other_percentage',
@@ -392,7 +391,6 @@ def new_member(request):
 
         # Hours
         buffer_total_percentage = request.POST.get('buffer_total_percentage')
-        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
         buffer_other_percentage = request.POST.get('buffer_other_percentage')
@@ -404,7 +402,6 @@ def new_member(request):
         member = Member.objects.create(
             user=user,
             buffer_total_percentage=buffer_total_percentage,
-            buffer_learning_percentage=buffer_learning_percentage,
             buffer_trainers_percentage=buffer_trainers_percentage,
             buffer_sales_percentage=buffer_sales_percentage,
             buffer_other_percentage=buffer_other_percentage,
@@ -463,7 +460,6 @@ def edit_member(request, id):
 
         # Hours
         buffer_total_percentage = request.POST.get('buffer_total_percentage')
-        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
         buffer_other_percentage = request.POST.get('buffer_other_percentage')
@@ -495,7 +491,6 @@ def edit_member(request, id):
 
         # Hours
         member.buffer_total_percentage = buffer_total_percentage
-        member.buffer_learning_percentage = buffer_learning_percentage
         member.buffer_trainers_percentage = buffer_trainers_percentage
         member.buffer_sales_percentage = buffer_sales_percentage
         member.buffer_other_percentage = buffer_other_percentage
@@ -977,31 +972,6 @@ def members_single_skills(request, id):
 
 
 @login_required
-def member_oops(request, id):
-    """
-    Oops reports that belong to the member
-    :param request:
-    :param id:
-    :return:
-    """
-    request_member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    member = get_object_or_404(Member, id=id)
-    oops = member.incident_members.filter(approved=True)
-    incidents_reported = Incident.objects.filter(reporter=member)
-
-    context = {
-        'member': member,
-        'incidents': oops,
-        'incidents_reported': incidents_reported
-    }
-
-    return render(request, 'user_management/profile/oops.html', context)
-
-
-@login_required
 def performance(request, member_id):
     """
     Oops reports, high fives, and skills page
@@ -1012,7 +982,6 @@ def performance(request, member_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     member = get_object_or_404(Member, id=member_id)
-    oops = member.incident_members.filter(approved=True)
     oops_reported = Incident.objects.filter(reporter=member)
     high_fives = HighFive.objects.filter(member=member_id)
 
@@ -1031,7 +1000,6 @@ def performance(request, member_id):
 
     context = {
         'member': member,
-        'oops': oops,
         'oops_reported': oops_reported,
         'high_fives': high_fives,
         'title': 'Performance',

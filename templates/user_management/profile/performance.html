@@ -24,7 +24,7 @@
                             High Fives
                         </h4>
                         <h4 class="title is-4 performance-title is-hidden oops">
-                            Oops
+                            Oops Reported
                         </h4>
                     </div>
                 </div>
@@ -43,10 +43,10 @@
                                     </a>
                                 </li>
                             {% endif %}
-                            {% if oops.count > 0 or oops_reported.count > 0 %}
+                            {% if oops_reported.count > 0 %}
                                 <li>
                                     <a data-target="oops" class="performance-tab">
-                                        Oops
+                                        Oops Reported
                                     </a>
                                 </li>
                             {% endif %}
@@ -200,105 +200,8 @@
     <div class="performance-section is-hidden oops">
         <div class="card">
             <div class="card-content">
-                {% if oops.count > 0 %}
-                    <h5 class="title is-5">My Oops Received</h5>
-                    <table class="table is-hoverable is-fullwidth">
-                        <thead>
-                        <tr>
-                            <th>
-                                Timestamp
-                            </th>
-                            <th>
-                                Date
-                            </th>
-                            <th>
-                                Reported By
-                            </th>
-                            <th>
-                                Issue Description
-                            </th>
-                            <th>
-                                Type of Issue
-                            </th>
-                            <th>
-                                Budget Error Amount
-                            </th>
-                            <th>
-                                Account
-                            </th>
-                            <th>
-                                Client Aware?
-                            </th>
-                            <th>
-                                Client At Risk?
-                            </th>
-                            <th>
-                                Addressed With You?
-                            </th>
-                            <th>
-                                Platform
-                            </th>
-                            <th>
-                                Justification
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for oops in oops %}
-                            <tr class="table-row">
-                                <td>
-                                    {{ oops.timestamp }}
-                                </td>
-                                <td>
-                                    {{ oops.date }}
-                                </td>
-                                <td>
-                                    <a href="/user_management/members/{{ oops.reporter.id }}">{{ oops.reporter.user.get_full_name }}</a>
-                                </td>
-                                <td>
-                                    <div style="max-height: 70px; overflow: auto;">
-                                        {{ oops.description }}
-                                    </div>
-                                </td>
-                                <td>
-                                    {{ oops.issue_name }}
-                                </td>
-                                <td>
-                                    {% if oops.budget_error_amount == 0 %}
-                                        None
-                                    {% else %}
-                                        {{ oops.budget_error_amount|round_to_two }}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if oops.account is not None %}
-                                        <a href="/clients/accounts/{{ oops.account.id }}">{{ oops.account }}</a>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if oops.client_aware %} Yes {% else %} No {% endif %}
-                                </td>
-                                <td>
-                                    {% if oops.client_at_risk %} Yes {% else %} No {% endif %}
-                                </td>
-                                <td>
-                                    {% if oops.addressed_with_member %} Yes {% else %} No {% endif %}
-                                </td>
-                                <td>
-                                    {{ oops.platform_name }}
-                                </td>
-                                <td>
-                                    <div style="max-height: 70px; overflow: auto;">
-                                        {{ oops.justification }}
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
                 {% if oops_reported.count > 0 %}
-                    <h5 class="title is-5">My Oops Reported</h5>
+                    <h5 class="title is-5">Oops Reported</h5>
                     <table class="table is-hoverable is-fullwidth">
                         <thead>
                         <tr>
@@ -358,7 +261,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    {{ oops.issue_name }}
+                                    {{ oops.issue.name }}
                                 </td>
                                 <td>
                                     {% if oops.budget_error_amount == 0 %}

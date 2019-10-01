@@ -11,12 +11,12 @@
                     <div class="level">
                         <div class="level-left">
                             <div class="level-item">
-                                <h4 class="title is-4">Oops</h4>
+                                <h4 class="title is-4">Client Oops</h4>
                             </div>
                         </div>
                         <div class="level-right">
                             <div class="level-item">
-                                <a href="/reports/oops/new" class="button is-info">New Oops</a>
+                                <a href="/reports/oops/new_client_oops" class="button is-info">New Oops</a>
                             </div>
                         </div>
                     </div>
@@ -67,71 +67,137 @@
                                 <th>
                                     Refund Amount
                                 </th>
-                                <th>
-                                    Approved
-                                </th>
                             </tr>
                             </thead>
                             <tbody>
-                            {% for incident in incidents %}
+                            {% for oops in client_oops %}
                                 <tr>
                                     <td>
-                                        {{ incident.timestamp }}
+                                        {{ oops.timestamp }}
                                     </td>
                                     <td>
-                                        {{ incident.date }}
+                                        {{ oops.date }}
                                     </td>
                                     <td>
-                                        <a href="/user_management/members/{{ incident.reporter.id }}">{{ incident.reporter.user.get_full_name }}</a>
+                                        <a href="/user_management/members/{{ oops.reporter.id }}">{{ oops.reporter.user.get_full_name }}</a>
                                     </td>
                                     <td>
                                         <div style="max-height: 70px; overflow: auto;">
-                                            {{ incident.description }}
+                                            {{ oops.description }}
                                         </div>
                                     </td>
                                     <td>
-                                        {{ incident.issue_name }}
+                                        {{ oops.issue.name }}
                                     </td>
                                     <td>
-                                        {% if incident.budget_error_amount == 0 %}
+                                        {% if oops.budget_error_amount == 0 %}
                                             None
                                         {% else %}
-                                            {{ incident.budget_error_amount|round_to_two }}
+                                            {{ oops.budget_error_amount|round_to_two }}
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% for member in incident.members.all %}
+                                        {% for member in oops.members.all %}
                                             <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
                                             {% if not forloop.last %}, {% endif %}
                                         {% endfor %}
                                     </td>
                                     <td>
-                                        {% if incident.account is not None %}
-                                            <a href="/clients/accounts/{{ incident.account.id }}">{{ incident.account }}</a>
+                                        {% if oops.account is not None %}
+                                            <a href="/clients/accounts/{{ oops.account.id }}">{{ oops.account }}</a>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {% if incident.client_aware %} Yes {% else %} No {% endif %}
+                                        {% if oops.client_aware %} Yes {% else %} No {% endif %}
                                     </td>
                                     <td>
-                                        {% if incident.client_at_risk %} Yes {% else %} No {% endif %}
+                                        {% if oops.client_at_risk %} Yes {% else %} No {% endif %}
                                     </td>
                                     <td>
-                                        {% if incident.addressed_with_member %} Yes {% else %} No {% endif %}
+                                        {% if oops.addressed_with_member %} Yes {% else %} No {% endif %}
                                     </td>
                                     <td>
-                                        {{ incident.platform_name }}
+                                        {{ oops.platform_name }}
                                     </td>
                                     <td>
                                         <div style="max-height: 70px; overflow: auto;">
-                                            {{ incident.justification }}
+                                            {{ oops.justification }}
                                         </div>
                                     </td>
                                     <td>
-                                        {{ incident.refund_amount }}
+                                        {{ oops.refund_amount }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 2em;">
+                <div class="card-content">
+                    <div class="level">
+                        <div class="level-left">
+                            <div class="level-item">
+                                <h4 class="title is-4">Internal Oops</h4>
+                            </div>
+                        </div>
+                        <div class="level-right">
+                            <div class="level-item">
+                                <a href="/reports/oops/new_internal_oops" class="button is-info">New Oops</a>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div style="width: 100%; overflow: auto;">
+                        <table class="table is-hoverable is-striped dataTable is-fullwidth">
+                            <thead>
+                            <tr>
+                                <th>
+                                    Timestamp
+                                </th>
+                                <th>
+                                    Date Of Issue
+                                </th>
+                                <th>
+                                    Reported By
+                                </th>
+                                <th>
+                                    Issue Description
+                                </th>
+                                <th>
+                                    Type of Issue
+                                </th>
+                                <th>
+                                    Member(s) Responsible
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for oops in internal_oops %}
+                                <tr>
+                                    <td>
+                                        {{ oops.timestamp }}
                                     </td>
                                     <td>
-                                        {{ incident.approved }}
+                                        {{ oops.date }}
+                                    </td>
+                                    <td>
+                                        <a href="/user_management/members/{{ oops.reporter.id }}">{{ oops.reporter.user.get_full_name }}</a>
+                                    </td>
+                                    <td>
+                                        <div style="max-height: 70px; overflow: auto;">
+                                            {{ oops.description }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ oops.issue.name }}
+                                    </td>
+                                    <td>
+                                        {% for member in oops.members.all %}
+                                            <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                            {% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
                                     </td>
                                 </tr>
                             {% endfor %}

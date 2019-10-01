@@ -5,7 +5,7 @@ from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason
+from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason, InternalOops
 from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
@@ -78,6 +78,7 @@ def agency_overview(request):
         allocation_ratio = 0.0
 
     context = {
+        'title': 'Agency Overview',
         'total_active_accounts': total_active_accounts.count(),
         'total_active_seo': total_active_seo,
         'total_active_cro': total_active_cro,
@@ -118,6 +119,7 @@ def account_spend_progression(request):
             total_projected_loss += account.projected_loss
 
     context = {
+        'title': 'PPC Account Spend Progression',
         'accounts': accounts,
         'total_projected_loss': total_projected_loss,
         'total_projected_overspend': total_projected_overspend
@@ -166,6 +168,7 @@ def cm_capacity(request):
     report_type = 'CM Member Dashboard'
 
     context = {
+        'title': 'CM Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -216,6 +219,7 @@ def am_capacity(request):
     report_type = 'AM Member Dashboard'
 
     context = {
+        'title': 'AM Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -278,6 +282,7 @@ def seo_capacity(request):
     report_type = 'SEO Member Dashboard'
 
     context = {
+        'title': 'SEO Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -348,6 +353,7 @@ def strat_capacity(request):
     report_type = 'Strat Member Dashboard'
 
     context = {
+        'title': 'Strat Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -376,6 +382,7 @@ def hour_log(request):
     members = Member.objects.all().order_by('user__first_name')
 
     context = {
+        'title': 'Hour Log',
         'members': members
     }
 
@@ -393,6 +400,7 @@ def facebook(request):
     accounts = Client.objects.exclude(facebook=None).filter(status=1)
 
     context = {
+        'title': 'Facebook',
         'accounts': accounts
     }
 
@@ -423,6 +431,7 @@ def promos(request):
                                             end_date__lte=three_days_future)  # really this week as well
 
     context = {
+        'title': 'Promos',
         'promos': promos,
         'promos_start_today': promos_start_today,
         'promos_end_today': promos_end_today
@@ -498,6 +507,7 @@ def actual_hours(request):
         hour_total += hour['sum_hours']
 
     context = {
+        'title': 'Actual Hours',
         'hours': hours,
         'accounts': accounts,
         'members': members,
@@ -579,6 +589,7 @@ def monthly_reporting(request):
         ontime_rate = 100.0 * ontime_numer / ontime_denom
 
     context = {
+        'title': 'Monthly Reporting',
         'reports': reports,
         'accounts': accounts,
         'ontime_pct': ontime_rate,
@@ -624,6 +635,7 @@ def account_capacity(request):
     report_type = 'Account Capacity Report'
 
     context = {
+        'title': 'Account Capacity',
         'accounts': accounts,
         'actual_aggregate': actual_aggregate,
         # 'capacity_rate' : capacity_rate,
@@ -661,6 +673,7 @@ def flagged_accounts(request):
     members = Member.objects.all().order_by('user__first_name')
 
     context = {
+        'title': 'Flagged Accounts',
         'accounts': accounts,
         'members': members
     }
@@ -707,6 +720,7 @@ def performance_anomalies(request):
                 bad_accounts.append(account)
 
     context = {
+        'title': 'Performance Anomalies',
         'excellent_accounts': excellent_accounts,
         'good_accounts': good_accounts,
         'fair_accounts': fair_accounts,
@@ -790,6 +804,7 @@ def account_history(request):
         accounts_array.append(tmpa)
 
     context = {
+        'title': 'Account History',
         'months': months,
         'years': years,
         'all_accounts': all_accounts,
@@ -811,6 +826,7 @@ def tier_overview(request):
     changed_proposals = TierChangeProposal.objects.exclude(changed_by=None)
 
     context = {
+        'title': 'Tier Overview',
         'proposals': proposals,
         'changed_proposals': changed_proposals
     }
@@ -855,6 +871,7 @@ def outstanding_notifications(request):
     outstanding = Notification.objects.filter(confirmed=False).order_by('created')
 
     context = {
+        'title': 'Outstanding Notifications',
         'rnotifications': outstanding
     }
 
@@ -872,6 +889,7 @@ def high_fives(request):
     high_fives = HighFive.objects.all()
 
     context = {
+        'title': 'High Fives',
         'high_fives': high_fives
     }
 
@@ -890,6 +908,7 @@ def new_high_five(request):
         members = Member.objects.all().order_by('user__first_name')
 
         context = {
+            'title': 'New High Five',
             'members': members
         }
 
@@ -935,19 +954,78 @@ def incidents(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    incidents = Incident.objects.all()
+    client_oops = Incident.objects.all()
+    internal_oops = InternalOops.objects.all()
 
     context = {
-        'incidents': incidents
+        'title': 'Oops',
+        'client_oops': client_oops,
+        'internal_oops': internal_oops
     }
 
     return render(request, 'reports/oops_refactor.html', context)
 
 
 @login_required
-def new_incident(request):
+def new_internal_oops(request):
     """
-    New incident page
+    New internal oops page
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    if request.method == 'GET':
+        members = Member.objects.exclude(deactivated=True).order_by('user__first_name')
+        issue_types = IncidentReason.objects.all()
+
+        context = {
+            'title': 'New Internal Oops',
+            'members': members,
+            'issue_types': issue_types
+        }
+
+        return render(request, 'reports/new_internal_oops.html', context)
+    elif request.method == 'POST':
+        reporter_id = request.POST.get('reporting_member')
+        try:
+            reporter = Member.objects.get(id=reporter_id)
+        except Member.DoesNotExist:
+            return HttpResponseNotFound('The reporting member does not exist!')
+        date = request.POST.get('incident_date')
+        try:
+            date = datetime.datetime.strptime(date, '%m/%d/%Y')
+        except ValueError:
+            return HttpResponse('Invalid date format! Please use the datepicker.')
+        members = []
+        for member_id in request.POST.getlist('members'):
+            try:
+                members.append(Member.objects.get(id=member_id))
+            except Member.DoesNotExist:
+                return HttpResponseNotFound('One of the responsible members does not exist!')
+        issue_type = request.POST.get('issue_type')
+        if issue_type is not None:
+            try:
+                issue_type = IncidentReason.objects.get(id=issue_type)
+            except IncidentReason.DoesNotExist:
+                return HttpResponseNotFound('The issue type does not exist!')
+        description = request.POST.get('issue_description')
+
+        internal_oops = InternalOops()
+        internal_oops.reporter = reporter
+        internal_oops.date = date
+        internal_oops.save()
+        internal_oops.members.set(members)
+        internal_oops.issue = issue_type
+        internal_oops.description = description
+        internal_oops.save()
+
+        return redirect('/reports/oops')
+
+
+@login_required
+def new_client_oops(request):
+    """
+    New client page
     """
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
@@ -960,6 +1038,7 @@ def new_incident(request):
         issue_types = IncidentReason.objects.all()
 
         context = {
+            'title': 'New Client Oops',
             'accounts': accounts,
             'members': members,
             'platforms': platforms,
@@ -967,12 +1046,12 @@ def new_incident(request):
             'issue_types': issue_types
         }
 
-        return render(request, 'reports/new_oops_refactor.html', context)
+        return render(request, 'reports/new_client_oops.html', context)
     elif request.method == 'POST':
         r = request.POST
         # get form data
         try:
-            reporter_id = int(r.get('reporting-member'))
+            reporter_id = int(r.get('reporting_member'))
         except ValueError:
             reporter_id = 0
         try:
@@ -983,14 +1062,14 @@ def new_incident(request):
             account = int(r.get('account'))
         except ValueError:
             account = 0
-        date = r.get('incident-date')
-        description = r.get('issue-description')
+        date = r.get('incident_date')
+        description = r.get('issue_description')
         try:
-            issue_type = int(r.get('issue-type'))
+            issue_type = int(r.get('issue_type'))
         except (ValueError, TypeError):
             issue_type = None
         try:
-            budget_error_amt = float(r.get('budget-error'))
+            budget_error_amt = float(r.get('budget_error'))
         except ValueError:
             budget_error_amt = 0.0
         try:
@@ -998,9 +1077,9 @@ def new_incident(request):
         except ValueError:
             platform = 3  # set to other by default
 
-        client_aware = r.get('client-aware') == '1'
-        client_at_risk = r.get('client-at-risk') == '1'
-        members_addressed = r.get('members-addressed') == '1'
+        client_aware = r.get('client_aware') == '1'
+        client_at_risk = r.get('client_at_risk') == '1'
+        members_addressed = r.get('members_addressed') == '1'
         justification = r.get('justification')
 
         # create incident
@@ -1038,7 +1117,7 @@ def new_incident(request):
         incident.justification = justification
 
         try:
-            refund_amount = float(r.get('refund-amount'))
+            refund_amount = float(r.get('refund_amount'))
             incident.refund_amount = refund_amount
         except ValueError:
             pass
@@ -1070,6 +1149,7 @@ def onboarding(request):
     onboarding_accounts = Client.objects.filter(status=0).order_by('client_name')
 
     context = {
+        'title': 'Onboarding Accounts',
         'onboarding_accounts': onboarding_accounts
     }
 
@@ -1089,6 +1169,7 @@ def sales(request):
     opportunities = Opportunity.objects.filter(addressed=False)
 
     context = {
+        'title': 'Sales',
         'opportunities': opportunities
     }
 
@@ -1110,6 +1191,7 @@ def jamie(request):
     status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
+        'title': 'Jamie',
         'ams': ams,
         'status_badges': status_badges
     }
@@ -1131,6 +1213,7 @@ def promo_ads(request):
     bad_ad_alerts = BadAdAlert.objects.all()
 
     context = {
+        'title': 'Promo Ads',
         'bad_ad_alerts': bad_ad_alerts
     }
 
@@ -1213,6 +1296,7 @@ def over_under(request):
         # accounts_array.append(tmpa)
 
     context = {
+        'title': 'Over Under Report',
         'months': months,
         'years': years,
         'selected': selected,
@@ -1295,6 +1379,7 @@ def month_over_month(request):
             cur_year -= 1
 
     context = {
+        'title': 'Month Over Month Report',
         'accounts': accounts,
         'account': account,
         'selected': selected,
@@ -1328,6 +1413,7 @@ def tag_report(request):
         accounts = []
 
     context = {
+        'title': 'Tags',
         'tags': tags,
         'tag': tag,
         'accounts': accounts
