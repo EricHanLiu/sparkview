@@ -1209,6 +1209,18 @@
                                 </div>
                             </div>
                             <div class="field has-addons">
+                                <button class="button is-static" type="button">Backup Link(s)</button>
+                                <div class="control is-expanded">
+                                    {% for backup in backups %}
+                                        <button class="button">
+                                            <a href="{{ backup.bc_link }}" style="color: black;" target="_blank">
+                                                {{ backup.period.member }}
+                                            </a>
+                                        </button>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="field has-addons">
                                 <button class="button is-static" type="button">Client Description</button>
                                 <div class="control is-expanded">
                                     <input class="input" type="text" name="description"
