@@ -6,11 +6,11 @@ async-timeout==3.0.0
 attrs==18.1.0
 Babel==2.5.3
 billiard==3.5.0.3
-bingads==12.0.3.1
+bingads==12.13.5
 cached-property==1.4.3
 cachetools==3.1.1
 celery==4.2.1
-certifi==2018.11.29
+certifi==2019.9.11
 chardet==3.0.4
 colorclass==2.2.0
 coverage==4.5.2
@@ -69,7 +69,7 @@ pytz==2017.3
 PyYAML==4.2b4
 pyzmq==17.1.2
 redis==2.10.6
-requests==2.21.0
+requests==2.22.0
 requests-oauthlib==1.0.0
 requests-toolbelt==0.8.0
 rsa==4.0
@@ -83,7 +83,7 @@ tornado==4.5.2
 traitlets==4.3.2
 typing==3.6.2
 uritemplate==3.0.0
-urllib3==1.24.1
+urllib3==1.25.6
 vine==1.1.4
 wcwidth==0.1.7
 Werkzeug==0.12.2
