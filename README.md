@@ -123,3 +123,15 @@
     `h = hashlib.md5(name.encode()).hexdigest()`
     
     For me, this fixed the issue. Now there are only 6 cache files and they haven't grown or added in months.
+    
+    
+#### Script to get all accounts that were lost/inactive/won in a given month
+When Lexi requests a list of all such accounts in a given month, run the following in production (`shell_plus`)
+```python
+import datetime
+month = datetime.datetime(yyyy, mm, dd)
+lexi = Member.objects.get(id=24)
+notifs = Notification.objects.filter(Q(message__contains='won'| Q(message__contains='lost') | Q(message__contains='inactive'), member=lexi, created__gte=month))
+for n in notifs:
+    print(n.message)
+```

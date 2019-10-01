@@ -745,10 +745,12 @@ class Member(models.Model):
         """
         if self.allocated_hours_this_month == 0.0:
             return 0.0
+        hours = self.actual_hours_this_month
         now = datetime.datetime.now()
         value_added_hours = AccountHourRecord.objects.filter(
             member=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
-        hours = self.actual_hours_this_month + value_added_hours
+        if value_added_hours is not None:
+            hours += value_added_hours
         return 100.0 * (hours / self.allocated_hours_this_month)
 
     @property
