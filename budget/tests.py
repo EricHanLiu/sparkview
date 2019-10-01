@@ -718,6 +718,16 @@ class AccountTestCase(TestCase):
         self.assertEqual(account.onboarding_hours_allocated_this_month(member), 3)
         self.assertEqual(account.onboarding_hours_remaining_this_month(member), 1)
 
+        # test with multiple members
+        user2 = User.objects.get(username='test4')
+        member2 = user2.member
+        account.cm2 = member2
+        account.cm2percent = 50
+        self.assertEqual(account.onboarding_hours_worked_total(member), 2)
+        self.assertEqual(account.onboarding_hours_allocated_this_month(member), 3)
+        self.assertEqual(account.onboarding_hours_worked_total(member2), 0)
+        self.assertEqual(account.onboarding_hours_allocated_this_month(member2), 3)
+
     def test_get_requests(self):
         self.client.login(username='test', password='12345')
         test_user = User.objects.get(username='test')
