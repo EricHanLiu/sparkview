@@ -1455,7 +1455,7 @@ def new_budget(request):
     account = get_object_or_404(Client, id=request.POST.get('account_id'))
     member = request.user.member
 
-    if account not in member.accounts and not request.user.is_staff:
+    if account not in member.accounts and account not in member.backup_accounts and not request.user.is_staff:
         return HttpResponseForbidden('You are not allowed to do this')
 
     budget = Budget()

@@ -452,8 +452,7 @@ def bing_cron_campaign_stats(self, account_id):
 
         cmp, created = BingCampaign.objects.get_or_create(
             account=account,
-            campaign_id=campaign_id,
-            campaign_name=campaign_name
+            campaign_id=campaign_id
         )
         cmps.append(cmp)
 
@@ -478,8 +477,7 @@ def bing_cron_campaign_stats(self, account_id):
 
         cmp, created = BingCampaign.objects.get_or_create(
             account=account,
-            campaign_id=campaign_id,
-            campaign_name=campaign_name
+            campaign_id=campaign_id
         )
 
         # cmp.campaign_cost = campaign_cost

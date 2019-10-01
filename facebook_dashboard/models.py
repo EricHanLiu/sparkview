@@ -139,7 +139,7 @@ class FacebookAccount(models.Model):
 
 class FacebookCampaign(models.Model):
     account = models.ForeignKey(FacebookAccount, models.SET_NULL, null=True)
-    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_id = models.CharField(max_length=255, default='None', unique=True)
     campaign_name = models.CharField(max_length=455, default='None')
     campaign_cost = models.FloatField(default=0)
     spend_until_yesterday = models.FloatField(default=0.0)
@@ -147,9 +147,6 @@ class FacebookCampaign(models.Model):
     campaign_budget = models.FloatField(default=0)
     groupped = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ('campaign_id', 'campaign_name')
 
     @property
     def json(self):

@@ -810,8 +810,7 @@ def adwords_cron_campaign_stats(self, customer_id):
     for c in campaigns_yesterday:
         cmp, created = Campaign.objects.get_or_create(
             account=account,
-            campaign_id=c['campaign_id'],
-            campaign_name=c['campaign']
+            campaign_id=c['campaign_id']
         )
         cmp.campaign_yesterday_cost = helper.mcv(c['cost'])
         cmps.append(cmp)
@@ -820,8 +819,7 @@ def adwords_cron_campaign_stats(self, customer_id):
     for campaign in campaign_this_month:
         cmp, created = Campaign.objects.get_or_create(
             account=account,
-            campaign_id=campaign['campaign_id'],
-            campaign_name=campaign['campaign']
+            campaign_id=campaign['campaign_id']
         )
         # cmp.campaign_cost = helper.mcv(campaign['cost'])
         cmp.campaign_name = campaign['campaign']

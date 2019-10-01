@@ -296,6 +296,23 @@ def seo_capacity(request):
 
 
 @login_required
+def seo_forecasting(request):
+    """
+    SEO Forecasting
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    context = {
+        'title': 'SEO Forecasting - SparkView'
+    }
+
+    return render(request, 'reports/seo_forecasting.html', context)
+
+
+@login_required
 def strat_capacity(request):
     """
     Creates report that shows the capacity of the strats on an aggregated and individual basis
