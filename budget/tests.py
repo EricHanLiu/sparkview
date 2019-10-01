@@ -12,6 +12,7 @@ from user_management.models import Member, Team
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
 from budget.cron import create_default_budget, reset_all_flight_date_spend_objects
+from adwords_dashboard.cron import get_spend_by_campaign_custom
 import calendar
 import datetime
 import json
@@ -802,4 +803,14 @@ class AccountTestCase(TestCase):
         Tests the ad network API calls
         :return:
         """
+        t_account = BloomClient.objects.create(name='Test Client 123')
+        t_google_ads_account = DependentAccount.objects.create(dependent_account_id='4820718882',
+                                                               dependent_account_name='Bloom - Corporate')
+        t_account.adwords.add(t_google_ads_account)
+        b_start_date = datetime.datetime(2019, 9, 1)
+        b_end_date = datetime.datetime(2019, 9, 30)
+        t_budget = Budget.objects.create(account=t_account, name='t_budget', has_adwords=True, budget=1000,
+                                         is_monthly=False, start_date=b_start_date, end_date=b_end_date)
+        update_budget_campaigns(t_budget.id)
+
         pass
