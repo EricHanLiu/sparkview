@@ -91,47 +91,50 @@ def get_spend_by_campaign_this_month(self, account_id):
         campaign.save()
         print('Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
 
-    yesterday = datetime.datetime.now() - datetime.timedelta(1)
-    first_day_of_month = datetime.datetime(yesterday.year, yesterday.month, 1)
+    today = datetime.datetime.today()
 
-    campaign_report_selector = {
-        'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
-        'predicates': [
-            {
-                'field': 'Cost',
-                'operator': 'GREATER_THAN',
-                'values': '0'
-            }
-        ]
-    }
+    if today.day != 1:
+        yesterday = datetime.datetime.now() - datetime.timedelta(1)
+        first_day_of_month = datetime.datetime(yesterday.year, yesterday.month, 1)
 
-    campaign_report_query = {
-        'reportName': 'CAMPAIGN_PERFORMANCE_REPORT',
-        'dateRangeType': 'CUSTOM_DATE',
-        'reportType': 'CAMPAIGN_PERFORMANCE_REPORT',
-        'downloadFormat': 'CSV',
-        'selector': campaign_report_selector
-    }
+        campaign_report_selector = {
+            'fields': ['Cost', 'CampaignId', 'CampaignStatus', 'CampaignName', 'Labels', 'Impressions'],
+            'predicates': [
+                {
+                    'field': 'Cost',
+                    'operator': 'GREATER_THAN',
+                    'values': '0'
+                }
+            ]
+        }
 
-    start_date = first_day_of_month
-    end_date = yesterday
+        campaign_report_query = {
+            'reportName': 'CAMPAIGN_PERFORMANCE_REPORT',
+            'dateRangeType': 'CUSTOM_DATE',
+            'reportType': 'CAMPAIGN_PERFORMANCE_REPORT',
+            'downloadFormat': 'CSV',
+            'selector': campaign_report_selector
+        }
 
-    campaign_report_selector['dateRange'] = {
-        'min': start_date.strftime('%Y%m%d'),
-        'max': end_date.strftime('%Y%m%d')
-    }
+        start_date = first_day_of_month
+        end_date = yesterday
 
-    campaign_yest_report = Reporting.parse_report_csv_new(
-        report_downloader.DownloadReportAsString(campaign_report_query))
-    for campaign_row in campaign_yest_report:
-        campaign_id = campaign_row['campaign_id']
-        campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account)
-        campaign.campaign_name = campaign_row['campaign']
-        # This is the cost for this month until yesterday
-        spend_until_yesterday = int(campaign_row['cost']) / 1000000
-        campaign.spend_until_yesterday = spend_until_yesterday
-        campaign.save()
-        print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
+        campaign_report_selector['dateRange'] = {
+            'min': start_date.strftime('%Y%m%d'),
+            'max': end_date.strftime('%Y%m%d')
+        }
+
+        campaign_yest_report = Reporting.parse_report_csv_new(
+            report_downloader.DownloadReportAsString(campaign_report_query))
+        for campaign_row in campaign_yest_report:
+            campaign_id = campaign_row['campaign_id']
+            campaign, created = Campaign.objects.get_or_create(campaign_id=campaign_id, account=account)
+            campaign.campaign_name = campaign_row['campaign']
+            # This is the cost for this month until yesterday
+            spend_until_yesterday = int(campaign_row['cost']) / 1000000
+            campaign.spend_until_yesterday = spend_until_yesterday
+            campaign.save()
+            print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
 
     return 'get_spend_by_campaign_this_month'
 

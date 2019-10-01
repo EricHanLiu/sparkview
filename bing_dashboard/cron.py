@@ -58,23 +58,26 @@ def get_spend_by_bing_campaign_this_month(self, account_id):
         campaign.save()
         print('Bing Campaign: ' + str(campaign) + ' now has a spend this month of $' + str(campaign.campaign_cost))
 
-    this_month_until_yesterday = this_month
-    this_month_until_yesterday['maxDate'] = datetime.date.today() - datetime.timedelta(days=1)
+    today = datetime.datetime.today()
 
-    report = helper.get_campaign_performance(
-        account.account_id,
-        dateRangeType='CUSTOM_DATE',
-        report_name='campaign_stats_tm',
-        extra_fields=fields,
-        **this_month_until_yesterday
-    )
+    if today.day != 1:
+        this_month_until_yesterday = this_month
+        this_month_until_yesterday['maxDate'] = today - datetime.timedelta(days=1)
 
-    for campaign_row in report:
-        campaign_id = campaign_row['campaignid']
-        campaign, created = BingCampaign.objects.get_or_create(account=account, campaign_id=campaign_id)
-        campaign.campaign_name = campaign_row['campaignname']
-        campaign.spend_until_yesterday = float(campaign_row['spend'])
-        campaign.save()
+        report = helper.get_campaign_performance(
+            account.account_id,
+            dateRangeType='CUSTOM_DATE',
+            report_name='campaign_stats_tm',
+            extra_fields=fields,
+            **this_month_until_yesterday
+        )
+
+        for campaign_row in report:
+            campaign_id = campaign_row['campaignid']
+            campaign, created = BingCampaign.objects.get_or_create(account=account, campaign_id=campaign_id)
+            campaign.campaign_name = campaign_row['campaignname']
+            campaign.spend_until_yesterday = float(campaign_row['spend'])
+            campaign.save()
 
 
 @celery_app.task(bind=True)
