@@ -87,7 +87,10 @@ class AccountTestCase(TestCase):
         last_day = datetime.date(today.year, today.month, calendar.monthrange(today.year, today.month)[1])
         remaining_days = last_day.day - today.day
 
-        self.assertEqual(account.calculated_daily_recommended, round(500.0 / remaining_days, 2))
+        if remaining_days == 0:
+            self.assertEqual(account.calculated_daily_recommended, 500.0)
+        else:
+            self.assertEqual(account.calculated_daily_recommended, round(500.0 / remaining_days, 2))
 
     def test_management_fee(self):
         """
