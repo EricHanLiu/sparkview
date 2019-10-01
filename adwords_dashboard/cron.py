@@ -134,7 +134,8 @@ def get_spend_by_campaign_this_month(self, account_id):
             spend_until_yesterday = int(campaign_row['cost']) / 1000000
             campaign.spend_until_yesterday = spend_until_yesterday
             campaign.save()
-            print('Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
+            print(
+                'Campaign: ' + str(campaign) + ' has spend until yesterday of $' + str(campaign.spend_until_yesterday))
 
     return 'get_spend_by_campaign_this_month'
 
