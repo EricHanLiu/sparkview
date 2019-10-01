@@ -76,7 +76,7 @@ class IncidentReason(models.Model):
 class Incident(models.Model):
     """
     An incident/oops relating to a specific client
-    """ 
+    """
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other'), (4, 'None')]
     SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
                 (6, 'None')]
@@ -745,7 +745,11 @@ class Member(models.Model):
         """
         if self.allocated_hours_this_month == 0.0:
             return 0.0
-        return 100.0 * (self.actual_hours_this_month / self.allocated_hours_this_month)
+        now = datetime.datetime.now()
+        value_added_hours = AccountHourRecord.objects.filter(
+            member=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+        hours = self.actual_hours_this_month + value_added_hours
+        return 100.0 * (hours / self.allocated_hours_this_month)
 
     @property
     def capacity_rate(self):
