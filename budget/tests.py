@@ -796,3 +796,10 @@ class AccountTestCase(TestCase):
 
         response = self.client.get('/clients/accounts/' + str(account.id))
         self.assertEqual(response.status_code, 200)
+
+    def test_ad_networks(self):
+        """
+        Tests the ad network API calls
+        :return:
+        """
+        pass
