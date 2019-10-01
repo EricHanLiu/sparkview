@@ -78,6 +78,7 @@ def agency_overview(request):
         allocation_ratio = 0.0
 
     context = {
+        'title': 'Agency Overview',
         'total_active_accounts': total_active_accounts.count(),
         'total_active_seo': total_active_seo,
         'total_active_cro': total_active_cro,
@@ -118,6 +119,7 @@ def account_spend_progression(request):
             total_projected_loss += account.projected_loss
 
     context = {
+        'title': 'PPC Account Spend Progression',
         'accounts': accounts,
         'total_projected_loss': total_projected_loss,
         'total_projected_overspend': total_projected_overspend
@@ -166,6 +168,7 @@ def cm_capacity(request):
     report_type = 'CM Member Dashboard'
 
     context = {
+        'title': 'CM Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -216,6 +219,7 @@ def am_capacity(request):
     report_type = 'AM Member Dashboard'
 
     context = {
+        'title': 'AM Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -278,6 +282,7 @@ def seo_capacity(request):
     report_type = 'SEO Member Dashboard'
 
     context = {
+        'title': 'SEO Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -348,6 +353,7 @@ def strat_capacity(request):
     report_type = 'Strat Member Dashboard'
 
     context = {
+        'title': 'Strat Member Dashboard',
         'members': members,
         'actual_aggregate': actual_aggregate,
         'capacity_rate': capacity_rate,
@@ -376,6 +382,7 @@ def hour_log(request):
     members = Member.objects.all().order_by('user__first_name')
 
     context = {
+        'title': 'Hour Log',
         'members': members
     }
 
@@ -393,6 +400,7 @@ def facebook(request):
     accounts = Client.objects.exclude(facebook=None).filter(status=1)
 
     context = {
+        'title': 'Facebook',
         'accounts': accounts
     }
 
@@ -423,6 +431,7 @@ def promos(request):
                                             end_date__lte=three_days_future)  # really this week as well
 
     context = {
+        'title': 'Promos',
         'promos': promos,
         'promos_start_today': promos_start_today,
         'promos_end_today': promos_end_today
@@ -498,6 +507,7 @@ def actual_hours(request):
         hour_total += hour['sum_hours']
 
     context = {
+        'title': 'Actual Hours',
         'hours': hours,
         'accounts': accounts,
         'members': members,
@@ -579,6 +589,7 @@ def monthly_reporting(request):
         ontime_rate = 100.0 * ontime_numer / ontime_denom
 
     context = {
+        'title': 'Monthly Reporting',
         'reports': reports,
         'accounts': accounts,
         'ontime_pct': ontime_rate,
@@ -624,6 +635,7 @@ def account_capacity(request):
     report_type = 'Account Capacity Report'
 
     context = {
+        'title': 'Account Capacity',
         'accounts': accounts,
         'actual_aggregate': actual_aggregate,
         # 'capacity_rate' : capacity_rate,
@@ -661,6 +673,7 @@ def flagged_accounts(request):
     members = Member.objects.all().order_by('user__first_name')
 
     context = {
+        'title': 'Flagged Accounts',
         'accounts': accounts,
         'members': members
     }
@@ -707,6 +720,7 @@ def performance_anomalies(request):
                 bad_accounts.append(account)
 
     context = {
+        'title': 'Performance Anomalies',
         'excellent_accounts': excellent_accounts,
         'good_accounts': good_accounts,
         'fair_accounts': fair_accounts,
@@ -790,6 +804,7 @@ def account_history(request):
         accounts_array.append(tmpa)
 
     context = {
+        'title': 'Account History',
         'months': months,
         'years': years,
         'all_accounts': all_accounts,
@@ -811,6 +826,7 @@ def tier_overview(request):
     changed_proposals = TierChangeProposal.objects.exclude(changed_by=None)
 
     context = {
+        'title': 'Tier Overview',
         'proposals': proposals,
         'changed_proposals': changed_proposals
     }
@@ -855,6 +871,7 @@ def outstanding_notifications(request):
     outstanding = Notification.objects.filter(confirmed=False).order_by('created')
 
     context = {
+        'title': 'Outstanding Notifications',
         'rnotifications': outstanding
     }
 
@@ -872,6 +889,7 @@ def high_fives(request):
     high_fives = HighFive.objects.all()
 
     context = {
+        'title': 'High Fives',
         'high_fives': high_fives
     }
 
@@ -890,6 +908,7 @@ def new_high_five(request):
         members = Member.objects.all().order_by('user__first_name')
 
         context = {
+            'title': 'New High Five',
             'members': members
         }
 
@@ -939,6 +958,7 @@ def incidents(request):
     internal_oops = InternalOops.objects.all()
 
     context = {
+        'title': 'Oops',
         'client_oops': client_oops,
         'internal_oops': internal_oops
     }
@@ -959,6 +979,7 @@ def new_internal_oops(request):
         issue_types = IncidentReason.objects.all()
 
         context = {
+            'title': 'New Internal Oops',
             'members': members,
             'issue_types': issue_types
         }
@@ -1017,6 +1038,7 @@ def new_client_oops(request):
         issue_types = IncidentReason.objects.all()
 
         context = {
+            'title': 'New Client Oops',
             'accounts': accounts,
             'members': members,
             'platforms': platforms,
@@ -1127,6 +1149,7 @@ def onboarding(request):
     onboarding_accounts = Client.objects.filter(status=0).order_by('client_name')
 
     context = {
+        'title': 'Onboarding Accounts',
         'onboarding_accounts': onboarding_accounts
     }
 
@@ -1146,6 +1169,7 @@ def sales(request):
     opportunities = Opportunity.objects.filter(addressed=False)
 
     context = {
+        'title': 'Sales',
         'opportunities': opportunities
     }
 
@@ -1167,6 +1191,7 @@ def jamie(request):
     status_badges = ['info', 'success', 'warning', 'danger']
 
     context = {
+        'title': 'Jamie',
         'ams': ams,
         'status_badges': status_badges
     }
@@ -1188,6 +1213,7 @@ def promo_ads(request):
     bad_ad_alerts = BadAdAlert.objects.all()
 
     context = {
+        'title': 'Promo Ads',
         'bad_ad_alerts': bad_ad_alerts
     }
 
@@ -1270,6 +1296,7 @@ def over_under(request):
         # accounts_array.append(tmpa)
 
     context = {
+        'title': 'Over Under Report',
         'months': months,
         'years': years,
         'selected': selected,
@@ -1352,6 +1379,7 @@ def month_over_month(request):
             cur_year -= 1
 
     context = {
+        'title': 'Month Over Month Report',
         'accounts': accounts,
         'account': account,
         'selected': selected,
@@ -1385,6 +1413,7 @@ def tag_report(request):
         accounts = []
 
     context = {
+        'title': 'Tags',
         'tags': tags,
         'tag': tag,
         'accounts': accounts
