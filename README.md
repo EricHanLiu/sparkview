@@ -56,12 +56,13 @@
  - Bing gives us a file that seems to be used like a private key for auth
  - That file is located at `/bing_dashboards/bing_creds`
  - If that file doesn't exist, you can do `$ cp bing_dashboards/bing_creds_prod bing_dashboards/bing_creds` in production
+
  
- 
-## What to do if Bing auth expires
- - Go to the path `/bing/auth/authenticate` and follow the link
+## How to get Bing credentials
+ - Go to the path `/bing/auth/get_url` and follow the link
  - Login with the dev@makeitbloom.com account
  - This will make/update the file `/bing_dashboards/bing_creds`
+   - If on local, you may have to slightly alter the redirect URL (possibly remove `/dashboards` and possibly switch `localhost` to `127.0.0.1`)
  
  
 ##  When updating cron tasks
