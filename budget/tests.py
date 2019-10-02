@@ -810,12 +810,24 @@ class AccountTestCase(TestCase):
         b_start_date = datetime.datetime(2019, 9, 1)
         b_end_date = datetime.datetime(2019, 9, 30)
         t_budget = Budget.objects.create(account=t_account, name='t_budget', has_adwords=True, budget=1000,
-                                         is_monthly=False, start_date=b_start_date, end_date=b_end_date)
+                                         is_monthly=False, start_date=b_start_date, end_date=b_end_date,
+                                         text_includes='Agency - Digital Marketing', grouping_type=1)
         # This logic is slightly flawed and may need to be fixed in the future
         # If our campaign at issue ever stops serving ads, we may need to add additional methods to test this
         get_spend_by_campaign_this_month(t_google_ads_account.id)
         update_budget_campaigns(t_budget.id)
 
-        Campaign.objects.get(campaign_id='1639653963')
+        # Campaign "Agency - Digital Marketing"
+        # https://ads.google.com/aw/adgroups?campaignId=1639653963&ocid=13008282&euid=9396807&__u=1538024143&uscid=9265047&__c=9119359903&authuser=1
+        t_campaign = Campaign.objects.get(campaign_id='1639653963')
 
-        pass
+        self.assertIn(t_campaign, t_budget.aw_campaigns.all())
+        self.assertIn(t_campaign, t_budget.aw_campaigns_without_excluded)
+
+        get_spend_by_campaign_custom(t_budget.id, t_google_ads_account.id)
+
+        csdr = CampaignSpendDateRange.objects.get(campaign=t_campaign,
+                                                  start_date=t_budget.start_date,
+                                                  end_date=t_budget.end_date)
+        self.assertEqual(csdr.spend, t_budget.calculated_spend)
+        self.assertEqual(t_budget.calculated_spend, 2175.58)
