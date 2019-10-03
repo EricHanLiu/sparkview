@@ -21,7 +21,7 @@
                     <div class="level">
                         <img {% if member.image != None %}src="{{ member.image_url }}"
                              {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}
-                             style="height: 400px; width: 400px; border-radius: 100%;"/>
+                             style="height: 200px; width: 200px; border-radius: 100%;"/>
                     </div>
                     <form id="update_image_form" method="POST" action="/profile/upload_image"
                           enctype="multipart/form-data">
@@ -83,8 +83,8 @@
                     }
                     croppie = $imagePreview.croppie({
                         viewport: {
-                            width: 400,
-                            height: 400,
+                            width: 200,
+                            height: 200,
                             type: 'circle'
                         },
                         boundary: {
