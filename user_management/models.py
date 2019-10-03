@@ -111,8 +111,10 @@ class Incident(models.Model):
         return ', '.join(members_arr)
 
     def __str__(self):
-        return self.members_string + ' client oops on ' + str(
-            self.date) + '. Reported by ' + self.reporter.user.get_full_name()
+        string = self.members_string + ' client oops on ' + str(self.date) + '. '
+        if self.reporter is not None:
+            string += 'Reported by ' + self.reporter.user.get_full_name()
+        return string
 
 
 class InternalOops(models.Model):
@@ -136,8 +138,10 @@ class InternalOops(models.Model):
         return ', '.join(members_arr)
 
     def __str__(self):
-        return self.members_string + ' internal oops on ' + str(
-            self.date) + '. Reported by ' + self.reporter.user.get_full_name()
+        string = self.members_string + ' internal oops on ' + str(self.date) + '. '
+        if self.reporter is not None:
+            string += 'Reported by ' + self.reporter.user.get_full_name()
+        return string
 
 
 class TrainingGroup(models.Model):

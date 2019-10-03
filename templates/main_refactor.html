@@ -264,10 +264,9 @@
 <script>
     $('.delete').click(function () {
         $(this).closest('.message').addClass('is-hidden');
-        $('.modal').removeClass('is-active');
     });
 
-    $('.modal-close, .modal-background').click(() => {
+    $('.modal-close, .modal-background, .close-modal').click(function () {
         $('.modal').removeClass('is-active');
     });
 
