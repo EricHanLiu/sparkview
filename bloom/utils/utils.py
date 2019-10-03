@@ -2,6 +2,7 @@ import unicodedata
 from calendar import monthrange
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+import pytz
 
 
 def remove_accents(input_str):
@@ -51,3 +52,14 @@ def num_business_days(start, end):
         if to_date.weekday() < 5:
             num_days += 1
     return num_days
+
+
+def member_locked_out(member):
+    """
+    Returns true if the given member hasn't inputted hours in over one business day
+    """
+    now = datetime.now(pytz.UTC)
+    num_days = num_business_days(member.last_updated_hours, now)
+    if num_days > 1:
+        return True
+    return False
