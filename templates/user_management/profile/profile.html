@@ -1,6 +1,17 @@
 {% extends 'main_refactor.html' %}
 {% load staticfiles %}
 
+{% block extraCss %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.js"></script>
+
+    <style>
+        img {
+            border-radius: unset;
+        }
+    </style>
+{% endblock %}
+
 {% block main_body %}
     <div class="section has-background-light" style="min-height: 91vh; margin-bottom: 0; padding-bottom: 0;">
         <div class="container">
@@ -9,7 +20,8 @@
                 <div class="column is-narrow">
                     <div class="level">
                         <img {% if member.image != None %}src="{{ member.image_url }}"
-                             {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}/>
+                             {% else %}src="{% static 'assets/app/media/img/user4.jpg' %}"{% endif %}
+                             style="height: 400px; width: 400px; border-radius: 100%;"/>
                     </div>
                     <form id="update_image_form" method="POST" action="/profile/upload_image"
                           enctype="multipart/form-data">
@@ -38,13 +50,80 @@
             </div>
         </div>
     </div>
+
+    <div class="modal modal-fx-fadeInScale" id="image_cropping_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box has-text-centered">
+                <div class="level">
+                    <div class="level-left">
+                        <h4 class="title is-4">Crop Image</h4>
+                    </div>
+                    <div class="level-right">
+                        <button class="button" id="submit_cropped_image_button">Submit</button>
+                    </div>
+                </div>
+                <img id="image_preview" src="#" alt="Profile Image" style="border-radius: unset;"/>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
 {% block extraJs %}
     <script>
-        $('#upload_image').change(() => {
-            $('#update_image_form').submit();
+        let $imagePreview = $('#image_preview');
+        let croppie;
+        $('#upload_image').change(function () {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $imagePreview.attr('src', e.target.result);
+                $imagePreview.on('load', function () {
+                    if (croppie) {
+                        croppie.croppie('destroy');
+                    }
+                    croppie = $imagePreview.croppie({
+                        viewport: {
+                            width: 400,
+                            height: 400,
+                            type: 'circle'
+                        },
+                        boundary: {
+                            width: this.width,
+                            height: this.height
+                        },
+                        showZoomer: true
+                    });
+                });
+            };
+            reader.readAsDataURL(this.files[0]);
+
+            $('#image_cropping_modal').addClass('is-active');
+        });
+
+        $('#submit_cropped_image_button').click(() => {
+            if (croppie) {
+                croppie.croppie('result', 'blob').then(function (blob) {
+                    let formData = new FormData();
+                    formData.append('image', blob);
+
+                    $.ajax({
+                        url: '/profile/upload_image',
+                        type: 'POST',
+                        contentType: false,
+                        processData: false,
+                        data: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        success: () => {
+                            toastr.success('Successfully updated profile photo!');
+                            setTimeout(() => {
+                                location.reload();
+                            }, 500);
+                        }
+                    });
+                });
+            }
         });
     </script>
 {% endblock %}

@@ -46,8 +46,8 @@ def profile(request):
 def upload_image(request):
     member = request.user.member
 
-    if request.method == 'POST' and request.FILES['upload_image']:
-        image = request.FILES['upload_image']
+    if request.method == 'POST' and request.FILES['image']:
+        image = request.FILES['image']
         member.image = image
         member.save()
 
