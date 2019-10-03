@@ -448,10 +448,6 @@
          */
         let $body = $('body');
 
-        $('.modal-close, .modal-background, .close-modal').click(() => {
-            $('.modal').removeClass('is-active');
-        });
-
         $('.onboarding-step-button').click(function () {
             $('#onboarding_step_modal').addClass('is-active');
             $('#step_name').text($(this).data('step-name'));

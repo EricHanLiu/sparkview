@@ -261,13 +261,24 @@
 <!-- NAVBAR END -->
 {% block main_body %}
 {% endblock %}
+<!-- Modal to display if user hasn't entered hours in over 1 business day -->
+{% if request.user.member|member_lockout %}
+    <div class="modal modal-fx-fadeInScale is-active">
+        <div class="modal-background" id="uncloseable"></div>
+        <div class="modal-content">
+            <div class="box">
+                You have not inputted hours in over one business day. You are locked out of SparkView until you input
+                hours below.
+            </div>
+        </div>
+    </div>
+{% endif %}
 <script>
     $('.delete').click(function () {
         $(this).closest('.message').addClass('is-hidden');
-        $('.modal').removeClass('is-active');
     });
 
-    $('.modal-close, .modal-background').click(() => {
+    $('.modal-close, .modal-background:not(#uncloseable), .close-modal').click(function () {
         $('.modal').removeClass('is-active');
     });
 

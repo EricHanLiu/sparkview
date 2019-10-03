@@ -96,5 +96,10 @@ class UtilTestCase(TestCase):
     def test_num_business_days(self):
         start_date_1 = datetime.datetime(2019, 10, 3)
         end_date_1 = datetime.datetime(2019, 10, 9)
-        oracle = num_business_days(start_date_1, end_date_1)
-        self.assertEqual(oracle, 4)
+        num_days = num_business_days(start_date_1, end_date_1)
+        self.assertEqual(num_days, 4)
+
+        start_date_1 = datetime.datetime(2019, 9, 25)
+        end_date_1 = datetime.datetime(2019, 10, 20)
+        num_days = num_business_days(start_date_1, end_date_1)
+        self.assertEqual(num_days, 17)
