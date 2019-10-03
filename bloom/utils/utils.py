@@ -35,3 +35,19 @@ def get_last_month(datetime_obj):
     first_day_of_this_month = datetime_obj.replace(day=1)
     last_day_of_last_month = first_day_of_this_month - timedelta(1)
     return last_day_of_last_month.month, last_day_of_last_month.year
+
+
+def num_business_days(start, end):
+    """
+    Returns the number of business days in between a start and an end date
+    Start date is exclusive, end date is inclusive
+    """
+    if start > end:
+        return 0
+    to_date = start
+    num_days = 0
+    while to_date < end:
+        to_date += timedelta(1)
+        if to_date.weekday() < 5:
+            num_days += 1
+    return num_days

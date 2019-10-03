@@ -6,7 +6,7 @@ from facebook_dashboard.models import FacebookAccount
 from bing_dashboard.models import BingAccounts
 from bloom.utils.ppc_accounts import ppc_active_accounts_for_platform, active_adwords_accounts, active_bing_accounts, \
     active_facebook_accounts
-from bloom.utils.utils import get_last_month
+from bloom.utils.utils import get_last_month, num_business_days
 import datetime
 
 
@@ -92,3 +92,9 @@ class UtilTestCase(TestCase):
         t_last_month, t_last_month_year = get_last_month(date2)
         self.assertEqual(t_last_month, 12)
         self.assertEqual(t_last_month_year, 2009)
+
+    def test_num_business_days(self):
+        start_date_1 = datetime.datetime(2019, 10, 3)
+        end_date_1 = datetime.datetime(2019, 10, 9)
+        oracle = num_business_days(start_date_1, end_date_1)
+        self.assertEqual(oracle, 4)
