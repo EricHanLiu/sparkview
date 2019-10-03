@@ -8,7 +8,7 @@ from django.utils import timezone
 from adwords_dashboard import models as adwords_a
 from bing_dashboard import models as bing_a
 from facebook_dashboard import models as fb
-from user_management.models import Member, Team, Backup, BackupPeriod
+from user_management.models import Member, Team, Backup, BackupPeriod, Incident
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
     OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord, Tag
@@ -887,58 +887,48 @@ class Client(models.Model):
         set at at the start of the month for onboarding accounts)
         :return:
         """
-        if not hasattr(self, '_onboarding_hours_remaining_total'):
-            if self.status != 0:
-                return 0
-            self._onboarding_hours_remaining_total = self.onboarding_hours_allocated_total(
-                member) - self.onboarding_hours_worked_total(member)
-        return self._onboarding_hours_remaining_total
+        if self.status != 0:
+            return 0
+        return self.onboarding_hours_allocated_total(member) - self.onboarding_hours_worked_total(member)
 
     def onboarding_hours_remaining_this_month(self, member=None):
-        if not hasattr(self, '_onboarding_hours_remaining_this_month'):
-            if self.status != 0:
-                return 0
-            self._onboarding_hours_remaining_this_month = self.onboarding_hours_allocated_this_month(
-                member) - self.onboarding_hours_worked_this_month(member)
-        return self._onboarding_hours_remaining_this_month
+        if self.status != 0:
+            return 0
+        return self.onboarding_hours_allocated_this_month(member) - self.onboarding_hours_worked_this_month(member)
 
     def onboarding_hours_worked_total(self, member=None):
         """
         Returns the number of onboarding hours worked on this account. If a member is provided, filters by this member
         """
-        if not hasattr(self, '_onboarding_hours_worked_total'):
-            hours = 0.0
-            account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
-            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
-                                                                    is_onboarding=True)
-            if member is not None:
-                account_hour_records = account_hour_records.filter(member=member)
-                mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
-            for record in account_hour_records:
-                hours += record.hours
-            for record in mandate_hour_records:
-                hours += record.hours
-            self._onboarding_hours_worked_total = hours
-        return self._onboarding_hours_worked_total
+        hours = 0.0
+        account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True)
+        mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
+                                                                is_onboarding=True)
+        if member is not None:
+            account_hour_records = account_hour_records.filter(member=member)
+            mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
+        for record in account_hour_records:
+            hours += record.hours
+        for record in mandate_hour_records:
+            hours += record.hours
+        return hours
 
     def onboarding_hours_worked_this_month(self, member=None):
-        if not hasattr(self, '_onboarding_hours_worked_this_month'):
-            now = datetime.datetime.now()
-            this_month = datetime.datetime(now.year, now.month, 1)
-            hours = 0.0
-            account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True,
-                                                                    created_at__gte=this_month)
-            mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
-                                                                    is_onboarding=True, created__gte=this_month)
-            if member is not None:
-                account_hour_records = account_hour_records.filter(member=member)
-                mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
-            for record in account_hour_records:
-                hours += record.hours
-            for record in mandate_hour_records:
-                hours += record.hours
-            self._onboarding_hours_worked_this_month = hours
-        return self._onboarding_hours_worked_this_month
+        now = datetime.datetime.now()
+        this_month = datetime.datetime(now.year, now.month, 1)
+        hours = 0.0
+        account_hour_records = AccountHourRecord.objects.filter(account=self, is_onboarding=True,
+                                                                created_at__gte=this_month)
+        mandate_hour_records = MandateHourRecord.objects.filter(assignment__mandate__account=self,
+                                                                is_onboarding=True, created__gte=this_month)
+        if member is not None:
+            account_hour_records = account_hour_records.filter(member=member)
+            mandate_hour_records = mandate_hour_records.filter(assignment__member=member)
+        for record in account_hour_records:
+            hours += record.hours
+        for record in mandate_hour_records:
+            hours += record.hours
+        return hours
 
     @property
     def has_backup_members(self):
@@ -1665,6 +1655,12 @@ class Client(models.Model):
             else:
                 self._default_budget = default_budgets[0]
         return self._default_budget
+
+    @property
+    def client_oops(self):
+        if not hasattr(self, '_client_oops'):
+            self._client_oops = Incident.objects.filter(account=self)
+        return self._client_oops
 
     def additional_fees_month(self, month, year):
         """

@@ -13,6 +13,7 @@ from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     Mandate, OnboardingStep
 from notifications.models import Todo
+from bloom.utils.utils import member_locked_out
 
 
 @login_required
@@ -46,8 +47,8 @@ def profile(request):
 def upload_image(request):
     member = request.user.member
 
-    if request.method == 'POST' and request.FILES['upload_image']:
-        image = request.FILES['upload_image']
+    if request.method == 'POST' and request.FILES['image']:
+        image = request.FILES['image']
         member.image = image
         member.save()
 
@@ -75,7 +76,6 @@ def members(request):
     members = Member.objects.only('team',
                                   'role',
                                   'buffer_total_percentage',
-                                  'buffer_learning_percentage',
                                   'buffer_trainers_percentage',
                                   'buffer_sales_percentage',
                                   'buffer_other_percentage',
@@ -392,7 +392,6 @@ def new_member(request):
 
         # Hours
         buffer_total_percentage = request.POST.get('buffer_total_percentage')
-        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
         buffer_other_percentage = request.POST.get('buffer_other_percentage')
@@ -404,7 +403,6 @@ def new_member(request):
         member = Member.objects.create(
             user=user,
             buffer_total_percentage=buffer_total_percentage,
-            buffer_learning_percentage=buffer_learning_percentage,
             buffer_trainers_percentage=buffer_trainers_percentage,
             buffer_sales_percentage=buffer_sales_percentage,
             buffer_other_percentage=buffer_other_percentage,
@@ -463,7 +461,6 @@ def edit_member(request, id):
 
         # Hours
         buffer_total_percentage = request.POST.get('buffer_total_percentage')
-        buffer_learning_percentage = request.POST.get('buffer_learning_percentage')
         buffer_trainers_percentage = request.POST.get('buffer_trainers_percentage')
         buffer_sales_percentage = request.POST.get('buffer_sales_percentage')
         buffer_other_percentage = request.POST.get('buffer_other_percentage')
@@ -495,7 +492,6 @@ def edit_member(request, id):
 
         # Hours
         member.buffer_total_percentage = buffer_total_percentage
-        member.buffer_learning_percentage = buffer_learning_percentage
         member.buffer_trainers_percentage = buffer_trainers_percentage
         member.buffer_sales_percentage = buffer_sales_percentage
         member.buffer_other_percentage = buffer_other_percentage
@@ -574,6 +570,9 @@ def members_single(request, member_id=0):
     request_member = request.user.member
     if not request.user.is_staff and int(member_id) != request_member.id and member_id != 0:
         return HttpResponseForbidden('You do not have permission to view this page')
+
+    if member_locked_out(request_member):
+        return redirect('/user_management/members/' + str(request_member.id) + '/input_hours?lockout=true')
 
     if member_id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)
@@ -977,31 +976,6 @@ def members_single_skills(request, id):
 
 
 @login_required
-def member_oops(request, id):
-    """
-    Oops reports that belong to the member
-    :param request:
-    :param id:
-    :return:
-    """
-    request_member = Member.objects.get(user=request.user)
-    if not request.user.is_staff and int(id) != request_member.id:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    member = get_object_or_404(Member, id=id)
-    oops = member.incident_members.filter(approved=True)
-    incidents_reported = Incident.objects.filter(reporter=member)
-
-    context = {
-        'member': member,
-        'incidents': oops,
-        'incidents_reported': incidents_reported
-    }
-
-    return render(request, 'user_management/profile/oops.html', context)
-
-
-@login_required
 def performance(request, member_id):
     """
     Oops reports, high fives, and skills page
@@ -1012,7 +986,6 @@ def performance(request, member_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     member = get_object_or_404(Member, id=member_id)
-    oops = member.incident_members.filter(approved=True)
     oops_reported = Incident.objects.filter(reporter=member)
     high_fives = HighFive.objects.filter(member=member_id)
 
@@ -1031,7 +1004,6 @@ def performance(request, member_id):
 
     context = {
         'member': member,
-        'oops': oops,
         'oops_reported': oops_reported,
         'high_fives': high_fives,
         'title': 'Performance',

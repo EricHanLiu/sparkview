@@ -228,7 +228,13 @@
                                     </td>
                                 </tr>
                             </table>
-                            <div class="tags" style="margin-top: 1em;">
+                            <div class="tags">
+                                {% if account.client_oops.count > 0 %}
+                                    <div class="tag is-danger" id="client_oops_button"
+                                         {% if request.user.is_staff %}style="cursor: pointer"{% endif %}>
+                                        {{ account.client_oops.count }} Oops
+                                    </div>
+                                {% endif %}
                                 {% for tag in account.tags.all %}
                                     <div class="tag">{{ tag }}</div>
                                 {% endfor %}
@@ -1005,7 +1011,7 @@
                                                    value="{{ account.management_fee_override }}">
                                         </div>
                                         <div class="column">
-                                            <label class="label">Allocated PPC Hours Override</label>
+                                            <label class="label">Sales Approved Change In Hours</label>
                                             <input type="text" name="hours_override" class="input"
                                                    value="{{ account.allocated_ppc_override }}">
                                         </div>
@@ -1202,6 +1208,18 @@
                                 <div class="control is-expanded">
                                     <input class="input" type="text" name="bc_link"
                                            value="{{ account.bc_link }}">
+                                </div>
+                            </div>
+                            <div class="field has-addons">
+                                <button class="button is-static" type="button">Backup Link(s)</button>
+                                <div class="control is-expanded">
+                                    {% for backup in backups %}
+                                        <button class="button">
+                                            <a href="{{ backup.bc_link }}" style="color: black;" target="_blank">
+                                                {{ backup.period.member }}
+                                            </a>
+                                        </button>
+                                    {% endfor %}
                                 </div>
                             </div>
                             <div class="field has-addons">
@@ -2607,6 +2625,62 @@
                     </form>
                 </div>
             </div>
+            {% if request.user.is_staff and account.client_oops.count > 0 %}
+                <div class="modal modal-fx-fadeInScale" id="client_oops_modal">
+                    <div class="modal-background"></div>
+                    <div class="modal-content">
+                        <div class="box">
+                            <div class="level">
+                                <div class="level-left">
+                                    <h5 class="title is-5">
+                                        Oops Reports For {{ account.client_name }}
+                                    </h5>
+                                </div>
+                                <div class="level-right">
+                                    <a href="/reports/oops" target="_blank">View More</a>
+                                </div>
+                            </div>
+                            <hr>
+                            <table class="table is-hoverable is-striped is-fullwidth">
+                                <thead>
+                                <tr>
+                                    <th>
+                                        Date of Issue
+                                    </th>
+                                    <th>
+                                        Reporter
+                                    </th>
+                                    <th>
+                                        Issue
+                                    </th>
+                                    <th>
+                                        Members
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for oops in account.client_oops %}
+                                    <tr>
+                                        <td>
+                                            {{ oops.date }}
+                                        </td>
+                                        <td>
+                                            {{ oops.reporter }}
+                                        </td>
+                                        <td>
+                                            {{ oops.issue }}
+                                        </td>
+                                        <td>
+                                            {{ oops.members_string }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -2619,10 +2693,6 @@
         $('.modal-trigger').click(function () {
             let $modal = $($(this).data('target'));
             $modal.addClass('is-active');
-        });
-
-        $('.modal-close, .modal-background, .close-modal').click(() => {
-            $('.modal').removeClass('is-active');
         });
 
         let $flagAccountButton = $('#flag_account_toggle_button');
@@ -3960,5 +4030,11 @@
                 setupViewSelect($accountSelect.val(), $(this).val());
             });
         });
+
+        {% if request.user.is_staff %}
+            $('#client_oops_button').click(() => {
+                $('#client_oops_modal').addClass('is-active');
+            });
+        {% endif %}
     </script>
 {% endblock %}

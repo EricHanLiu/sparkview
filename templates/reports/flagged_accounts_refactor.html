@@ -111,14 +111,10 @@
 {% block extraJs %}
     <script>
         $(document).ready(function () {
-            let $modal = $('#assign_member_modal');
-            $modal.on('show.bs.modal', function (e) {
-                let acc_id = $(e.relatedTarget).data('account');
-                $('#member_account_id').attr('value', acc_id);
-            });
-
-            $('.assign-member-button').click(() => {
+            $('.assign-member-button').click(function () {
                 $('#assign_member_modal').addClass('is-active');
+                let accountID = $(this).data('account');
+                $('#member_account_id').val(accountID);
             });
         });
     </script>

@@ -41,7 +41,7 @@ class Team(models.Model):
         return list(Member.objects.filter(team=self))
 
     @property
-    def team_lead(self):
+    def team_leads(self):
         role = Role.objects.get(name='Team Lead')
         return Member.objects.filter(team__in=[self], role=role)
 
@@ -75,13 +75,14 @@ class IncidentReason(models.Model):
 
 class Incident(models.Model):
     """
-    Incident
+    An incident/oops relating to a specific client
     """
     PLATFORMS = [(0, 'Adwords'), (1, 'Facebook'), (2, 'Bing'), (3, 'Other'), (4, 'None')]
     SERVICES = [(0, 'Paid Media'), (1, 'SEO'), (2, 'CRO'), (3, 'Client Services'), (4, 'Biz Dev'), (5, 'Internal Oops'),
                 (6, 'None')]
 
-    reporter = models.ForeignKey('Member', on_delete=models.SET_NULL, default=None, null=True, related_name='reporter')
+    reporter = models.ForeignKey('Member', on_delete=models.SET_NULL, default=None, null=True,
+                                 related_name='client_oops_reporter')
     service = models.IntegerField(default=0, choices=SERVICES)
     account = models.ForeignKey('budget.Client', on_delete=models.SET_NULL, null=True, blank=True, default=None)
     timestamp = models.DateTimeField(default=None, null=True, blank=True)
@@ -95,12 +96,8 @@ class Incident(models.Model):
     client_aware = models.BooleanField(default=False)
     client_at_risk = models.BooleanField(default=False)
     addressed_with_member = models.BooleanField(default=False)
-    approved = models.BooleanField(default=False)
     justification = models.CharField(max_length=2000, default='')
-
-    @property
-    def issue_name(self):
-        return str(self.issue)
+    approved = models.BooleanField(default=False)
 
     @property
     def platform_name(self):
@@ -114,18 +111,37 @@ class Incident(models.Model):
         return ', '.join(members_arr)
 
     def __str__(self):
-        return self.members_string + ' incident on ' + str(
-            self.date) + '. Reported by ' + self.reporter.user.get_full_name()
+        string = self.members_string + ' client oops on ' + str(self.date) + '. '
+        if self.reporter is not None:
+            string += 'Reported by ' + self.reporter.user.get_full_name()
+        return string
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.approved:  # create todo when incident gets approved
-            for member in self.members.all():
-                description = 'You have received a new oops, created on ' + str(self.timestamp) + \
-                              '. Head over to the performance tab to view it.'
-                link = '/user_management/members/' + str(member.id) + '/performance'
-                Todo = apps.get_model('notifications', 'Todo')
-                Todo.objects.get_or_create(member=member, description=description, link=link, type=5)
+
+class InternalOops(models.Model):
+    """
+    An incident/oops relating to an internal task
+    """
+    timestamp = models.DateTimeField(default=None, null=True, blank=True)
+    date = models.DateField(default=None, null=True, blank=True)
+    members = models.ManyToManyField('Member', default=None, related_name='internal_oops_members')
+    issue = models.ForeignKey(IncidentReason, on_delete=models.DO_NOTHING, default=None, null=True)
+    reporter = models.ForeignKey('Member', on_delete=models.SET_NULL, default=None, null=True,
+                                 related_name='internal_oops_reporter')
+    description = models.CharField(max_length=2000, default='')
+    approved = models.BooleanField(default=False)
+
+    @property
+    def members_string(self):
+        if self.members.count() == 0:
+            return ''
+        members_arr = [member.user.get_full_name() for member in self.members.all()]
+        return ', '.join(members_arr)
+
+    def __str__(self):
+        string = self.members_string + ' internal oops on ' + str(self.date) + '. '
+        if self.reporter is not None:
+            string += 'Reported by ' + self.reporter.user.get_full_name()
+        return string
 
 
 class TrainingGroup(models.Model):
@@ -285,7 +301,6 @@ class Member(models.Model):
 
     # Buffer Time Allocation (from Member sheet)
     buffer_total_percentage = models.FloatField(default=100)
-    buffer_learning_percentage = models.FloatField(default=0)
     buffer_trainers_percentage = models.FloatField(default=0)
     buffer_sales_percentage = models.FloatField(default=0)
     buffer_other_percentage = models.FloatField(default=0)
@@ -305,10 +320,6 @@ class Member(models.Model):
     @property
     def viewed_summary_today(self):
         return self.last_viewed_summary == datetime.date.today()
-
-    @property
-    def learning_hours(self):
-        return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_learning_percentage / 100.0), 2)
 
     @property
     def training_hours(self):
@@ -496,13 +507,13 @@ class Member(models.Model):
     def buffer_percentage(self):
         if self.deactivated:
             return 100.0
-        return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
+        return self.buffer_trainers_percentage + self.buffer_sales_percentage + \
                self.buffer_other_percentage + self.buffer_internal_percentage
 
     def buffer_percentage_old(self):
         if self.deactivated:
             return 100.0
-        return self.buffer_learning_percentage + self.buffer_trainers_percentage + self.buffer_sales_percentage + \
+        return self.buffer_trainers_percentage + self.buffer_sales_percentage + \
                self.buffer_other_percentage + self.buffer_internal_percentage + self.buffer_seniority_percentage
 
     @property
@@ -738,7 +749,13 @@ class Member(models.Model):
         """
         if self.allocated_hours_this_month == 0.0:
             return 0.0
-        return 100.0 * (self.actual_hours_this_month / self.allocated_hours_this_month)
+        hours = self.actual_hours_this_month
+        now = datetime.datetime.now()
+        value_added_hours = AccountHourRecord.objects.filter(
+            member=self, month=now.month, year=now.year, is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
+        if value_added_hours is not None:
+            hours += value_added_hours
+        return 100.0 * (hours / self.allocated_hours_this_month)
 
     @property
     def capacity_rate(self):

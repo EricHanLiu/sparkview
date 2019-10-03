@@ -17,7 +17,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
 from insights.models import TenInsightsReport
 from .forms import NewClientForm
 from budget.cron import create_default_budget
-from bloom.utils.utils import get_last_month
+from bloom.utils.utils import get_last_month, member_locked_out
 from tasks.logger import Logger
 import json
 from django.core.serializers import serialize
@@ -328,6 +328,12 @@ def account_new(request):
 
             lc_event.members.set(account.assigned_members_array)
             lc_event.save()
+
+            # set onboarding hours bank
+            now = datetime.datetime.now()
+            account.onboarding_hours_allocated_this_month_field = account.onboarding_hours_remaining_total()
+            account.onboarding_hours_allocated_updated_timestamp = now
+            account.save()
 
             return redirect('/clients/accounts/all')
         else:
@@ -662,6 +668,9 @@ def account_single(request, account_id):
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
+        if member_locked_out(request.user.member):
+            return redirect('/user_management/members/' + str(request.user.member.id) + 'input_hours?lockout=true')
+
         account = Client.objects.get(id=account_id)
         members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         changes = AccountChanges.objects.filter(account=account)
