@@ -1,6 +1,14 @@
 {% extends 'user_management/profile/layout_refactor.html' %}
 
 {% block main_content %}
+    {% if request.user.member.is_locked_out %}
+        <div class="notification is-danger">
+            <button class="delete"></button>
+            You have not entered any hours since {{ request.user.member.last_updated_hours }} and are locked out of
+            SparkView.
+            <strong>Please enter some hours to continue</strong>
+        </div>
+    {% endif %}
     <div class="card">
         <div class="card-content">
             <h4 class="title is-4">
