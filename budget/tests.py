@@ -415,7 +415,7 @@ class AccountTestCase(TestCase):
                                    is_monthly=False, start_date=b9_start, end_date=b9_end)
         aw_cmp1_sdr = CampaignSpendDateRange.objects.create(campaign=aw_cmp1, start_date=b9_start, end_date=b9_end,
                                                             spend=11)
-        aw_cmp2_sdr = CampaignSpendDateRange.objects.create(campaign=aw_cmp2, start_date=b9_start, end_date=b9_end,
+        aw_cmp2_sdr = CampaignSpendDateRange.objects.create(camepaign=aw_cmp2, start_date=b9_start, end_date=b9_end,
                                                             spend=21)
         fb_cmp1_sdr = FacebookCampaignSpendDateRange.objects.create(campaign=fb_cmp1, start_date=b9_start,
                                                                     end_date=b9_end,
@@ -826,8 +826,7 @@ class AccountTestCase(TestCase):
 
         get_spend_by_campaign_custom(t_budget.id, t_google_ads_account.id)
 
-        csdr = CampaignSpendDateRange.objects.get(campaign=t_campaign,
-                                                  start_date=t_budget.start_date,
+        csdr = CampaignSpendDateRange.objects.get(campaign=t_campaign, start_date=t_budget.start_date,
                                                   end_date=t_budget.end_date)
         self.assertEqual(csdr.spend, t_budget.calculated_spend)
         self.assertEqual(t_budget.calculated_spend, 2175.58)
