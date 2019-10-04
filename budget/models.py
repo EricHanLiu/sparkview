@@ -986,22 +986,6 @@ class Client(models.Model):
         return ', '.join(services)
 
     @property
-    def has_blacklisted_accounts(self):
-        """
-        Checks if this account is attached to any blacklisted ad network accounts
-        """
-        for aa in self.adwords.all():
-            if aa.blacklisted:
-                return True
-        for ba in self.bing.all():
-            if ba.blacklisted:
-                return True
-        for fa in self.facebook.all():
-            if fa.blacklisted:
-                return True
-        return False
-
-    @property
     def bing_budget_this_month(self):
         if not hasattr(self, '_bing_budget_this_month'):
             budget = 0.0
