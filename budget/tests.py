@@ -357,6 +357,57 @@ class AccountTestCase(TestCase):
         self.assertIn(bing_cmp1, b3.bing_campaigns.all())
         self.assertIn(aw_cmp2, b3.aw_campaigns.all())
 
+        b3.has_adwords = False
+        b3.save()
+
+        update_budget_campaigns(b3.id)
+
+        self.assertNotIn(aw_cmp1, b3.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b3.fb_campaigns.all())
+        self.assertIn(bing_cmp1, b3.bing_campaigns.all())
+        self.assertNotIn(aw_cmp2, b3.aw_campaigns.all())
+
+        b3.has_bing = False
+        b3.save()
+
+        update_budget_campaigns(b3.id)
+
+        self.assertNotIn(aw_cmp1, b3.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b3.fb_campaigns.all())
+        self.assertNotIn(bing_cmp1, b3.bing_campaigns.all())
+        self.assertNotIn(aw_cmp2, b3.aw_campaigns.all())
+
+        b3.has_bing = True
+        b3.save()
+
+        update_budget_campaigns(b3.id)
+
+        self.assertNotIn(aw_cmp1, b3.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b3.fb_campaigns.all())
+        self.assertIn(bing_cmp1, b3.bing_campaigns.all())
+        self.assertNotIn(aw_cmp2, b3.aw_campaigns.all())
+
+        b3.has_bing = False
+        b3.has_adwords = True
+        b3.save()
+
+        update_budget_campaigns(b3.id)
+
+        self.assertIn(aw_cmp1, b3.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b3.fb_campaigns.all())
+        self.assertNotIn(bing_cmp1, b3.bing_campaigns.all())
+        self.assertIn(aw_cmp2, b3.aw_campaigns.all())
+
+        b3.has_bing = True
+        b3.save()
+
+        update_budget_campaigns(b3.id)
+
+        self.assertIn(aw_cmp1, b3.aw_campaigns.all())
+        self.assertNotIn(fb_cmp1, b3.fb_campaigns.all())
+        self.assertIn(bing_cmp1, b3.bing_campaigns.all())
+        self.assertIn(aw_cmp2, b3.aw_campaigns.all())
+
         b4 = Budget.objects.create(account=account, grouping_type=1, text_excludes='test, hello, sup, sam123, foo',
                                    has_adwords=True, has_bing=True, has_facebook=True, is_monthly=True)
         update_budget_campaigns(b4.id)
