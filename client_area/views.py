@@ -668,8 +668,8 @@ def account_single(request, account_id):
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
-        if member_locked_out(request.user.member):
-            return redirect('/user_management/members/' + str(request.user.member.id) + 'input_hours?lockout=true')
+        if request.user.member.is_locked_out:
+            return redirect('/user_management/members/' + str(request.user.member.id) + '/input_hours?lockout=true')
 
         account = Client.objects.get(id=account_id)
         members = Member.objects.filter(deactivated=False).order_by('user__first_name')

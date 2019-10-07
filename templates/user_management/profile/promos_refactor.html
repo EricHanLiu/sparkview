@@ -15,6 +15,9 @@
                     <div class="level-item">
                         <a href="/clients/promos/edit" class="button is-info">Edit Promos</a>
                     </div>
+                    <div class="level-item">
+                        <button id="add_promo_btn" class="button is-success">Add Promo</button>
+                    </div>
                 </div>
             </div>
             <hr>
@@ -42,43 +45,114 @@
                 </tr>
                 </thead>
                 <tbody>
-                    {% for promo in promos %}
-                        <tr>
-                            <td>
-                                <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account }}</a>
-                            </td>
-                            <td>
-                                {{ promo }}
-                            </td>
-                            <td>
-                                {{ promo.desc }}
-                            </td>
-                            <td>
-                                {{ promo.start_date }}
-                            </td>
-                            <td>
-                                {{ promo.end_date }}
-                            </td>
-                            <td>
-                                {% if promo.confirmed_started is None %}
-                                <button class="button j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="0">Confirm Started</button>
-                                {% elif promo.confirmed_ended is None %}
-                                <button class="button j-confirm-promo" data-promo-id="{{ promo.id }}" data-account-id="{{ promo.account.id }}" data-confirmation-type="1">Confirm Ended</button>
-                                {% else %}
+                {% for promo in promos %}
+                    <tr>
+                        <td>
+                            <a href="/clients/accounts/{{ promo.account.id }}">{{ promo.account }}</a>
+                        </td>
+                        <td>
+                            {{ promo }}
+                        </td>
+                        <td>
+                            {{ promo.desc }}
+                        </td>
+                        <td>
+                            {{ promo.start_date }}
+                        </td>
+                        <td>
+                            {{ promo.end_date }}
+                        </td>
+                        <td>
+                            {% if promo.confirmed_started is None %}
+                                <button class="button j-confirm-promo" data-promo-id="{{ promo.id }}"
+                                        data-account-id="{{ promo.account.id }}" data-confirmation-type="0">Confirm
+                                    Started
+                                </button>
+                            {% elif promo.confirmed_ended is None %}
+                                <button class="button j-confirm-promo" data-promo-id="{{ promo.id }}"
+                                        data-account-id="{{ promo.account.id }}" data-confirmation-type="1">Confirm
+                                    Ended
+                                </button>
+                            {% else %}
                                 Promo ended on {{ promo.confirmed_ended }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="add_promo_modal">
+                <div class="modal-background"></div>
+                <div class="modal-content">
+                    <div class="box">
+                        <div class="level">
+                            <div class="level-left">
+                                <h5 class="title is-5">Add Promo</h5>
+                            </div>
+                            <div class="level-right">
+                                <button class="button button-color" id="add_promo_confirm_button">
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                        <form method="POST" action="/clients/accounts/new_promo" id="add_promo_form">
+                            <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                            <div class="columns">
+                                <div class="column is-4">
+                                    <label class="label">Name:</label>
+                                    <input type="text" name="promo-name" class="input" required/>
+                                </div>
+                                <div class="column is-4">
+                                    <label class="label">Start Date:</label>
+                                    <input type="text" name="start-date" class="input datepicker-here"
+                                           data-time-format="hh:ii"
+                                           data-language="en" placeholder="Set start date here" required
+                                           data-timepicker="true">
+                                </div>
+                                <div class="column is-4">
+                                    <label class="label">End Date:</label>
+                                    <input type="text" name="end-date" class="input datepicker-here"
+                                           data-time-format="hh:ii"
+                                           data-language="en" placeholder="Set end date here" required
+                                           data-timepicker="true">
+                                </div>
+                            </div>
+                            <div class="columns">
+                                <div class="column is-8">
+                                    <label class="label">Description:</label>
+                                    <input type="text" maxlength="140" name="promo-desc" class="input" required/>
+                                </div>
+                                <div class="column is-2" style="margin-top: 1em;">
+                                    <label class="checkbox">
+                                        <input type="checkbox" name="has-aw"/>
+                                        AW:
+                                    </label>
+                                    <label class="checkbox">
+                                        <input type="checkbox" name="has-fb"/>
+                                        FB:
+                                    </label>
+                                </div>
+                                <div class="column is-2" style="margin-top: 1em;">
+                                    <label class="checkbox">
+                                        <input type="checkbox" name="has-bing"/>
+                                        Bing:
+                                    </label>
+                                    <label class="checkbox">
+                                        <input type="checkbox" name="has-other"/>
+                                        Other:
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
 {% endblock %}
 
 {% block extraJs %}
     <script>
-
         let csrftoken = '{{ csrf_token }}';
         let $promoCheck = $('.j-confirm-promo');
 
@@ -108,5 +182,14 @@
         });
 
         $('#promos_tab').addClass('is-active');
+
+        $('.modal-close, .modal-background, .close-modal').click(() => {
+            $('.modal').removeClass('is-active');
+        });
+
+        $('#add_promo_btn').click(function () {
+            $('#add_promo_modal').addClass('is-active');
+        });
+
     </script>
 {% endblock %}

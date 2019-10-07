@@ -6,6 +6,8 @@ from django.db.models import Q
 from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
     MandateHourRecord
 from client_area.utils import days_in_month_in_daterange
+from bloom.utils.utils import num_business_days
+from bloom import settings
 import datetime
 import calendar
 import pytz
@@ -309,6 +311,16 @@ class Member(models.Model):
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
     created = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def is_locked_out(self):
+        if settings.DEBUG or self.user.is_superuser:
+            return False
+        now = datetime.datetime.now(pytz.UTC)
+        num_days = num_business_days(self.last_updated_hours, now)
+        if num_days > 1:
+            return True
+        return False
 
     @property
     def image_url(self):

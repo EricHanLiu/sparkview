@@ -19,15 +19,6 @@
 {% block main_body %}
     <div class="section has-background-light" {% if request.user.id == 56 %}style="background:#fbbcf3 !important;"{% endif %}>
         <div class="container is-fluid">
-            {% if account.has_blacklisted_accounts %}
-                <article class="message is-danger">
-                    <div class="message-body">
-                        <strong>Warning!</strong> One or more of the ad accounts associated with this account are
-                        blacklisted. They are not retrieving any new spend information.
-                        <button class="delete" style="float:right;"></button>
-                    </div>
-                </article>
-            {% endif %}
             {% if account.status == 2 %}
                 <article class="message is-warning">
                     <div class="message-body">

@@ -571,7 +571,7 @@ def members_single(request, member_id=0):
     if not request.user.is_staff and int(member_id) != request_member.id and member_id != 0:
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    if member_locked_out(request_member):
+    if request.user.member.is_locked_out:
         return redirect('/user_management/members/' + str(request_member.id) + '/input_hours?lockout=true')
 
     if member_id == 0:  # This is a profile page
