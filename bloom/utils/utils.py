@@ -42,8 +42,9 @@ def num_business_days(start, end):
     """
     Returns the number of business days in between a start and an end date
     Start date is exclusive, end date is inclusive
+    Must be timezone aware datetimes
     """
-    if start > end:
+    if start > end or start is None or end is None:
         return 0
     to_date = start
     num_days = 0

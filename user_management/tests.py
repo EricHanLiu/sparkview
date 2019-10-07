@@ -4,7 +4,10 @@ from user_management.models import Member, MemberHourHistory, Backup, BackupPeri
 from budget.models import Client as BloomClient
 from client_area.models import Promo, MonthlyReport, MandateHourRecord, MandateAssignment, Mandate, MandateType, \
     AccountHourRecord, ManagementFeesStructure, ManagementFeeInterval
-import datetime, calendar
+from bloom.utils.utils import num_business_days
+import datetime
+import calendar
+import pytz
 
 
 class UserTestCase(TestCase):
@@ -469,3 +472,33 @@ class UserTestCase(TestCase):
         self.assertEqual(member.total_hours_minus_buffer, 168)
         self.assertEqual(member.hours_available, 98)
         self.assertEqual(round(member.capacity_rate, 2), 41.67)
+
+    def test_lockout(self):
+        t_super = Member.objects.get(user__username='test3')
+        t_regular = Member.objects.get(user__username='test2')
+        t_account = BloomClient.objects.get(client_name='ctest')
+
+        self.assertEqual(t_super.is_locked_out, False)
+        self.assertEqual(t_regular.is_locked_out, False)
+
+        now = datetime.datetime.now(pytz.UTC)
+        t_ahr = AccountHourRecord.objects.create(account=t_account, member=t_regular, month=now.month, year=now.year)
+        t_ahr2 = AccountHourRecord.objects.create(account=t_account, member=t_super, month=now.month, year=now.year)
+
+        t_super = Member.objects.get(user__username='test3')
+        t_regular = Member.objects.get(user__username='test2')
+
+        self.assertEqual(t_super.is_locked_out, False)
+        self.assertEqual(t_regular.is_locked_out, False)
+
+        t_ahr.created_at = now - datetime.timedelta(100)
+        t_ahr.save()
+
+        t_ahr2.created_at = now - datetime.timedelta(100)
+        t_ahr2.save()
+
+        t_super = Member.objects.get(user__username='test3')
+        t_regular = Member.objects.get(user__username='test2')
+
+        self.assertEqual(t_super.is_locked_out, False)
+        self.assertEqual(t_regular.is_locked_out, True)
