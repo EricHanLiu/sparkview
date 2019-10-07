@@ -163,23 +163,23 @@ class DependentAccount(models.Model):
     def json(self):
         assigneds = {}
         if self.assigned_to:
-            assigneds["assigned_to"] = json.loads(
-                serialize("json", [self.assigned_to])
-            )[0]["fields"]
+            assigneds['assigned_to'] = json.loads(
+                serialize('json', [self.assigned_to])
+            )[0]['fields']
 
         if self.assigned_cm2:
-            assigneds["assigned_cm2"] = json.loads(
-                serialize("json", [self.assigned_cm2])
-            )[0]["fields"]
+            assigneds['assigned_cm2'] = json.loads(
+                serialize('json', [self.assigned_cm2])
+            )[0]['fields']
 
         if self.assigned_cm3:
-            assigneds["assigned_cm3"] = json.loads(
-                serialize("json", [self.assigned_cm3])
-            )[0]["fields"]
+            assigneds['assigned_cm3'] = json.loads(
+                serialize('json', [self.assigned_cm3])
+            )[0]['fields']
 
         return dict(
-            created_time=self.created_time.strftime("%Y%m%d"),
-            updated_time=self.updated_time.strftime("%Y%m%d"),
+            created_time=self.created_time.strftime('%Y%m%d'),
+            updated_time=self.updated_time.strftime('%Y%m%d'),
             customer_id=self.dependent_account_id,
             manager_id=self.manager_account,
             customer_name=self.dependent_account_name,
@@ -257,7 +257,7 @@ class Performance(models.Model):
 
     @property
     def json(self):
-        account = json.loads(serialize("json", [self.account]))[0]["fields"]
+        account = json.loads(serialize('json', [self.account]))[0]['fields']
         return dict(
             account=account,
             performance_type=self.performance_type,
@@ -271,8 +271,8 @@ class Performance(models.Model):
             ctr=self.ctr,
             impressions=self.impressions,
             search_impr_share=self.search_impr_share,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.created_time.strftime("%Y%m%d"),
+            updated_time=self.updated_time.strftime('%Y%m%d'),
+            created_time=self.created_time.strftime('%Y%m%d'),
             metadata=self.metadata
         )
 
@@ -284,13 +284,13 @@ class Alert(models.Model):
     dependent_account_id = models.CharField(max_length=255)
     alert_type = models.CharField(max_length=255)
     alert_reason = models.CharField(max_length=255)
-    ad_group_id = models.CharField(max_length=255, default="None")
-    ad_group_name = models.CharField(max_length=255, default="None")
-    keyWordText = models.TextField(default="None")
-    ad_headline = models.TextField(default="None")
-    campaign_id = models.CharField(max_length=255, default="None")
-    campaign_name = models.CharField(max_length=255, default="None")
-    keyword_match_type = models.CharField(max_length=255, default="None")
+    ad_group_id = models.CharField(max_length=255, default='None')
+    ad_group_name = models.CharField(max_length=255, default='None')
+    keyWordText = models.TextField(default='None')
+    ad_headline = models.TextField(default='None')
+    campaign_id = models.CharField(max_length=255, default='None')
+    campaign_name = models.CharField(max_length=255, default='None')
+    keyword_match_type = models.CharField(max_length=255, default='None')
     updated_time = models.DateTimeField(auto_now=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
@@ -307,8 +307,8 @@ class Alert(models.Model):
             campaign_id=self.campaign_id,
             campaign_name=self.campagin_name,
             keyword_match_type=self.keyword_match_type,
-            updated_time=self.updated_time.strftime("%Y%m%d"),
-            created_time=self.created_time.strftime("%Y%m%d")
+            updated_time=self.updated_time.strftime('%Y%m%d'),
+            created_time=self.created_time.strftime('%Y%m%d')
         )
 
     class Meta:

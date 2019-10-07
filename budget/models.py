@@ -1730,6 +1730,8 @@ class Budget(models.Model):
     is_new = models.BooleanField(default=True)
     is_default = models.BooleanField(default=False)
     needs_renewing = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['name']
