@@ -63,7 +63,7 @@ def create_or_update_ten_insights_report(self, view_id, month, year):
         return
 
     ten_insights_report, created = TenInsightsReport.objects.get_or_create(month=month, year=year, ga_view=ga_view)
-
+    ten_insights_report.account = ten_insights_report.ga_view.account
     analytics = initialize_analyticsreporting()
     ten_insights_report.aov_per_age_bracket_report = aov_per_age_bracket(analytics, view_id)
     ten_insights_report.transaction_total_per_region_report = transaction_total_per_region(analytics, view_id)

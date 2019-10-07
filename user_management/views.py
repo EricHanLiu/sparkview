@@ -13,6 +13,7 @@ from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
     Mandate, OnboardingStep
 from notifications.models import Todo
+from bloom.utils.utils import member_locked_out
 
 
 @login_required
@@ -46,8 +47,8 @@ def profile(request):
 def upload_image(request):
     member = request.user.member
 
-    if request.method == 'POST' and request.FILES['upload_image']:
-        image = request.FILES['upload_image']
+    if request.method == 'POST' and request.FILES['image']:
+        image = request.FILES['image']
         member.image = image
         member.save()
 
@@ -569,6 +570,9 @@ def members_single(request, member_id=0):
     request_member = request.user.member
     if not request.user.is_staff and int(member_id) != request_member.id and member_id != 0:
         return HttpResponseForbidden('You do not have permission to view this page')
+
+    if request.user.member.is_locked_out:
+        return redirect('/user_management/members/' + str(request_member.id) + '/input_hours?lockout=true')
 
     if member_id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)

@@ -19,15 +19,6 @@
 {% block main_body %}
     <div class="section has-background-light" {% if request.user.id == 56 %}style="background:#fbbcf3 !important;"{% endif %}>
         <div class="container is-fluid">
-            {% if account.has_blacklisted_accounts %}
-                <article class="message is-danger">
-                    <div class="message-body">
-                        <strong>Warning!</strong> One or more of the ad accounts associated with this account are
-                        blacklisted. They are not retrieving any new spend information.
-                        <button class="delete" style="float:right;"></button>
-                    </div>
-                </article>
-            {% endif %}
             {% if account.status == 2 %}
                 <article class="message is-warning">
                     <div class="message-body">
@@ -229,10 +220,12 @@
                                 </tr>
                             </table>
                             <div class="tags">
-                                <div class="tag is-danger" id="client_oops_button"
-                                     {% if request.user.is_staff %}style="cursor: pointer"{% endif %}>
-                                    {{ account.client_oops.count }} Oops
-                                </div>
+                                {% if account.client_oops.count > 0 %}
+                                    <div class="tag is-danger" id="client_oops_button"
+                                         {% if request.user.is_staff %}style="cursor: pointer"{% endif %}>
+                                        {{ account.client_oops.count }} Oops
+                                    </div>
+                                {% endif %}
                                 {% for tag in account.tags.all %}
                                     <div class="tag">{{ tag }}</div>
                                 {% endfor %}
@@ -2691,10 +2684,6 @@
         $('.modal-trigger').click(function () {
             let $modal = $($(this).data('target'));
             $modal.addClass('is-active');
-        });
-
-        $('.modal-close, .modal-background, .close-modal').click(() => {
-            $('.modal').removeClass('is-active');
         });
 
         let $flagAccountButton = $('#flag_account_toggle_button');

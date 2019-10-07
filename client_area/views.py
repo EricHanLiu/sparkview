@@ -17,7 +17,7 @@ from .models import Promo, MonthlyReport, ClientType, Industry, Language, Servic
 from insights.models import TenInsightsReport
 from .forms import NewClientForm
 from budget.cron import create_default_budget
-from bloom.utils.utils import get_last_month
+from bloom.utils.utils import get_last_month, member_locked_out
 from tasks.logger import Logger
 import json
 from django.core.serializers import serialize
@@ -668,6 +668,9 @@ def account_single(request, account_id):
     # if not request.user.is_staff and not member.has_account(id) and not member.teams_have_accounts(id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
+        if request.user.member.is_locked_out:
+            return redirect('/user_management/members/' + str(request.user.member.id) + '/input_hours?lockout=true')
+
         account = Client.objects.get(id=account_id)
         members = Member.objects.filter(deactivated=False).order_by('user__first_name')
         changes = AccountChanges.objects.filter(account=account)
