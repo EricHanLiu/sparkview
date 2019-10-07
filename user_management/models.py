@@ -314,7 +314,7 @@ class Member(models.Model):
 
     @property
     def is_locked_out(self):
-        if settings.DEBUG or self.user.is_superuser:
+        if self.user.is_superuser or self.last_updated_hours is None:
             return False
         now = datetime.datetime.now(pytz.UTC)
         num_days = num_business_days(self.last_updated_hours, now)
