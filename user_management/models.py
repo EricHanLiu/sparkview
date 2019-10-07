@@ -318,7 +318,7 @@ class Member(models.Model):
             return False
         now = datetime.datetime.now(pytz.UTC)
         num_days = num_business_days(self.last_updated_hours, now)
-        if num_days > 1:
+        if num_days > 2:
             return True
         return False
 
