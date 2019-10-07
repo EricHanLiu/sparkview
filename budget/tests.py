@@ -466,7 +466,7 @@ class AccountTestCase(TestCase):
                                    is_monthly=False, start_date=b9_start, end_date=b9_end)
         aw_cmp1_sdr = CampaignSpendDateRange.objects.create(campaign=aw_cmp1, start_date=b9_start, end_date=b9_end,
                                                             spend=11)
-        aw_cmp2_sdr = CampaignSpendDateRange.objects.create(camepaign=aw_cmp2, start_date=b9_start, end_date=b9_end,
+        aw_cmp2_sdr = CampaignSpendDateRange.objects.create(campaign=aw_cmp2, start_date=b9_start, end_date=b9_end,
                                                             spend=21)
         fb_cmp1_sdr = FacebookCampaignSpendDateRange.objects.create(campaign=fb_cmp1, start_date=b9_start,
                                                                     end_date=b9_end,
