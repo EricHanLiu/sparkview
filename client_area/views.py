@@ -786,8 +786,9 @@ def account_single(request, account_id):
             hours = 0
 
         is_onboarding = account.status == 0
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                         is_onboarding=is_onboarding)
+        if hours > 0:
+            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                             is_onboarding=is_onboarding)
 
         return HttpResponse()
 
@@ -905,8 +906,9 @@ def account_single_old(request, account_id):
             hours = 0
 
         is_onboarding = account.status == 0
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                         is_onboarding=is_onboarding)
+        if hours > 0:
+            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                             is_onboarding=is_onboarding)
 
         return HttpResponse()
 
@@ -1173,8 +1175,9 @@ def value_added_hours(request):
         year = request.POST.get('year')
 
         is_onboarding = account.status == 0
-        AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                         is_unpaid=True, is_onboarding=is_onboarding)
+        if hours > 0:
+            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                             is_unpaid=True, is_onboarding=is_onboarding)
 
         # return redirect('/clients/accounts/report_hours')
         # keep everything on profile page
