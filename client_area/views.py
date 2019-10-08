@@ -1152,7 +1152,8 @@ def add_hours_to_account(request):
             month = request.POST.get('month-' + i)
             year = request.POST.get('year-' + i)
 
-            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
+            if hours > 0:
+                AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year)
 
         return redirect('/clients/accounts/report_hours')
 
