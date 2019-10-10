@@ -874,7 +874,8 @@ def members_single_promos(request, id):
     context = {
         'member': member,
         'promos': promos,
-        'title': 'Promos - SparkView'
+        'title': 'Promos - SparkView',
+        'accounts': accounts
     }
 
     return render(request, 'user_management/profile/promos_refactor.html', context)
