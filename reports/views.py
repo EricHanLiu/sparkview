@@ -1019,6 +1019,19 @@ def new_internal_oops(request):
         internal_oops.description = description
         internal_oops.save()
 
+        internal_oops.save()
+
+        # send email to mailing list
+        mail_details = {
+            'incident': internal_oops
+        }
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/new_internal_oops.html', mail_details)
+
+        send_mail(
+            'New Internal Oops Report Created', msg_html,
+            EMAIL_HOST_USER, settings.OOPS_HF_MAILING_LIST, fail_silently=False, html_message=msg_html)
+
         return redirect('/reports/oops')
 
 
@@ -1135,7 +1148,7 @@ def new_client_oops(request):
         msg_html = render_to_string(TEMPLATE_DIR + '/mails/new_incident.html', mail_details)
 
         send_mail(
-            'New Oops Report Created', msg_html,
+            'New Client Oops Report Created', msg_html,
             EMAIL_HOST_USER, settings.OOPS_HF_MAILING_LIST, fail_silently=False, html_message=msg_html)
 
         return redirect('/reports/oops')
