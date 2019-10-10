@@ -22,7 +22,7 @@
                     </div>
                     <hr>
                     <div style="width: 100%; overflow: auto;">
-                        <table class="table is-hoverable is-striped dataTable is-fullwidth">
+                        <table class="table is-hoverable is-striped oops-dataTable is-fullwidth">
                             <thead>
                             <tr>
                                 <th>
@@ -208,4 +208,18 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.oops-dataTable').DataTable({
+            filter: true,
+            info: false,
+            language: {
+                search: '<i class="fas fa-search" style="margin-bottom: 0.5em;"></i>',
+            },
+            pageLength: 5,
+            lengthChange: false
+        });
+    </script>
 {% endblock %}
