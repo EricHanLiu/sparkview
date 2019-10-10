@@ -669,7 +669,7 @@ def account_single(request, account_id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
         if request.user.member.is_locked_out:
-            return redirect('/user_management/members/' + str(request.user.member.id) + '/input_hours?lockout=true')
+            return redirect('/user_management/members/' + str(request.user.member.id) + '/input_hours')
 
         account = Client.objects.get(id=account_id)
         members = Member.objects.filter(deactivated=False).order_by('user__first_name')
