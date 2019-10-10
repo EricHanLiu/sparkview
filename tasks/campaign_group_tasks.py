@@ -28,6 +28,7 @@ def update_budget_campaigns(self, budget_id):
         return
     print('Updating campaigns for budget ' + str(budget))
     budget.is_new = False
+    budget.is_edited = False
     budget.save()
     if budget.grouping_type == 0:
         #  manual, do not have to do anything

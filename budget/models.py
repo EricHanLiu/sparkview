@@ -1704,6 +1704,7 @@ class Budget(models.Model):
     fb_spend = models.FloatField(default=0)
     fb_yspend = models.FloatField(default=0)
     is_new = models.BooleanField(default=True)
+    is_edited = models.BooleanField(default=False)
     is_default = models.BooleanField(default=False)
     needs_renewing = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
