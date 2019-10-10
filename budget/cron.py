@@ -717,7 +717,7 @@ def update_campaigns_in_budgets(self):
 
 
 @celery_app.task(bind=True)
-def update_budget_spend_history():
+def update_budget_spend_history(self):
     """
     Updates the final spend of the month that just passed for each account
     """

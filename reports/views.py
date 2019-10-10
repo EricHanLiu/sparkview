@@ -1350,7 +1350,8 @@ def month_over_month(request):
 
     selected = {
         'month': str(month),
-        'year': str(year)
+        'year': str(year),
+        'account_id': account_id
     }
 
     month_strs = []
@@ -1368,6 +1369,9 @@ def month_over_month(request):
                 bh = AccountBudgetSpendHistory.objects.get(month=cur_month, year=cur_year, account=account)
                 tmpd['fee'] = round(bh.management_fee, 2)
                 tmpd['spend'] = round(bh.spend, 2)
+                tmpd['aw_spend'] = round(bh.aw_spend, 2)
+                tmpd['fb_spend'] = round(bh.fb_spend, 2)
+                tmpd['bing_spend'] = round(bh.bing_spend, 2)
             except AccountBudgetSpendHistory.DoesNotExist:
                 tmpd['fee'] = 0.0
                 tmpd['spend'] = 0.0
