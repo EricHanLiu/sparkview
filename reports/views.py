@@ -1070,7 +1070,7 @@ def new_client_oops(request):
             issue_type = None
         try:
             budget_error_amt = float(r.get('budget_error'))
-        except ValueError:
+        except (ValueError, TypeError):
             budget_error_amt = 0.0
         try:
             platform = r.get('platform')
