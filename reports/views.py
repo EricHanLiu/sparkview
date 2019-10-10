@@ -1096,7 +1096,10 @@ def new_client_oops(request):
 
         members = []
         for member_id in r.getlist('member'):
-            members.append(Member.objects.get(id=member_id))
+            try:
+                members.append(Member.objects.get(id=member_id))
+            except Member.DoesNotExist:
+                pass
         incident.members.set(members)
 
         incident.description = description
@@ -1119,7 +1122,7 @@ def new_client_oops(request):
         try:
             refund_amount = float(r.get('refund_amount'))
             incident.refund_amount = refund_amount
-        except ValueError:
+        except (ValueError, TypeError):
             pass
 
         incident.save()

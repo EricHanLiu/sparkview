@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from user_management.models import Member, MemberHourHistory, Backup, BackupPeriod
+from user_management.models import Member, MemberHourHistory, Backup, BackupPeriod, IncidentReason
 from budget.models import Client as BloomClient
 from client_area.models import Promo, MonthlyReport, MandateHourRecord, MandateAssignment, Mandate, MandateType, \
     AccountHourRecord, ManagementFeesStructure, ManagementFeeInterval
@@ -502,3 +502,36 @@ class UserTestCase(TestCase):
 
         self.assertEqual(t_super.is_locked_out, False)
         self.assertEqual(t_regular.is_locked_out, True)
+
+    def test_new_oops_creation(self):
+        self.client.login(username='test3', password='123456')
+        test_member = Member.objects.get(user=User.objects.get(username='test3'))
+        test_account = BloomClient.objects.get(client_name='ctest')
+        ir = IncidentReason.objects.create(name='test')
+
+        client_oops_dict = {
+            'reporting_member': test_member.id,
+            'services': 0,
+            'account': test_account.id,
+            'incident_date': '10/02/1999',
+            'issue_description': 'Test',
+            'issue_type': ir.id,
+            'budget_error': 20,
+            'platform': 0,
+            'justification': 'test',
+            'members': [test_member.id]
+        }
+
+        response = self.client.post('/reports/oops/new_client_oops', client_oops_dict)
+        self.assertRedirects(response, '/reports/oops')
+
+        internal_oops_dict = {
+            'reporting_member': test_member.id,
+            'incident_date': '10/02/1999',
+            'issue_description': 'Test',
+            'issue_type': ir.id,
+            'members': [test_member.id]
+        }
+
+        response = self.client.post('/reports/oops/new_internal_oops', internal_oops_dict)
+        self.assertRedirects(response, '/reports/oops')
