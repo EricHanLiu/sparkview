@@ -167,6 +167,9 @@ def cm_capacity(request):
 
     report_type = 'CM Member Dashboard'
 
+    ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
+    new_accounts = Client.objects.filter(created_at__gte=ninety_days_ago)
+
     context = {
         'title': 'CM Member Dashboard',
         'members': members,
@@ -176,6 +179,7 @@ def cm_capacity(request):
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
         'report_type': report_type,
+        'new_accounts': new_accounts,
         'outstanding_budget_accounts': outstanding_budget_accounts
     }
 

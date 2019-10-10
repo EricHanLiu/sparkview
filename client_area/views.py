@@ -1397,6 +1397,7 @@ def star_account(request):
     account.flagged_bc_link = bc_link
     account.flagged_datetime = now
     account.star_flag = True
+    account.num_times_flagged = account.num_times_flagged + 1
     account.save()
 
     event_description = account.client_name + ' was flagged by ' + member.user.get_full_name() + '.'

@@ -204,6 +204,83 @@
                     </table>
                 </div>
             </div>
+            <div class="card" style="margin-top: 2em;">
+                <div class="card-content">
+                    <h4 class="title is-4">New Clients (90 Days)</h4>
+                    <table class="table dataTable is-hoverable is-striped is-fullwidth">
+                        <thead>
+                        <tr>
+                            <th>
+                                Client Name
+                            </th>
+                            <th>
+                                Tier
+                            </th>
+                            <th>
+                                Days In Onboarding
+                            </th>
+                            <th>
+                                Members Assigned
+                            </th>
+                            <th>
+                                Number Of Times Flagged
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in new_accounts %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ account.tier }}
+                                </td>
+                                <td>
+                                    {{ account.onboarding_duration_elapsed }}
+                                </td>
+                                <td>
+                                    {% for member in account.assigned_members_array %}
+                                        {{ member.user.get_full_name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {{ account.num_times_flagged }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <hr>
+                    <h5 class="title is-5">Outstanding Renewed Budgets</h5>
+                    <table class="table dataTable is-hoverable is-fullwidth is-striped">
+                        <thead>
+                        <tr>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Member(s)
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for account in outstanding_budget_accounts %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ account.assigned_seos.SEO.member }}
+                                    {{ account.assigned_seos.SEO2.member }}
+                                    {{ account.assigned_seos.SEO3.member }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
