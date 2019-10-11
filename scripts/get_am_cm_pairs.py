@@ -31,11 +31,13 @@ def main():
 
         am_cm_pairs[key].append(str(account))
 
+    print('There are ' + str(len(am_cm_pairs)) + ' AM1/CM1 pairs')
+
     for key in am_cm_pairs:
-        print('========================')
         print(key)
+        print(str(len(am_cm_pairs[key])) + ' accounts together')
         print(am_cm_pairs[key])
-        print('========================')
+        print()
 
 
 main()
