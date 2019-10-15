@@ -535,3 +535,34 @@ class UserTestCase(TestCase):
 
         response = self.client.post('/reports/oops/new_internal_oops', internal_oops_dict)
         self.assertRedirects(response, '/reports/oops')
+
+    def test_update_date_status(self):
+        self.client.login(username='test3', password='123456')
+        test_member = Member.objects.get(user=User.objects.get(username='test3'))
+        test_account = BloomClient.objects.get(client_name='ctest')
+        report = MonthlyReport.objects.get(account=test_account)
+        url = '/user_management/members/' + str(test_member.id) + '/reports'
+
+        self.assertIsNone(report.date_status)
+
+        report_dict = {
+            'report_id': report.id,
+            'date_status': 0,
+            'page_path': url
+        }
+
+        response = self.client.post(url + '/update_date_status', report_dict)
+        self.assertRedirects(response, url)
+        report = MonthlyReport.objects.get(account=test_account)
+        self.assertEqual(report.date_status, 0)
+
+        report_dict = {
+            'report_id': report.id,
+            'date_status': 1,
+            'page_path': url
+        }
+
+        response = self.client.post(url + '/update_date_status', report_dict)
+        self.assertRedirects(response, url)
+        report = MonthlyReport.objects.get(account=test_account)
+        self.assertEqual(report.date_status, 1)
