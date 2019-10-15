@@ -334,13 +334,20 @@ def seo_capacity(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    now = datetime.datetime.now()
+    selected_month = now.month
+    selected_year = now.year
+    historical = False
+
+    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
+            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
+        selected_month = int(request.GET.get('month'))
+        selected_year = int(request.GET.get('year'))
+        historical = True
+
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern') | Q(name='Team Lead - SEO'))
     members = Member.objects.filter(Q(role__in=role) | Q(id=15)).order_by('user__first_name')
-
-    actual_aggregate = 0.0
-    allocated_aggregate = 0.0
-    available_aggregate = 0.0
 
     total_seo_hours = 0.0
     total_cro_hours = 0.0
@@ -349,10 +356,8 @@ def seo_capacity(request):
     seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
         Q(status=0) | Q(status=1)).order_by('client_name')
 
-    for member in members:
-        actual_aggregate += member.actual_hours_this_month
-        allocated_aggregate += member.allocated_hours_month()
-        available_aggregate += member.hours_available
+    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
+        build_member_stats_from_members(members, selected_month, selected_year, historical)
 
     for account in seo_accounts:
         if account.has_seo:
@@ -360,19 +365,16 @@ def seo_capacity(request):
         if account.has_cro:
             total_cro_hours += account.cro_hours
 
-    if allocated_aggregate + available_aggregate == 0:
-        capacity_rate = 0
-    else:
-        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-
-    if allocated_aggregate == 0:
-        utilization_rate = 0
-    else:
-        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
-
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
 
     report_type = 'SEO Member Dashboard'
+
+    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    years = [i for i in range(2018, now.year + 1)]
+    selected = {
+        'month': selected_month,
+        'year': selected_year
+    }
 
     context = {
         'title': 'SEO Member Dashboard',
@@ -387,7 +389,11 @@ def seo_capacity(request):
         'status_badges': status_badges,
         'total_seo_hours': total_seo_hours,
         'total_cro_hours': total_cro_hours,
-        'outstanding_budget_accounts': outstanding_budget_accounts
+        'outstanding_budget_accounts': outstanding_budget_accounts,
+        'members_stats': members_stats,
+        'selected': selected,
+        'months': months,
+        'years': years
     }
 
     return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
