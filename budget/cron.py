@@ -617,6 +617,13 @@ def daily_context(self):
         record.allocated_hours = member.allocated_hours_month
         record.actual_hours = member.actual_hours_month
         record.available_hours = member.hours_available
+        record.buffer_multiplier = (member.buffer_total_percentage / 100.0) * (
+                (100.0 - member.buffer_percentage) / 100.0) * ((100.0 + member.buffer_seniority_percentage) / 100.0)
+        record.training_buffer = member.buffer_trainers_percentage
+        record.total_buffer = member.buffer_total_percentage
+        record.num_active_accounts = member.active_accounts_including_backups_count
+        record.num_onboarding_accounts = member.onboarding_accounts_count
+        record.backup_hours_plus_minus = member.backup_hours_plus_minus
         record.save()
 
     return 'daily_context'

@@ -136,6 +136,17 @@ def cm_capacity(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    now = datetime.datetime.now()
+    selected_month = now.month
+    selected_year = now.year
+    historical = False
+
+    if 'month' in request.GET and 'year' in request.GET and int(request.GET.get(
+            'month')) != selected_month and int(request.GET.get('year')) != selected_year:
+        selected_month = int(request.GET.get('month'))
+        selected_year = int(request.GET.get('year'))
+        historical = True
+
     # Probably has to be changed before production
     # This badly has to be fixed when we implement proper roles
     # TODO: Make this reasonable
@@ -147,11 +158,63 @@ def cm_capacity(request):
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
     available_aggregate = 0.0
+    members_stats = []
 
     for member in members:
-        actual_aggregate += member.actual_hours_this_month
-        allocated_aggregate += member.allocated_hours_month()
-        available_aggregate += member.hours_available
+        if not historical:
+            actual_aggregate += member.actual_hours_this_month
+            allocated_aggregate += member.allocated_hours_this_month
+            available_aggregate += member.hours_available
+
+            actual_hours = member.actual_hours_this_month
+            allocated_hours = member.allocated_hours_this_month
+            available_hours = member.hours_available
+            utilization_rate = member.utilization_rate
+            capacity_rate = member.capacity_rate
+            value_added_hours = member.value_added_hours_this_month
+            active_accounts_count = member.active_accounts_including_backups_count
+            onboarding_accounts_count = member.onboarding_accounts_count
+            backup_hours_plus_minus = member.backup_hours_plus_minus
+            last_updated_hours = member.last_updated_hours
+            outstanding_ninety_days = member.phase_tasks.count
+            training_hours = member.training_hours_month
+            training_hours_assigned = member.training_hours_assigned
+        else:
+            actual_aggregate += member.actual_hours_other_month(selected_month, selected_year)
+            allocated_aggregate += member.allocated_hours_other_month(selected_month, selected_year)
+            available_aggregate += member.hours_available_other_month(selected_month, selected_year)
+
+            actual_hours = member.actual_hours_other_month(selected_month, selected_year)
+            allocated_hours = member.allocated_hours_other_month(selected_month, selected_year)
+            available_hours = member.hours_available_other_month(selected_month, selected_year)
+            utilization_rate = member.utilization_rate_other_month(selected_month, selected_year)
+            capacity_rate = member.capacity_rate_other_month(selected_month, selected_year)
+            value_added_hours = member.value_added_hours_other_month(selected_month, selected_year)
+            active_accounts_count = member.active_accounts_including_backups_count_other_month(selected_month,
+                                                                                               selected_year)
+            onboarding_accounts_count = member.onboarding_accounts_count_other_month(selected_month, selected_year)
+            backup_hours_plus_minus = member.backup_hours_plus_minus_other_month(selected_month, selected_year)
+            last_updated_hours = 'N/A'
+            outstanding_ninety_days = member.phase_tasks_other_month(selected_month, selected_month).count()
+            training_hours = member.training_hours_other_month(selected_month, selected_year)
+            training_hours_assigned = member.training_hours_assigned_other_month(selected_month, selected_year)
+
+        members_stats.append({
+            'member': member,
+            'actual_hours': actual_hours,
+            'allocated_hours': allocated_hours,
+            'available_hours': available_hours,
+            'utilization_rate': utilization_rate,
+            'capacity_rate': capacity_rate,
+            'value_added_hours': value_added_hours,
+            'active_accounts_count': active_accounts_count,
+            'onboarding_accounts_count': onboarding_accounts_count,
+            'backup_hours_plus_minus': backup_hours_plus_minus,
+            'last_updated_hours': last_updated_hours,
+            'outstanding_ninety_days': outstanding_ninety_days,
+            'training_hours': training_hours,
+            'training_hours_assigned': training_hours_assigned
+        })
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
@@ -170,6 +233,13 @@ def cm_capacity(request):
     ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
     new_accounts = Client.objects.filter(created_at__gte=ninety_days_ago)
 
+    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    years = [i for i in range(2018, now.year + 1)]
+    selected = {
+        'month': selected_month,
+        'year': selected_year
+    }
+
     context = {
         'title': 'CM Member Dashboard',
         'members': members,
@@ -180,7 +250,12 @@ def cm_capacity(request):
         'available_aggregate': available_aggregate,
         'report_type': report_type,
         'new_accounts': new_accounts,
-        'outstanding_budget_accounts': outstanding_budget_accounts
+        'outstanding_budget_accounts': outstanding_budget_accounts,
+        'months': months,
+        'years': years,
+        'selected': selected,
+        'historical': historical,
+        'members_stats': members_stats
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
