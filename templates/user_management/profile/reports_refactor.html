@@ -17,7 +17,7 @@
                         Report Type
                     </th>
                     <th>
-                        Due Date
+                        Date Status
                     </th>
                     <th>
                         AM
@@ -46,7 +46,30 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if report.due_date is None %}
+                            {% if report.date_status is None %}
+                                <form action="/user_management/members/{{ member.id }}/reports/update_date_status"
+                                      method="POST">
+                                    {% csrf_token %}
+                                    <div class="columns">
+                                        <div class="column is-9">
+                                            <input type="hidden" value="{{ report.id }}" name="report_id">
+                                            <div class="select is-fullwidth">
+                                                <select name="date_status" required>
+                                                    <option value="" hidden selected>--</option>
+                                                    {% for id, status in date_statuses %}
+                                                        <option value="{{ id }}">{{ status }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="column is-3">
+                                            <button class="button is-fullwidth">
+                                                Confirm
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            {% elif report.date_status == 0 and report.due_date is None %}
                                 <div class="columns">
                                     <div class="column is-9">
                                         <input class="input datepicker-here" type="text" id="{{ report.id }}"
@@ -59,8 +82,10 @@
                                         </button>
                                     </div>
                                 </div>
-                            {% else %}
+                            {% elif report.date_status == 0 %}
                                 <strong>{{ report.due_date }}</strong>
+                            {% else %}
+                                <strong>Flexible</strong>
                             {% endif %}
                         </td>
                         <td>
@@ -72,11 +97,13 @@
                                     Sent to Client <i class="fas fa-check" style="margin-left: 0.5em;"></i>
                                 </button>
                             {% elif report.received_by_am %}
-                                <button class="button is-fullwidth sent-to-client" data-account-id="{{ report.account.id }}">
+                                <button class="button is-fullwidth sent-to-client"
+                                        data-account-id="{{ report.account.id }}">
                                     Sent to Client
                                 </button>
                             {% else %}
-                                <button class="button is-fullwidth sent-to-am" data-account-id="{{ report.account_id }}">
+                                <button class="button is-fullwidth sent-to-am"
+                                        data-account-id="{{ report.account_id }}">
                                     Sent to AM
                                 </button>
                             {% endif %}

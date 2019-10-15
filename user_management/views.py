@@ -837,6 +837,7 @@ def members_single_reports(request, id):
 
     context = {
         'member': member,
+        'date_statuses': MonthlyReport.DATE_STATUSES,
         'reports': reports,
         'last_month_str': calendar.month_name[last_month],
         'reporting_month': last_month,
@@ -845,6 +846,22 @@ def members_single_reports(request, id):
     }
 
     return render(request, 'user_management/profile/reports_refactor.html', context)
+
+
+@login_required
+def update_date_status(request, member_id):
+    member = Member.objects.get(id=member_id)
+    if not request.user.is_staff and int(member_id) != member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    report_id = request.POST.get('report_id')
+    report = get_object_or_404(MonthlyReport, id=report_id)
+    date_status = request.POST.get('date_status')
+
+    report.date_status = date_status
+    report.save()
+
+    return redirect('/user_management/members/' + str(member_id) + '/reports')
 
 
 @login_required
