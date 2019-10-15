@@ -2020,8 +2020,7 @@ def edit_management_details(request):
             Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
         logger = Logger()
-        short_desc = account.client_name + ' is now inactive for the following reason: ' + Client.INACTIVE_CHOICES[
-            account.inactive_reason]
+        short_desc = account.client_name + ' is now inactive for the following reason: ' + account.get_inactive_reason_display()
         logger.send_account_lost_email(short_desc, message)
 
         sp = account.sales_profile
@@ -2068,8 +2067,7 @@ def edit_management_details(request):
 
         logger = Logger()
         print(account.get_lost_reason_display())
-        short_desc = account.client_name + ' is now lost for the following reason: ' + Client.LOST_CHOICES[
-            account.lost_reason]
+        short_desc = account.client_name + ' is now lost for the following reason: ' + account.get_lost_reason_display()
         logger.send_account_lost_email(short_desc, message)
 
         sp = account.sales_profile
