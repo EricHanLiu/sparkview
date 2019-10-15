@@ -53,6 +53,7 @@
                                     <div class="columns">
                                         <div class="column is-9">
                                             <input type="hidden" value="{{ report.id }}" name="report_id">
+                                            <input type="hidden" value="{{ request.path }}" name="page_path">
                                             <div class="select is-fullwidth">
                                                 <select name="date_status" required>
                                                     <option value="" hidden selected>--</option>

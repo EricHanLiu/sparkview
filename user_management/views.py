@@ -861,7 +861,7 @@ def update_date_status(request, member_id):
     report.date_status = date_status
     report.save()
 
-    return redirect('/user_management/members/' + str(member_id) + '/reports')
+    return redirect(request.POST.get('page_path'))
 
 
 @login_required

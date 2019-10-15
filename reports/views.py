@@ -545,13 +545,14 @@ def monthly_reporting(request):
         'year': now.year
     }
 
-    if request.method == 'GET':
+    print(request.method)
+    if request.method == 'GET' and not request.GET.get('filter_month'):
         reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False)
-    elif request.method == 'POST':
-        year = request.POST.get('year')
-        month = request.POST.get('month')
-        account_id = request.POST.get('account')
-        team_id = request.POST.get('team')
+    elif request.method == 'GET':
+        year = request.GET.get('year')
+        month = request.GET.get('month')
+        account_id = request.GET.get('account')
+        team_id = request.GET.get('team')
 
         reports = MonthlyReport.objects.filter(no_report=False)
 
@@ -601,7 +602,8 @@ def monthly_reporting(request):
         'teams': teams,
         'months': months,
         'years': years,
-        'selected': selected
+        'selected': selected,
+        'date_statuses': MonthlyReport.DATE_STATUSES
     }
 
     return render(request, 'reports/monthly_reports_refactor.html', context)
