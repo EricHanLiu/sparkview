@@ -669,7 +669,7 @@ def account_single(request, account_id):
     #     return HttpResponseForbidden('You do not have permission to view this page')
     if request.method == 'GET':
         if request.user.member.is_locked_out:
-            return redirect('/user_management/members/' + str(request.user.member.id) + '/input_hours?lockout=true')
+            return redirect('/user_management/members/' + str(request.user.member.id) + '/input_hours')
 
         account = Client.objects.get(id=account_id)
         members = Member.objects.filter(deactivated=False).order_by('user__first_name')
@@ -1397,6 +1397,7 @@ def star_account(request):
     account.flagged_bc_link = bc_link
     account.flagged_datetime = now
     account.star_flag = True
+    account.num_times_flagged = account.num_times_flagged + 1
     account.save()
 
     event_description = account.client_name + ' was flagged by ' + member.user.get_full_name() + '.'
@@ -2019,8 +2020,7 @@ def edit_management_details(request):
             Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
 
         logger = Logger()
-        short_desc = account.client_name + ' is now inactive for the following reason: ' + Client.INACTIVE_CHOICES[
-            account.inactive_reason]
+        short_desc = account.client_name + ' is now inactive for the following reason: ' + account.get_inactive_reason_display()
         logger.send_account_lost_email(short_desc, message)
 
         sp = account.sales_profile
@@ -2067,8 +2067,7 @@ def edit_management_details(request):
 
         logger = Logger()
         print(account.get_lost_reason_display())
-        short_desc = account.client_name + ' is now lost for the following reason: ' + Client.LOST_CHOICES[
-            account.lost_reason]
+        short_desc = account.client_name + ' is now lost for the following reason: ' + account.get_lost_reason_display()
         logger.send_account_lost_email(short_desc, message)
 
         sp = account.sales_profile
