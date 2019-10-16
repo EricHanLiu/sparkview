@@ -572,7 +572,7 @@ def members_single(request, member_id=0):
         return HttpResponseForbidden('You do not have permission to view this page')
 
     if request.user.member.is_locked_out:
-        return redirect('/user_management/members/' + str(request_member.id) + '/input_hours?lockout=true')
+        return redirect('/user_management/members/' + str(request_member.id) + '/input_hours')
 
     if member_id == 0:  # This is a profile page
         member = Member.objects.get(user=request.user)
@@ -837,6 +837,7 @@ def members_single_reports(request, id):
 
     context = {
         'member': member,
+        'date_statuses': MonthlyReport.DATE_STATUSES,
         'reports': reports,
         'last_month_str': calendar.month_name[last_month],
         'reporting_month': last_month,
@@ -845,6 +846,22 @@ def members_single_reports(request, id):
     }
 
     return render(request, 'user_management/profile/reports_refactor.html', context)
+
+
+@login_required
+def update_date_status(request, member_id):
+    member = Member.objects.get(id=member_id)
+    if not request.user.is_staff and int(member_id) != member.id:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    report_id = request.POST.get('report_id')
+    report = get_object_or_404(MonthlyReport, id=report_id)
+    date_status = request.POST.get('date_status')
+
+    report.date_status = date_status
+    report.save()
+
+    return redirect(request.POST.get('page_path'))
 
 
 @login_required
@@ -874,7 +891,8 @@ def members_single_promos(request, id):
     context = {
         'member': member,
         'promos': promos,
-        'title': 'Promos - SparkView'
+        'title': 'Promos - SparkView',
+        'accounts': accounts
     }
 
     return render(request, 'user_management/profile/promos_refactor.html', context)
@@ -1130,8 +1148,9 @@ def input_hours_profile(request, id):
             year = request.POST.get('year-' + i)
 
             is_onboarding = account.status == 0
-            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                             is_onboarding=is_onboarding)
+            if hours > 0:
+                AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                                 is_onboarding=is_onboarding)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 

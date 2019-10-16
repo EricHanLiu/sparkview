@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
 from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
-    MandateHourRecord
+    MandateHourRecord, AccountAllocatedHoursHistory
 from client_area.utils import days_in_month_in_daterange
 from bloom.utils.utils import num_business_days
 from bloom import settings
@@ -334,8 +334,18 @@ class Member(models.Model):
         return self.last_viewed_summary == datetime.date.today()
 
     @property
-    def training_hours(self):
+    def training_hours_assigned(self):
         return round(140.0 * (self.buffer_total_percentage / 100.0) * (self.buffer_trainers_percentage / 100.0), 2)
+
+    def training_hours_assigned_other_month(self, month, year):
+        try:
+            mhh = MemberHourHistory.objects.get(member=self, month=month, year=year)
+            total_buffer = mhh.total_buffer
+            training_buffer = mhh.training_buffer
+        except MemberHourHistory.DoesNotExist:
+            total_buffer = 0.0
+            training_buffer = 0.0
+        return round(140.0 * (total_buffer / 100.0) * (training_buffer / 100.0), 2)
 
     @property
     def sales_hours(self):
@@ -365,7 +375,7 @@ class Member(models.Model):
     def last_updated_hours(self):
         if not hasattr(self, '_last_updated_hours'):
             account_hour_record_model = apps.get_model('client_area', 'AccountHourRecord')
-            entries = account_hour_record_model.objects.filter(member=self)
+            entries = account_hour_record_model.objects.filter(member=self, hours__gt=0)
             if entries.count() == 0:
                 return None
             last_entry = entries.latest('created_at')
@@ -383,6 +393,20 @@ class Member(models.Model):
         hours = TrainingHoursRecord.objects.filter(trainee=self, month=month, year=year).aggregate(Sum('hours'))[
             'hours__sum']
         return hours if hours is not None else 0
+
+    @property
+    def trainer_hours(self):
+        now = datetime.datetime.now()
+        hours = \
+            TrainingHoursRecord.objects.filter(trainer=self, month=now.month, year=now.year).aggregate(Sum('hours'))[
+                'hours__sum']
+        return hours if hours is not None else 0.0
+
+    def trainer_hours_other_month(self, month, year):
+        hours = \
+            TrainingHoursRecord.objects.filter(trainer=self, month=month, year=year).aggregate(Sum('hours'))[
+                'hours__sum']
+        return hours if hours is not None else 0.0
 
     def actual_hours_month(self):
         now = datetime.datetime.now()
@@ -571,6 +595,13 @@ class Member(models.Model):
         return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage) / 100.0) * (
                 (100.0 + self.buffer_seniority_percentage) / 100.0)
 
+    def total_hours_minus_buffer_other_month(self, month, year):
+        try:
+            multiplier = MemberHourHistory.objects.get(month=month, year=year, member=self).buffer_multiplier
+        except MemberHourHistory.DoesNotExist:
+            multiplier = 0.0
+        return 140.0 * multiplier
+
     @property
     def total_hours_minus_buffer_old(self):
         return 140.0 * (self.buffer_total_percentage / 100.0) * ((100.0 - self.buffer_percentage_old()) / 100.0)
@@ -685,6 +716,14 @@ class Member(models.Model):
     def active_accounts_including_backups_count(self):
         return self.active_accounts_count + self.backup_accounts.count()
 
+    def active_accounts_including_backups_count_other_month(self, month, year):
+        try:
+            mhh = MemberHourHistory.objects.get(month=month, year=year, member=self)
+            count = mhh.num_active_accounts
+        except MemberHourHistory.DoesNotExist:
+            count = 0
+        return count
+
     @property
     def accounts_not_lost(self):
         """
@@ -741,6 +780,17 @@ class Member(models.Model):
                 hours += acc.get_allocation_this_month_member(self, True)
         return hours
 
+    def backup_hours_plus_minus_other_month(self, month, year):
+        """
+        The number of allocated hours this member has gained or lost due to backups in a given month
+        """
+        try:
+            mhh = MemberHourHistory.objects.get(month=month, year=year, member=self)
+            hours = mhh.backup_hours_plus_minus
+        except MemberHourHistory.DoesNotExist:
+            hours = 0.0
+        return hours
+
     def all_accounts_count(self):
         return self.accounts.count()
 
@@ -753,6 +803,14 @@ class Member(models.Model):
         if not hasattr(self, '_onboarding_accounts_count'):
             self._onboarding_accounts_count = self.accounts.filter(status=0).count()
         return self._onboarding_accounts_count
+
+    def onboarding_accounts_count_other_month(self, month, year):
+        try:
+            mhh = MemberHourHistory.objects.get(month=month, year=year, member=self)
+            count = mhh.num_onboarding_accounts
+        except MemberHourHistory.DoesNotExist:
+            count = 0
+        return count
 
     @property
     def utilization_rate(self):
@@ -769,6 +827,12 @@ class Member(models.Model):
             hours += value_added_hours
         return 100.0 * (hours / self.allocated_hours_this_month)
 
+    def utilization_rate_other_month(self, month, year):
+        if self.allocated_hours_other_month(month, year) == 0.0:
+            return 0.0
+        hours = self.actual_hours_other_month(month, year) + self.value_added_hours_other_month(month, year)
+        return 100.0 * (hours / self.allocated_hours_other_month(month, year))
+
     @property
     def capacity_rate(self):
         """
@@ -777,6 +841,15 @@ class Member(models.Model):
         if self.total_hours_minus_buffer == 0.0:
             return 0.0
         return 100 * (self.allocated_hours_this_month / self.total_hours_minus_buffer)
+
+    def capacity_rate_other_month(self, month, year):
+        """
+        Percentage of total available hours (after buffer) that are allocated in a past month
+        """
+        if self.total_hours_minus_buffer_other_month(month, year) == 0.0:
+            return 0.0
+        return 100 * (self.allocated_hours_other_month(month, year) / self.total_hours_minus_buffer_other_month(month,
+                                                                                                                year))
 
     @property
     def capacity_rate_old(self):
@@ -808,6 +881,21 @@ class Member(models.Model):
                                                                   account__in=self.onboard_active_accounts)
             self._phase_tasks = task_assignments
         return self._phase_tasks
+
+    def phase_tasks_other_month(self, month, year):
+        """
+        Number of outstanding phase tasks a member had in a given month
+        """
+        if not hasattr(self, '_phase_tasks'):
+            month_start = datetime.datetime(year, month, 1)
+            month_end = datetime.datetime(year, month, calendar.monthrange(year, month)[1])
+
+            tasks = PhaseTask.objects.filter(roles__in=[self.role])
+            task_assignments = PhaseTaskAssignment.objects.filter(task__in=tasks, date_created__lte=month_end,
+                                                                  completed__gte=month_start,
+                                                                  account__in=self.onboard_active_accounts)
+            self._phase_tasks_other_month = task_assignments
+        return self._phase_tasks_other_month
 
     @property
     def inactive_lost_accounts_last_month(self):
@@ -957,3 +1045,10 @@ class MemberHourHistory(models.Model):
     allocated_hours = models.FloatField(default=0.0)
     available_hours = models.FloatField(default=0.0)
     added = models.DateTimeField(auto_now_add=True)
+    buffer_multiplier = models.FloatField(default=0.0)
+    training_buffer = models.FloatField(default=0.0)
+    total_buffer = models.FloatField(default=0.0)
+    # not the best place for these, but makes most sense
+    num_active_accounts = models.FloatField(default=0.0)
+    num_onboarding_accounts = models.FloatField(default=0.0)
+    backup_hours_plus_minus = models.FloatField(default=0.0)

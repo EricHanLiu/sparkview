@@ -16,7 +16,7 @@
                         <a href="/clients/promos/edit" class="button is-info">Edit Promos</a>
                     </div>
                     <div class="level-item">
-                        <button id="add_promo_btn" class="button is-success">Add Promo</button>
+                        <button id="add_promo_btn" class="button is-primary">Add Promo</button>
                     </div>
                 </div>
             </div>
@@ -84,71 +84,81 @@
         </div>
     </div>
     <div class="modal modal-fx-fadeInScale" id="add_promo_modal">
-                <div class="modal-background"></div>
-                <div class="modal-content">
-                    <div class="box">
-                        <div class="level">
-                            <div class="level-left">
-                                <h5 class="title is-5">Add Promo</h5>
-                            </div>
-                            <div class="level-right">
-                                <button class="button button-color" id="add_promo_confirm_button">
-                                    Confirm
-                                </button>
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <form id="add_promo_form">
+                    <div class="level">
+                        <div class="level-left">
+                            <h5 class="title is-5">Add Promo</h5>
+                        </div>
+                        <div class="level-right">
+                            <button class="button button-color" type="submit">
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                    <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
+                    <div class="columns">
+                        <div class="column is-4">
+                            <label class="label">Name:</label>
+                            <input type="text" name="promo-name" class="input" required/>
+                        </div>
+                        <div class="column is-4">
+                            <label class="label">Start Date:</label>
+                            <input type="text" name="start-date" class="input datepicker-here"
+                                   data-time-format="hh:ii" autocomplete="off"
+                                   data-language="en" placeholder="Set start date here" required
+                                   data-timepicker="true">
+                        </div>
+                        <div class="column is-4">
+                            <label class="label">End Date:</label>
+                            <input type="text" name="end-date" class="input datepicker-here"
+                                   data-time-format="hh:ii" autocomplete="off"
+                                   data-language="en" placeholder="Set end date here" required
+                                   data-timepicker="true">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Description:</label>
+                        <input type="text" maxlength="140" name="promo-desc" class="input" required/>
+                    </div>
+                    <div class="columns">
+                        <div class="column is-8">
+                            <label class="label">Account</label>
+                            <div class="select is-fullwidth">
+                                <select name="account_id">
+                                    {% for account in accounts %}
+                                        <option value="{{ account.id }}">{{ account.client_name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
-                        <form method="POST" action="/clients/accounts/new_promo" id="add_promo_form">
-                            <input name="account_id" type="text" value="{{ account.id }}" style="display:none;"/>
-                            <div class="columns">
-                                <div class="column is-4">
-                                    <label class="label">Name:</label>
-                                    <input type="text" name="promo-name" class="input" required/>
-                                </div>
-                                <div class="column is-4">
-                                    <label class="label">Start Date:</label>
-                                    <input type="text" name="start-date" class="input datepicker-here"
-                                           data-time-format="hh:ii"
-                                           data-language="en" placeholder="Set start date here" required
-                                           data-timepicker="true">
-                                </div>
-                                <div class="column is-4">
-                                    <label class="label">End Date:</label>
-                                    <input type="text" name="end-date" class="input datepicker-here"
-                                           data-time-format="hh:ii"
-                                           data-language="en" placeholder="Set end date here" required
-                                           data-timepicker="true">
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-8">
-                                    <label class="label">Description:</label>
-                                    <input type="text" maxlength="140" name="promo-desc" class="input" required/>
-                                </div>
-                                <div class="column is-2" style="margin-top: 1em;">
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="has-aw"/>
-                                        AW:
-                                    </label>
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="has-fb"/>
-                                        FB:
-                                    </label>
-                                </div>
-                                <div class="column is-2" style="margin-top: 1em;">
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="has-bing"/>
-                                        Bing:
-                                    </label>
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="has-other"/>
-                                        Other:
-                                    </label>
-                                </div>
-                            </div>
-                        </form>
+                        <div class="column is-2" style="margin-top: 1.5em;">
+                            <label class="checkbox">
+                                <input type="checkbox" name="has-aw"/>
+                                AW
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="has-fb"/>
+                                FB
+                            </label>
+                        </div>
+                        <div class="column is-2" style="margin-top: 1.5em;">
+                            <label class="checkbox">
+                                <input type="checkbox" name="has-bing"/>
+                                Bing
+                            </label>
+                            <label class="checkbox">
+                                <input type="checkbox" name="has-other"/>
+                                Other
+                            </label>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block extraJs %}
@@ -174,7 +184,7 @@
                 headers: {'X-CSRFToken': csrftoken},
                 type: 'POST',
                 success: function () {
-                    toastr.success('Successfully updated promo!!!');
+                    toastr.success('Successfully updated promo!');
                     $clickedBtn.removeClass('is-loading');
                     $clickedBtn.attr('disabled', true);
                 }
@@ -187,9 +197,26 @@
             $('.modal').removeClass('is-active');
         });
 
+        $('#add_promo_form').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/clients/accounts/new_promo',
+                headers: {'X-CSRFToken': csrftoken},
+                type: 'POST',
+                data: $(this).serialize(),
+                success: () => {
+                    $('.modal').removeClass('is-active');
+                    toastr.success('Successfully added a new promo!');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
+                }
+            });
+        });
+
         $('#add_promo_btn').click(function () {
             $('#add_promo_modal').addClass('is-active');
         });
-
     </script>
 {% endblock %}

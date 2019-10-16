@@ -17,7 +17,8 @@
 {% endblock %}
 
 {% block main_body %}
-    <div class="section has-background-light" {% if request.user.id == 56 %}style="background:#fbbcf3 !important;"{% endif %}>
+    <div class="section has-background-light"
+         {% if request.user.id == 56 %}style="background:#fbbcf3 !important;"{% endif %}>
         <div class="container is-fluid">
             {% if account.status == 2 %}
                 <article class="message is-warning">
@@ -126,9 +127,15 @@
                                                     </p>
                                                     <p class="subtitle is-6 has-text-centered">
                                                         {% if account.is_onboarding %}
-                                                            {{ account|get_onboarding_hours_worked_member:assigned_member.member }}hr / {{ account|get_onboarding_hours_allocated_member:assigned_member.member }}hr
+                                                            {{ account|get_onboarding_hours_worked_member:assigned_member.member }}
+                                                            hr /
+                                                            {{ account|get_onboarding_hours_allocated_member:assigned_member.member }}
+                                                            hr
                                                         {% else %}
-                                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}hr / {{ account|get_allocation_this_month_member:assigned_member.member }}hr
+                                                            {{ assigned_member.member|get_hours_per_member_and_account:account.id }}
+                                                            hr /
+                                                            {{ account|get_allocation_this_month_member:assigned_member.member }}
+                                                            hr
                                                         {% endif %}
                                                     </p>
                                                 </div>
@@ -649,6 +656,8 @@
                                             - {{ budget.description }}
                                             {% if budget.is_new %}&nbsp;
                                                 <span class="tag is-warning">This budget is still new, please check back in about an hour</span>
+                                            {% elif budget.is_edited %}
+                                                <span class="tag is-info">This budget was recently edited, please check back in about an hour</span>
                                             {% endif %}
                                             &nbsp;
                                             <button class="button is-outlined is-small edit-budget-btn"

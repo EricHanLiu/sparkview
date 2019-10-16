@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^members/(\d*)$', views.members_single, name='members_single'),
     url(r'^members/(\d*)/hours$', views.members_single_hours, name='members_single_hours'),
     url(r'^members/(\d*)/reports$', views.members_single_reports, name='members_single_reports'),
+    url(r'^members/(\d*)/reports/update_date_status$', views.update_date_status, name='update_date_status'),
     url(r'^members/(\d*)/promos$', views.members_single_promos, name='members_single_promos'),
     url(r'^members/(\d*)/kpis$', views.members_single_kpis, name='members_single_kpis'),
     url(r'^members/(\d*)/timesheet$', views.members_single_timesheet, name='members_single_timesheet'),

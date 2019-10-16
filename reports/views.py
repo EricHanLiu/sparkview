@@ -128,30 +128,67 @@ def account_spend_progression(request):
     return render(request, 'reports/account_spend_progression_refactor.html', context)
 
 
-@login_required
-def cm_capacity(request):
-    """
-    Creates report that shows the capacity of the PPC campaign managers on an aggregated and individual basis
-    """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    # Probably has to be changed before production
-    # This badly has to be fixed when we implement proper roles
-    # TODO: Make this reasonable
-    role = Role.objects.filter(
-        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead') | Q(name='Team Lead'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
-
+def build_member_stats_from_members(members, selected_month, selected_year, historical=False):
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
     available_aggregate = 0.0
+    members_stats = []
 
     for member in members:
-        actual_aggregate += member.actual_hours_this_month
-        allocated_aggregate += member.allocated_hours_month()
-        available_aggregate += member.hours_available
+        if not historical:
+            actual_aggregate += member.actual_hours_this_month
+            allocated_aggregate += member.allocated_hours_this_month
+            available_aggregate += member.hours_available
+
+            actual_hours = member.actual_hours_this_month
+            allocated_hours = member.allocated_hours_this_month
+            available_hours = member.hours_available
+            utilization_rate = member.utilization_rate
+            capacity_rate = member.capacity_rate
+            value_added_hours = member.value_added_hours_this_month
+            active_accounts_count = member.active_accounts_including_backups_count
+            onboarding_accounts_count = member.onboarding_accounts_count
+            backup_hours_plus_minus = member.backup_hours_plus_minus
+            last_updated_hours = member.last_updated_hours
+            outstanding_ninety_days = member.phase_tasks.count
+            training_hours = member.training_hours_month
+            training_hours_assigned = member.training_hours_assigned
+        else:
+            actual_aggregate += member.actual_hours_other_month(selected_month, selected_year)
+            allocated_aggregate += member.allocated_hours_other_month(selected_month, selected_year)
+            available_aggregate += member.hours_available_other_month(selected_month, selected_year)
+
+            actual_hours = member.actual_hours_other_month(selected_month, selected_year)
+            allocated_hours = member.allocated_hours_other_month(selected_month, selected_year)
+            available_hours = member.hours_available_other_month(selected_month, selected_year)
+            utilization_rate = member.utilization_rate_other_month(selected_month, selected_year)
+            capacity_rate = member.capacity_rate_other_month(selected_month, selected_year)
+            value_added_hours = member.value_added_hours_other_month(selected_month, selected_year)
+            active_accounts_count = member.active_accounts_including_backups_count_other_month(selected_month,
+                                                                                               selected_year)
+            onboarding_accounts_count = member.onboarding_accounts_count_other_month(selected_month, selected_year)
+            backup_hours_plus_minus = member.backup_hours_plus_minus_other_month(selected_month, selected_year)
+            last_updated_hours = 'N/A'
+            outstanding_ninety_days = member.phase_tasks_other_month(selected_month, selected_month).count()
+            training_hours = member.training_hours_other_month(selected_month, selected_year)
+            training_hours_assigned = member.training_hours_assigned_other_month(selected_month, selected_year)
+
+        members_stats.append({
+            'member': member,
+            'actual_hours': actual_hours,
+            'allocated_hours': allocated_hours,
+            'available_hours': available_hours,
+            'utilization_rate': utilization_rate,
+            'capacity_rate': capacity_rate,
+            'value_added_hours': value_added_hours,
+            'active_accounts_count': active_accounts_count,
+            'onboarding_accounts_count': onboarding_accounts_count,
+            'backup_hours_plus_minus': backup_hours_plus_minus,
+            'last_updated_hours': last_updated_hours,
+            'outstanding_ninety_days': outstanding_ninety_days,
+            'training_hours': training_hours,
+            'training_hours_assigned': training_hours_assigned
+        })
 
     if allocated_aggregate + available_aggregate == 0:
         capacity_rate = 0
@@ -163,9 +200,52 @@ def cm_capacity(request):
     else:
         utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
 
+    return members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate
+
+
+@login_required
+def cm_capacity(request):
+    """
+    Creates report that shows the capacity of the PPC campaign managers on an aggregated and individual basis
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    now = datetime.datetime.now()
+    selected_month = now.month
+    selected_year = now.year
+    historical = False
+
+    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
+            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
+        selected_month = int(request.GET.get('month'))
+        selected_year = int(request.GET.get('year'))
+        historical = True
+
+    # Probably has to be changed before production
+    # This badly has to be fixed when we implement proper roles
+    # TODO: Make this reasonable
+    role = Role.objects.filter(
+        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
+            name='PPC Team Lead') | Q(name='Team Lead'))
+    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
+
+    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
+        build_member_stats_from_members(members, selected_month, selected_year, historical)
+
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
 
     report_type = 'CM Member Dashboard'
+
+    ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
+    new_accounts = Client.objects.filter(created_at__gte=ninety_days_ago)
+
+    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    years = [i for i in range(2018, now.year + 1)]
+    selected = {
+        'month': selected_month,
+        'year': selected_year
+    }
 
     context = {
         'title': 'CM Member Dashboard',
@@ -176,7 +256,13 @@ def cm_capacity(request):
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
         'report_type': report_type,
-        'outstanding_budget_accounts': outstanding_budget_accounts
+        'new_accounts': new_accounts,
+        'outstanding_budget_accounts': outstanding_budget_accounts,
+        'months': months,
+        'years': years,
+        'selected': selected,
+        'historical': historical,
+        'members_stats': members_stats
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
@@ -190,33 +276,35 @@ def am_capacity(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    now = datetime.datetime.now()
+    selected_month = now.month
+    selected_year = now.year
+    historical = False
+
+    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
+            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
+        selected_month = int(request.GET.get('month'))
+        selected_year = int(request.GET.get('year'))
+        historical = True
+
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager') | Q(
         name='Team Lead - Client Services'))
     members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
-    actual_aggregate = 0.0
-    allocated_aggregate = 0.0
-    available_aggregate = 0.0
-
-    for member in members:
-        actual_aggregate += member.actual_hours_this_month
-        allocated_aggregate += member.allocated_hours_month()
-        available_aggregate += member.hours_available
-
-    if allocated_aggregate + available_aggregate == 0:
-        capacity_rate = 0
-    else:
-        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-
-    if allocated_aggregate == 0:
-        utilization_rate = 0
-    else:
-        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
+        build_member_stats_from_members(members, selected_month, selected_year, historical)
 
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
 
     report_type = 'AM Member Dashboard'
+
+    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    years = [i for i in range(2018, now.year + 1)]
+    selected = {
+        'month': selected_month,
+        'year': selected_year
+    }
 
     context = {
         'title': 'AM Member Dashboard',
@@ -227,7 +315,12 @@ def am_capacity(request):
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
         'report_type': report_type,
-        'outstanding_budget_accounts': outstanding_budget_accounts
+        'outstanding_budget_accounts': outstanding_budget_accounts,
+        'selected': selected,
+        'months': months,
+        'years': years,
+        'members_stats': members_stats,
+        'historical': historical
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
@@ -241,13 +334,20 @@ def seo_capacity(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    now = datetime.datetime.now()
+    selected_month = now.month
+    selected_year = now.year
+    historical = False
+
+    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
+            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
+        selected_month = int(request.GET.get('month'))
+        selected_year = int(request.GET.get('year'))
+        historical = True
+
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern') | Q(name='Team Lead - SEO'))
     members = Member.objects.filter(Q(role__in=role) | Q(id=15)).order_by('user__first_name')
-
-    actual_aggregate = 0.0
-    allocated_aggregate = 0.0
-    available_aggregate = 0.0
 
     total_seo_hours = 0.0
     total_cro_hours = 0.0
@@ -256,10 +356,8 @@ def seo_capacity(request):
     seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
         Q(status=0) | Q(status=1)).order_by('client_name')
 
-    for member in members:
-        actual_aggregate += member.actual_hours_this_month
-        allocated_aggregate += member.allocated_hours_month()
-        available_aggregate += member.hours_available
+    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
+        build_member_stats_from_members(members, selected_month, selected_year, historical)
 
     for account in seo_accounts:
         if account.has_seo:
@@ -267,19 +365,16 @@ def seo_capacity(request):
         if account.has_cro:
             total_cro_hours += account.cro_hours
 
-    if allocated_aggregate + available_aggregate == 0:
-        capacity_rate = 0
-    else:
-        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-
-    if allocated_aggregate == 0:
-        utilization_rate = 0
-    else:
-        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
-
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
 
     report_type = 'SEO Member Dashboard'
+
+    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    years = [i for i in range(2018, now.year + 1)]
+    selected = {
+        'month': selected_month,
+        'year': selected_year
+    }
 
     context = {
         'title': 'SEO Member Dashboard',
@@ -294,7 +389,11 @@ def seo_capacity(request):
         'status_badges': status_badges,
         'total_seo_hours': total_seo_hours,
         'total_cro_hours': total_cro_hours,
-        'outstanding_budget_accounts': outstanding_budget_accounts
+        'outstanding_budget_accounts': outstanding_budget_accounts,
+        'members_stats': members_stats,
+        'selected': selected,
+        'months': months,
+        'years': years
     }
 
     return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
@@ -325,32 +424,34 @@ def strat_capacity(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
+    now = datetime.datetime.now()
+    selected_month = now.month
+    selected_year = now.year
+    historical = False
+
+    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
+            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
+        selected_month = int(request.GET.get('month'))
+        selected_year = int(request.GET.get('year'))
+        historical = True
+
     # Probably has to be changed before production
     role = Role.objects.filter(Q(name='Strategist'))
     members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
-    actual_aggregate = 0.0
-    allocated_aggregate = 0.0
-    available_aggregate = 0.0
-
-    for member in members:
-        actual_aggregate += member.actual_hours_this_month
-        allocated_aggregate += member.allocated_hours_month()
-        available_aggregate += member.hours_available
-
-    if allocated_aggregate + available_aggregate == 0:
-        capacity_rate = 0
-    else:
-        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
-
-    if allocated_aggregate == 0:
-        utilization_rate = 0
-    else:
-        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
+        build_member_stats_from_members(members, selected_month, selected_year, historical)
 
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
 
     report_type = 'Strat Member Dashboard'
+
+    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
+    years = [i for i in range(2018, now.year + 1)]
+    selected = {
+        'month': selected_month,
+        'year': selected_year
+    }
 
     context = {
         'title': 'Strat Member Dashboard',
@@ -361,7 +462,12 @@ def strat_capacity(request):
         'allocated_aggregate': allocated_aggregate,
         'available_aggregate': available_aggregate,
         'report_type': report_type,
-        'outstanding_budget_accounts': outstanding_budget_accounts
+        'outstanding_budget_accounts': outstanding_budget_accounts,
+        'members_stats': members_stats,
+        'selected': selected,
+        'months': months,
+        'years': years,
+        'historical': historical
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
@@ -541,13 +647,14 @@ def monthly_reporting(request):
         'year': now.year
     }
 
-    if request.method == 'GET':
+    print(request.method)
+    if request.method == 'GET' and not request.GET.get('filter_month'):
         reports = MonthlyReport.objects.filter(year=now.year, month=now.month, no_report=False)
-    elif request.method == 'POST':
-        year = request.POST.get('year')
-        month = request.POST.get('month')
-        account_id = request.POST.get('account')
-        team_id = request.POST.get('team')
+    elif request.method == 'GET':
+        year = request.GET.get('year')
+        month = request.GET.get('month')
+        account_id = request.GET.get('account')
+        team_id = request.GET.get('team')
 
         reports = MonthlyReport.objects.filter(no_report=False)
 
@@ -597,7 +704,8 @@ def monthly_reporting(request):
         'teams': teams,
         'months': months,
         'years': years,
-        'selected': selected
+        'selected': selected,
+        'date_statuses': MonthlyReport.DATE_STATUSES
     }
 
     return render(request, 'reports/monthly_reports_refactor.html', context)
@@ -1019,6 +1127,19 @@ def new_internal_oops(request):
         internal_oops.description = description
         internal_oops.save()
 
+        internal_oops.save()
+
+        # send email to mailing list
+        mail_details = {
+            'incident': internal_oops
+        }
+
+        msg_html = render_to_string(TEMPLATE_DIR + '/mails/new_internal_oops.html', mail_details)
+
+        send_mail(
+            'New Internal Oops Report Created', msg_html,
+            EMAIL_HOST_USER, settings.OOPS_HF_MAILING_LIST, fail_silently=False, html_message=msg_html)
+
         return redirect('/reports/oops')
 
 
@@ -1070,7 +1191,7 @@ def new_client_oops(request):
             issue_type = None
         try:
             budget_error_amt = float(r.get('budget_error'))
-        except ValueError:
+        except (ValueError, TypeError):
             budget_error_amt = 0.0
         try:
             platform = r.get('platform')
@@ -1096,7 +1217,10 @@ def new_client_oops(request):
 
         members = []
         for member_id in r.getlist('member'):
-            members.append(Member.objects.get(id=member_id))
+            try:
+                members.append(Member.objects.get(id=member_id))
+            except Member.DoesNotExist:
+                pass
         incident.members.set(members)
 
         incident.description = description
@@ -1119,7 +1243,7 @@ def new_client_oops(request):
         try:
             refund_amount = float(r.get('refund_amount'))
             incident.refund_amount = refund_amount
-        except ValueError:
+        except (ValueError, TypeError):
             pass
 
         incident.save()
@@ -1132,7 +1256,7 @@ def new_client_oops(request):
         msg_html = render_to_string(TEMPLATE_DIR + '/mails/new_incident.html', mail_details)
 
         send_mail(
-            'New Oops Report Created', msg_html,
+            'New Client Oops Report Created', msg_html,
             EMAIL_HOST_USER, settings.OOPS_HF_MAILING_LIST, fail_silently=False, html_message=msg_html)
 
         return redirect('/reports/oops')
@@ -1334,7 +1458,8 @@ def month_over_month(request):
 
     selected = {
         'month': str(month),
-        'year': str(year)
+        'year': str(year),
+        'account_id': account_id
     }
 
     month_strs = []
@@ -1352,6 +1477,9 @@ def month_over_month(request):
                 bh = AccountBudgetSpendHistory.objects.get(month=cur_month, year=cur_year, account=account)
                 tmpd['fee'] = round(bh.management_fee, 2)
                 tmpd['spend'] = round(bh.spend, 2)
+                tmpd['aw_spend'] = round(bh.aw_spend, 2)
+                tmpd['fb_spend'] = round(bh.fb_spend, 2)
+                tmpd['bing_spend'] = round(bh.bing_spend, 2)
             except AccountBudgetSpendHistory.DoesNotExist:
                 tmpd['fee'] = 0.0
                 tmpd['spend'] = 0.0

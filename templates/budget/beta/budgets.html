@@ -211,21 +211,24 @@
                             </div>
                             <div class="control">
                                 <div class="tags has-addons">
-                                    <span class="tag is-medium" {% if account.adwords.all %}style="background-color: #13a365; color: white;"{% endif %}>
+                                    <span class="tag is-medium"
+                                          {% if account.adwords.all %}style="background-color: #13a365; color: white;"{% endif %}>
                                         Google Ads
                                     </span>
                                 </div>
                             </div>
                             <div class="control">
                                 <div class="tags has-addons">
-                                    <span class="tag is-medium" {% if account.facebook.all %}style="background-color: #4267B2; color: white;"{% endif %}>
+                                    <span class="tag is-medium"
+                                          {% if account.facebook.all %}style="background-color: #4267B2; color: white;"{% endif %}>
                                         Facebook Ads
                                     </span>
                                 </div>
                             </div>
                             <div class="control">
                                 <div class="tags has-addons">
-                                    <span class="tag is-medium" {% if account.bing.all %}style="background-color: #00887E; color: white;"{% endif %}>
+                                    <span class="tag is-medium"
+                                          {% if account.bing.all %}style="background-color: #00887E; color: white;"{% endif %}>
                                         Bing Ads
                                     </span>
                                 </div>
@@ -246,9 +249,12 @@
             <div class="card">
                 <header class="card-header">
                     <p class="card-header-title">
-                        <span class="tooltip" data-tooltip="{{ budget.id }}">{{ budget.name }}&nbsp;</span> - {{ budget.description }}
+                        <span class="tooltip" data-tooltip="{{ budget.id }}">{{ budget.name }}&nbsp;</span>
+                        - {{ budget.description }}
                         {% if budget.is_new %}&nbsp;
-                        <span class="tag is-warning">This budget is still new, please check back in about an hour</span>
+                            <span class="tag is-warning">This budget is still new, please check back in about an hour</span>
+                        {% elif budget.is_edited %}
+                            <span class="tag is-info">This budget was recently edited, please check back in about an hour</span>
                         {% endif %}
                         &nbsp;
                         <button class="button is-outlined is-small edit-budget-btn" data-budget-id="{{ budget.id }}"
@@ -263,21 +269,24 @@
                     <div id="meta" class="field is-grouped is-grouped-multiline subtitle">
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag is-small" {% if budget.has_adwords %}style="background-color: #13a365; color: white;"{% endif %}>
+                                <span class="tag is-small"
+                                      {% if budget.has_adwords %}style="background-color: #13a365; color: white;"{% endif %}>
                                     Google
                                 </span>
                             </div>
                         </div>
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag is-small" {% if budget.has_facebook %}style="background-color: #4267B2; color: white;"{% endif %}>
+                                <span class="tag is-small"
+                                      {% if budget.has_facebook %}style="background-color: #4267B2; color: white;"{% endif %}>
                                     FB
                                 </span>
                             </div>
                         </div>
                         <div class="control">
                             <div class="tags has-addons">
-                                <span class="tag is-small" {% if budget.has_bing %}style="background-color: #00887E; color: white;"{% endif %}>
+                                <span class="tag is-small"
+                                      {% if budget.has_bing %}style="background-color: #00887E; color: white;"{% endif %}>
                                     Bing
                                 </span>
                             </div>
@@ -387,7 +396,8 @@
                                class="is-hidden"/>
                         <div class="tabs is-centered is-boxed">
                             <ul>
-                                <li class="tab is-active" onclick="openTab(event, 'all_campaigns')" id="all_campaigns_tab">
+                                <li class="tab is-active" onclick="openTab(event, 'all_campaigns')"
+                                    id="all_campaigns_tab">
                                     <a>
                                         <span class="icon is-small"><i class="fas fa-image"
                                                                        aria-hidden="true"></i></span>

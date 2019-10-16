@@ -12,6 +12,41 @@
                         {{ report_type }}
                     </h4>
                     <hr>
+                    <form method="GET">
+                        <div class="columns">
+                            <div class="column is-3">
+                                <label class="label">Month</label>
+                                <div class="select is-fullwidth">
+                                    <select name="month">
+                                        {% for month_num, month_name in months %}
+                                            <option value="{{ month_num }}"
+                                                    {% if selected.month == month_num %}selected{% endif %}>
+                                                {{ month_name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label">Year</label>
+                                <div class="select is-fullwidth">
+                                    <select name="year">
+                                        {% for year in years %}
+                                            <option value="{{ year }}"
+                                                    {% if selected.year == year %}selected{% endif %}>
+                                                {{ year }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="column is-3">
+                                <label class="label">&nbsp;</label>
+                                <button class="button">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
                     <div class="columns">
                         <div class="column is-one-fifth has-text-centered">
                             <div class="box">
@@ -44,7 +79,8 @@
                             </div>
                         </div>
                         <div class="column is-one-fifth has-text-centered">
-                            <div class="box">
+                            <div class="box tooltip"
+                                 data-tooltip="(Actual Hours + Value Added Hours ) / Allocated Hours">
                                 <p class="heading">
                                     Total Utilization Rate
                                 </p>
@@ -54,7 +90,7 @@
                             </div>
                         </div>
                         <div class="column is-one-fifth has-text-centered">
-                            <div class="box">
+                            <div class="box tooltip" data-tooltip="(Allocated Hours / Total Hours) - Buffers">
                                 <p class="heading">
                                     Total Capacity Rate
                                 </p>
@@ -79,10 +115,11 @@
                                 <th>
                                     Available Hours
                                 </th>
-                                <th>
+                                <th class="tooltip"
+                                    data-tooltip="(Actual Hours + Value Added Hours ) / Allocated Hours">
                                     Utilization Rate
                                 </th>
-                                <th>
+                                <th class="tooltip" data-tooltip="(Allocated Hours / Total Hours) - Buffers">
                                     Capacity Rate
                                 </th>
                                 <th>
@@ -106,43 +143,45 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for member in members %}
+                            {% for member_obj in members_stats %}
                                 <tr>
                                     <td>
-                                        <a href="/user_management/members/{{ member.id }}">{{ member.user.get_full_name }}</a>
+                                        <a href="/user_management/members/{{ member.id }}">
+                                            {{ member_obj.member.user.get_full_name }}
+                                        </a>
                                     </td>
                                     <td>
-                                        {{ member.actual_hours_this_month|round_to_two }}
+                                        {{ member_obj.actual_hours|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ member.allocated_hours_month|round_to_two }}
+                                        {{ member_obj.allocated_hours|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ member.hours_available|round_to_two }}
+                                        {{ member_obj.available_hours|round_to_two }}
                                     </td>
                                     <td>
-                                        {{ member.utilization_rate|round_to_two }}%
+                                        {{ member_obj.utilization_rate|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ member.capacity_rate|round_to_two }}%
+                                        {{ member_obj.capacity_rate|round_to_two }}%
                                     </td>
                                     <td>
-                                        {{ member.value_added_hours_this_month|round_to_two }}
+                                        {{ member_obj.value_added_hours|round_to_two }}
                                     </td>
-                                    <td class="{% if member.backup_hours_plus_minus > 0 %}text-success{% elif member.backup_hours_plus_minus < 0 %}text-danger{% endif %}">
-                                        {{ member.backup_hours_plus_minus }}
-                                    </td>
-                                    <td>
-                                        {{ member.last_updated_hours }}
+                                    <td class="{% if member_obj.backup_hours_plus_minus > 0 %}text-success{% elif member_obj.backup_hours_plus_minus < 0 %}text-danger{% endif %}">
+                                        {{ member_obj.backup_hours_plus_minus }}
                                     </td>
                                     <td>
-                                        {{ member.phase_tasks.count }}
+                                        {{ member_obj.last_updated_hours }}
                                     </td>
                                     <td>
-                                        {{ member.training_hours_month }}
+                                        {{ member_obj.outstanding_ninety_days }}
                                     </td>
                                     <td>
-                                        {{ member.learning_hours }}
+                                        {{ member_obj.training_hours }}
+                                    </td>
+                                    <td>
+                                        {{ member_obj.training_hours_assigned }}
                                     </td>
                                 </tr>
                             {% endfor %}
