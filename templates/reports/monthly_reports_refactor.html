@@ -33,7 +33,8 @@
                         </div>
                     </div>
                     <hr/>
-                    <form method="POST">{% csrf_token %}
+                    <form method="GET">
+                        <input type="hidden" name="filter_month" value="0">
                         <div class="columns">
                             <div class="column is-one-fifth">
                                 <label class="label" for="account">Account:</label>
@@ -106,7 +107,7 @@
                                 Month
                             </th>
                             <th>
-                                Due date
+                                Date Status
                             </th>
                             <th>
                                 Sent to AM
@@ -126,7 +127,49 @@
                                     {{ report.month|get_month_name }}, {{ report.year }}
                                 </td>
                                 <td>
-                                    {{ report.due_date }}
+                                    {% if report.date_status is None %}
+                                        <form action="/user_management/members/{{ request.user.member.id }}/reports/update_date_status"
+                                              method="POST">
+                                            {% csrf_token %}
+                                            <div class="columns">
+                                                <div class="column is-9">
+                                                    <input type="hidden" value="{{ report.id }}" name="report_id">
+                                                    <input type="hidden" value="{{ request.get_full_path }}"
+                                                           name="page_path">
+                                                    <select name="date_status" required style="width: 100%;">
+                                                        <option value="" hidden selected>--</option>
+                                                        {% for id, status in date_statuses %}
+                                                            <option value="{{ id }}">{{ status }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="column is-3">
+                                                    <button class="is-fullwidth">
+                                                        Confirm
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    {% elif report.date_status == 0 and report.due_date is None %}
+                                        <div class="columns">
+                                            <div class="column is-9">
+                                                <input class="datepicker-here" type="text" id="{{ report.id }}"
+                                                       data-account-id="{{ report.account.id }}"
+                                                       data-language="en" placeholder="Set Due Date Here"
+                                                       style="width: 100%;">
+                                            </div>
+                                            <div class="column is-3">
+                                                <button class="is-fullwidth due-date-confirm"
+                                                        data-id="{{ report.id }}">
+                                                    Confirm
+                                                </button>
+                                            </div>
+                                        </div>
+                                    {% elif report.date_status == 0 %}
+                                        <strong>{{ report.due_date }}</strong>
+                                    {% else %}
+                                        <strong>Flexible</strong>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {{ report.date_sent_to_am }}
@@ -142,4 +185,35 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('.due-date-confirm').click(function () {
+            let selector = '#' + $(this).data('id');
+            let dueDate = $(selector).val();
+            let accountID = $(selector).data('account-id');
+
+            if (dueDate === '') {
+                toastr.error('Please enter a due date!');
+                return;
+            }
+
+            $.ajax({
+                url: '/clients/reports/set_due_date',
+                data: {
+                    'account_id': accountID,
+                    'month': '{{ reports.0.month }}',
+                    'year': '{{ reports.0.year }}',
+                    'due_date': dueDate
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully set report due date!');
+                    $(this).prop('disabled', true);
+                }
+            });
+        });
+    </script>
 {% endblock %}

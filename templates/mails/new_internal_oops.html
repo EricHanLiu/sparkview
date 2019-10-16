@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load template_filters %}
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Oops Report</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body>
+<h2 style="color: #1b2126;">Hello!</h2>
+
+<div class="portlet"
+     style="padding: .1em; box-shadow: 0px 2px 5px 1px rgba(0, 0, 0, 0.2); margin-top: .5em; margin-bottom: .5em;">
+    <h4 style="text-align: center; color: #444;">A new oops report was created by {{ incident.reporter.user.get_full_name }}.</h4>
+    <table style="background: #f2f2f2; text-align: center; width: 100%;">
+        <tr>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">
+                Timestamp
+            </th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">
+                Date Of Issue
+            </th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">
+                Reported By
+            </th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">
+                Issue Description
+            </th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">
+                Type of Issue
+            </th>
+            <th style="color: #fff; background: #0057e7; margin: 0.35em;">
+                Member(s) Responsible
+            </th>
+        </tr>
+        <tr>
+            <td style="border: 1px solid #e2e2e2;">
+                {{ incident.timestamp }}
+            </td>
+            <td style="border: 1px solid #e2e2e2;">
+                {{ incident.date }}
+            </td>
+            <td style="border: 1px solid #e2e2e2;">
+                {{ incident.reporter.user.get_full_name }}
+            </td>
+            <td style="border: 1px solid #e2e2e2;">
+                <div style="max-height: 70px; overflow: auto;">
+                    {{ incident.description }}
+                </div>
+            </td>
+            <td style="border: 1px solid #e2e2e2;">
+                {{ incident.issue.name }}
+            </td>
+            <td style="border: 1px solid #e2e2e2;">
+                {% for member in incident.members.all %}
+                    {{ member.user.get_full_name }}
+                    {% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>

@@ -119,6 +119,7 @@ class MonthlyReport(models.Model):
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
     REPORT_TYPE_CHOICES = [(1, 'Standard'), (2, 'Advanced')]
     REPORT_SERVICES = [(0, 'None'), (1, 'PPC'), (2, 'SEO'), (3, 'Both')]
+    DATE_STATUSES = [(0, 'Client Requested Due Date'), (1, 'Flexible')]
 
     account = models.ForeignKey('budget.Client', models.SET_NULL, blank=True, null=True)
     month = models.IntegerField(default=1, choices=MONTH_CHOICES)
@@ -132,6 +133,7 @@ class MonthlyReport(models.Model):
     date_sent_to_am = models.DateTimeField(blank=True, null=True)
     date_sent_by_am = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    date_status = models.IntegerField(default=None, null=True, choices=DATE_STATUSES)
 
     @property
     def report_name(self):

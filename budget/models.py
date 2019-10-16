@@ -193,6 +193,9 @@ class Client(models.Model):
     onboarding_hours_allocated_updated_timestamp = models.DateTimeField(null=True, default=None)
     tags = models.ManyToManyField(Tag, blank=True)
 
+    num_days_onboarding = models.IntegerField(default=None, null=True)
+    num_times_flagged = models.IntegerField(default=0)
+
     @property
     def is_active(self):
         return self.status == 1
@@ -1417,11 +1420,10 @@ class Client(models.Model):
 
     @property
     def onboarding_duration_elapsed(self):
-        if self.status != 0:
-            return None
-        else:
+        if self.status == 0:
             now = timezone.now()
-            return (now - self.created_at).days + 1
+            self.num_days_onboarding = (now - self.created_at).days + 1
+        return self.num_days_onboarding
 
     @property
     def projected_ppc_fee(self):
