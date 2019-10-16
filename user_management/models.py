@@ -375,7 +375,7 @@ class Member(models.Model):
     def last_updated_hours(self):
         if not hasattr(self, '_last_updated_hours'):
             account_hour_record_model = apps.get_model('client_area', 'AccountHourRecord')
-            entries = account_hour_record_model.objects.filter(member=self)
+            entries = account_hour_record_model.objects.filter(member=self, hours__gt=0)
             if entries.count() == 0:
                 return None
             last_entry = entries.latest('created_at')

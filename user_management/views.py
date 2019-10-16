@@ -1148,8 +1148,9 @@ def input_hours_profile(request, id):
             year = request.POST.get('year-' + i)
 
             is_onboarding = account.status == 0
-            AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
-                                             is_onboarding=is_onboarding)
+            if hours > 0:
+                AccountHourRecord.objects.create(member=member, account=account, hours=hours, month=month, year=year,
+                                                 is_onboarding=is_onboarding)
 
         return redirect('/user_management/members/' + str(member.id) + '/input_hours')
 

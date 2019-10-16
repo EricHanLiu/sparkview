@@ -1020,6 +1020,7 @@ def edit_budget(request):
     budget.name = request.POST.get('budget_name')
     budget.account = account
     budget.budget = request.POST.get('budget_amount')
+    budget.is_edited = True
     budget.save()
 
     if 'google_ads' in request.POST:
@@ -1035,6 +1036,7 @@ def edit_budget(request):
         # Lousy, but it works for now
         budget.grouping_type = 0
         budget.is_new = False
+        budget.is_edited = False
         for c in request.POST.getlist('campaigns'):
             budget.aw_campaigns.clear()
             budget.bing_campaigns.clear()
@@ -1477,6 +1479,7 @@ def new_budget(request):
         # Lousy, but it works for now
         budget.grouping_type = 0
         budget.is_new = False
+        budget.is_edited = False
         for c in request.POST.getlist('campaigns'):
             try:
                 cmp = Campaign.objects.get(campaign_id=c)
