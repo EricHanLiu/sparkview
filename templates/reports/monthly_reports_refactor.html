@@ -129,7 +129,7 @@
                                 <td>
                                     {{ report.month|get_month_name }}, {{ report.year }}
                                 </td>
-                                <td> {{ report.get_report_type_display() }}</td>
+                                <td> {{ report.get_report_type_display }}</td>
                                 <td>
                                     {% if report.date_status is None %}
                                         <form action="/user_management/members/{{ request.user.member.id }}/reports/update_date_status"
