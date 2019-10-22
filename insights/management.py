@@ -73,7 +73,8 @@ def get_accounts(analytics):
     :return:
     """
     accounts = analytics.management().accounts().list().execute()
-    return accounts
+    sorted_accounts = sorted(accounts['items'], key=lambda a: a['name'])
+    return sorted_accounts
 
 
 def get_properties(analytics, account_id):
