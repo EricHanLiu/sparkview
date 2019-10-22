@@ -132,6 +132,7 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
     actual_aggregate = 0.0
     allocated_aggregate = 0.0
     available_aggregate = 0.0
+    lifespan_aggregate = 0.0
     members_stats = []
 
     for member in members:
@@ -139,6 +140,7 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             actual_aggregate += member.actual_hours_this_month
             allocated_aggregate += member.allocated_hours_this_month
             available_aggregate += member.hours_available
+            lifespan_aggregate += member.lifespan
 
             actual_hours = member.actual_hours_this_month
             allocated_hours = member.allocated_hours_this_month
@@ -157,6 +159,7 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             actual_aggregate += member.actual_hours_other_month(selected_month, selected_year)
             allocated_aggregate += member.allocated_hours_other_month(selected_month, selected_year)
             available_aggregate += member.hours_available_other_month(selected_month, selected_year)
+            lifespan_aggregate += member.lifespan
 
             actual_hours = member.actual_hours_other_month(selected_month, selected_year)
             allocated_hours = member.allocated_hours_other_month(selected_month, selected_year)
@@ -190,17 +193,26 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             'training_hours_assigned': training_hours_assigned
         })
 
+    department_stats = {}
+
     if allocated_aggregate + available_aggregate == 0:
-        capacity_rate = 0
+        department_stats['capacity_rate'] = 0
     else:
-        capacity_rate = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
+        department_stats['capacity_rate'] = 100 * (allocated_aggregate / (allocated_aggregate + available_aggregate))
 
     if allocated_aggregate == 0:
-        utilization_rate = 0
+        department_stats['utilization_rate'] = 0
     else:
-        utilization_rate = 100 * (actual_aggregate / allocated_aggregate)
+        department_stats['utilization_rate'] = 100 * (actual_aggregate / allocated_aggregate)
 
-    return members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate
+    department_stats['average_lifespan'] = lifespan_aggregate / members.count()
+    department_stats.update({
+        'actual_aggregate': 0.0,
+        'allocated_aggregate': 0.0,
+        'available_aggregate': 0.0,
+    })
+
+    return members_stats, department_stats
 
 
 @login_required
@@ -230,8 +242,8 @@ def cm_capacity(request):
             name='PPC Team Lead') | Q(name='Team Lead'))
     members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
 
-    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
-        build_member_stats_from_members(members, selected_month, selected_year, historical)
+    members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
+                                                                      historical)
 
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
 
@@ -250,11 +262,7 @@ def cm_capacity(request):
     context = {
         'title': 'CM Member Dashboard',
         'members': members,
-        'actual_aggregate': actual_aggregate,
-        'capacity_rate': capacity_rate,
-        'utilization_rate': utilization_rate,
-        'allocated_aggregate': allocated_aggregate,
-        'available_aggregate': available_aggregate,
+        'department_stats': department_stats,
         'report_type': report_type,
         'new_accounts': new_accounts,
         'outstanding_budget_accounts': outstanding_budget_accounts,

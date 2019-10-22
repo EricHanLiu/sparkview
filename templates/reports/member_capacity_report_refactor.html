@@ -8,7 +8,7 @@
         <div class="container is-fluid">
             <div class="card">
                 <div class="card-content">
-                    <h4 class="title is-4">
+                    <h4 class="title is-3">
                         {{ report_type }}
                     </h4>
                     <hr>
@@ -46,60 +46,70 @@
                             </div>
                         </div>
                     </form>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 2em;">
+                <div class="card-content">
+                    <div class="title is-4">Department Overall</div>
                     <hr>
                     <div class="columns">
-                        <div class="column is-one-fifth has-text-centered">
+                        <div class="column has-text-centered">
                             <div class="box">
                                 <p class="heading">
-                                    Total Actual Hours
+                                    Average Lifespan
                                 </p>
                                 <h4 class="title is-4">
-                                    {{ actual_aggregate|round_to_two }}
+                                    {{ department_stats.average_lifespan|round_to_two }}
                                 </h4>
                             </div>
                         </div>
-                        <div class="column is-one-fifth has-text-centered">
-                            <div class="box">
+                        <div class="column has-text-centered">
+                            <div class="box tooltip" data-tooltip="(Allocated Hours / Total Hours) - Buffers">
                                 <p class="heading">
-                                    Total Allocated Hours
+                                    Total Capacity Rate
                                 </p>
                                 <h4 class="title is-4">
-                                    {{ allocated_aggregate|round_to_two }}
+                                    {{ department_stats.capacity_rate|round_to_two }}%
                                 </h4>
                             </div>
                         </div>
-                        <div class="column is-one-fifth has-text-centered">
-                            <div class="box">
-                                <p class="heading">
-                                    Total Available Hours
-                                </p>
-                                <h4 class="title is-4">
-                                    {{ available_aggregate|round_to_two }}
-                                </h4>
-                            </div>
-                        </div>
-                        <div class="column is-one-fifth has-text-centered">
+                        <div class="column has-text-centered">
                             <div class="box tooltip"
                                  data-tooltip="(Actual Hours + Value Added Hours ) / Allocated Hours">
                                 <p class="heading">
                                     Total Utilization Rate
                                 </p>
                                 <h4 class="title is-4">
-                                    {{ utilization_rate|round_to_two }}%
+                                    {{ department_stats.utilization_rate|round_to_two }}%
                                 </h4>
                             </div>
                         </div>
-                        <div class="column is-one-fifth has-text-centered">
-                            <div class="box tooltip" data-tooltip="(Allocated Hours / Total Hours) - Buffers">
+                        <div class="column has-text-centered">
+                            <div class="box">
                                 <p class="heading">
-                                    Total Capacity Rate
+                                    Revenue Growth/loss
                                 </p>
                                 <h4 class="title is-4">
-                                    {{ capacity_rate|round_to_two }}%
+                                    GRAPH GOES HERE
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="column has-text-centered">
+                            <div class="box">
+                                <p class="heading">
+                                    KPI % Completion
+                                </p>
+                                <h4 class="title is-4">
+                                    {{ 0 }}
                                 </h4>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 2em;">
+                <div class="card-content">
+                    <div class="title is-4">Department Members</div>
                     <hr>
                     <div style="width: 100%; overflow: auto;">
                         <table class="table dataTable is-hoverable is-striped is-fullwidth">
@@ -201,6 +211,11 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 2em">
+                <div class="card-content">
+                    <div class="title is-4">Department Clients</div>
                     <hr>
                     <h5 class="title is-5">Outstanding Renewed Budgets</h5>
                     <table class="table dataTable is-hoverable is-fullwidth is-striped">

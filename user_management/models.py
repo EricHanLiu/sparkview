@@ -313,6 +313,15 @@ class Member(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     @property
+    def lifespan(self):
+        """
+        Returns the number of days this member has existed for
+        """
+        if not hasattr(self, '_lifespan'):
+            self._lifespan = (datetime.date.today() - self.created.date()).days
+        return self._lifespan
+
+    @property
     def is_locked_out(self):
         if self.user.is_superuser or self.last_updated_hours is None:
             return False
