@@ -3968,7 +3968,7 @@
                 headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 type: 'POST',
                 success: (data) => {
-                    let gaAccs = data['items'];
+                    let gaAccs = data;
                     gaAccs.forEach(acc => {
                         let markup = '<option value="' + acc['id'] + '">' + acc['name'] + '</option>';
                         $accountSelect.append(markup);

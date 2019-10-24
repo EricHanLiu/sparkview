@@ -108,7 +108,7 @@ def get_accounts(request):
     :return:
     """
     analytics = initialize_analyticsmanagement()
-    return JsonResponse(get_ga_accounts(analytics))
+    return JsonResponse(get_ga_accounts(analytics), safe=False)
 
 
 @login_required
