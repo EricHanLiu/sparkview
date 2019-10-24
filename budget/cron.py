@@ -595,6 +595,8 @@ def daily_context(self):
             record, created = AccountAllocatedHoursHistory.objects.get_or_create(account=account, member=member,
                                                                                  month=month, year=year)
             record.allocated_hours = allocated_hours_month
+            record.worked_hours = account.get_hours_worked_this_month_member(
+                member) + account.value_added_hours_month_member(member)
             record.save()
 
         # Do spend and budget

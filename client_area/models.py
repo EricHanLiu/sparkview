@@ -222,6 +222,7 @@ class Promo(models.Model):
 class AccountAllocatedHoursHistory(models.Model):
     """
     Backs up account history allocation by account and member
+    Also stores hours worked to determine if member was over/under their allocation
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
@@ -229,7 +230,27 @@ class AccountAllocatedHoursHistory(models.Model):
     member = models.ForeignKey('user_management.Member', on_delete=models.SET_NULL, null=True)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
-    allocated_hours = models.FloatField(default=0)
+    allocated_hours = models.FloatField(default=0.0)
+    worked_hours = models.FloatField(default=0.0)
+
+    @property
+    def over_hours(self):
+        """
+        Returns true if the member has exceeded their allocated hours on the account given
+        """
+        return self.worked_hours > self.allocated_hours
+
+    @property
+    def under_hours(self):
+        """
+        Returns true if the member is under their allocated hours on the account given
+        """
+        if self.worked_hours == 0:  # worked hours was just added, don't want false positives
+            return False
+        return self.worked_hours < self.allocated_hours
+
+    def __str__(self):
+        return 'Hour archive for ' + str(self.member) + ' and ' + str(self.account)
 
 
 class OnboardingStep(models.Model):

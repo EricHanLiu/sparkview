@@ -205,10 +205,10 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
     else:
         department_stats['utilization_rate'] = 100 * (actual_aggregate / allocated_aggregate)
 
-    if members.count() == 0:
+    if len(members) == 0:
         department_stats['average_lifespan'] = 0
     else:
-        department_stats['average_lifespan'] = lifespan_aggregate / members.count()
+        department_stats['average_lifespan'] = lifespan_aggregate / len(members)
     department_stats.update({
         'actual_aggregate': 0.0,
         'allocated_aggregate': 0.0,
@@ -225,7 +225,7 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
                                                                                                 'month').annotate(
             sum_hours=Sum('allocated_hours'))
         allocated_hours = 0.0
-        if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
+        if len(allocated_history) > 0 and 'sum_hours' in allocated_history[0]:
             allocated_hours = allocated_history[0]['sum_hours']
 
         all_hours = account.all_hours_month_year(selected_month, selected_year)
@@ -242,19 +242,28 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
         under_members = []
         for key, value in account.assigned_cms.items():
             member = account.assigned_cms[key]['member']
+            histories = list(AccountAllocatedHoursHistory.objects.filter(member=member, year__lte=selected_year,
+                                                                         account=account))
+            for x in histories:
+                if x.month > selected_month and x.year == selected_year:
+                    # exclude those whose months are after the selected
+                    histories.remove(x)
+
             if account.get_hours_remaining_this_month_member(member) < 0:
+                over_hours_freq = len([x for x in histories if x.over_hours])
                 over_members.append({
                     'member': member,
                     'allocated_hours': account.get_allocation_this_month_member(member),
                     'actual_hours': account.get_hours_worked_this_month_member(member),
-                    'over_hours_frequency': 1  # TODO: get this based on historical snapshot
+                    'over_hours_frequency': over_hours_freq
                 })
             elif account.get_hours_remaining_this_month_member(member) > 0:
+                under_hours_freq = len([x for x in histories if x.under_hours])
                 under_members.append({
                     'member': member,
                     'allocated_hours': account.get_allocation_this_month_member(member),
                     'actual_hours': account.get_hours_worked_this_month_member(member),
-                    'under_hours_frequency': 1
+                    'under_hours_frequency': under_hours_freq
                 })
 
         tmp = {
@@ -525,7 +534,7 @@ def strat_capacity(request):
         'month': selected_month,
         'year': selected_year
     }
-    
+
     report_type = 'Strat Member Dashboard'
 
     context = {
