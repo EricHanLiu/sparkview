@@ -407,7 +407,13 @@ def am_capacity(request):
     members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
                                                                       historical)
 
-    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
+    try:
+        snapshot = MemberDashboardSnapshot.objects.get(month=selected_month, year=selected_year)
+        outstanding_budget_accounts = snapshot.outstanding_budget_accounts.all()
+        new_accounts = snapshot.new_accounts.all()
+    except MemberDashboardSnapshot.DoesNotExist:
+        outstanding_budget_accounts = None
+        new_accounts = None
 
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
@@ -529,7 +535,13 @@ def strat_capacity(request):
     members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
                                                                       historical)
 
-    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
+    try:
+        snapshot = MemberDashboardSnapshot.objects.get(month=selected_month, year=selected_year)
+        outstanding_budget_accounts = snapshot.outstanding_budget_accounts.all()
+        new_accounts = snapshot.new_accounts.all()
+    except MemberDashboardSnapshot.DoesNotExist:
+        outstanding_budget_accounts = None
+        new_accounts = None
 
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]

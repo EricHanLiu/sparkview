@@ -853,6 +853,9 @@ class Pitch(models.Model):
 class ClientDashboardSnapshot(models.Model):
     """
     A snapshot of a Client model instance with simplified fields/properties for the member dashboards
+    Right now this is mainly to store the attributes for the new accounts table (days in onboarding, times flagged,
+    assigned members, etc.). Admittedly the days_in_onboarding could be calculated, but this is better if
+    more fields need to be tracked in the future
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
