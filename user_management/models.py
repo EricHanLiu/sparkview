@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
 from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
-    MandateHourRecord, AccountAllocatedHoursHistory
+    MandateHourRecord, AccountAllocatedHoursHistory, ClientDashboardSnapshot
 from client_area.utils import days_in_month_in_daterange
 from bloom.utils.utils import num_business_days
 from bloom import settings
@@ -311,6 +311,16 @@ class Member(models.Model):
 
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
     created = models.DateTimeField(auto_now_add=True)
+
+    def lifespan(self, date):
+        """
+        Returns the number of days this member has existed for up to the given date
+        """
+        if not hasattr(self, '_lifespan'):
+            self._lifespan = (date - self.created.date()).days
+            if self._lifespan < 0:
+                return 0
+        return self._lifespan
 
     @property
     def is_locked_out(self):
@@ -1045,6 +1055,7 @@ class MemberHourHistory(models.Model):
     allocated_hours = models.FloatField(default=0.0)
     available_hours = models.FloatField(default=0.0)
     added = models.DateTimeField(auto_now_add=True)
+
     buffer_multiplier = models.FloatField(default=0.0)
     training_buffer = models.FloatField(default=0.0)
     total_buffer = models.FloatField(default=0.0)
@@ -1052,3 +1063,20 @@ class MemberHourHistory(models.Model):
     num_active_accounts = models.FloatField(default=0.0)
     num_onboarding_accounts = models.FloatField(default=0.0)
     backup_hours_plus_minus = models.FloatField(default=0.0)
+
+
+class MemberDashboardSnapshot(models.Model):
+    """
+    A snapshot of the member dashboard things that can't be stored/derived from the MemberHourHistory or
+    AccountAllocatedHoursHistory
+    For now it only refers to new clients and outstanding renewed budgets for a given month
+    Things are kind of spread out, maybe everything could be eventually moved here
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
+    month = models.IntegerField(default=1, choices=MONTH_CHOICES)
+    year = models.PositiveSmallIntegerField(blank=True, default=1999)
+    new_accounts = models.ManyToManyField('budget.Client', related_name='new_accounts')
+    outstanding_budget_accounts = models.ManyToManyField('client_area.ClientDashboardSnapshot',
+                                                         related_name='outstanding_budget_accounts')
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
