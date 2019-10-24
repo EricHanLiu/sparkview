@@ -62,6 +62,20 @@ def prepare_todos(self):
             for team_lead in team_leads:
                 Todo.objects.create(member=team_lead, description=description, link=link, type=5)
 
+        # ACCOUNT AT 90 DAYS LIFETIME NOTIFICATIONS (only for AMs)
+        if member.role.name == 'AM':
+            ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
+            ninety_start = datetime.datetime(ninety_days_ago.year, ninety_days_ago.month, ninety_days_ago.day)
+            ninety_end = ninety_start + datetime.timedelta(1)
+            ninety_day_accounts = Client.objects.filter(created_at__gte=ninety_start, created_at__lte=ninety_end)
+            for acc in ninety_day_accounts:
+                description = 'Client' + acc.client_name + ' ' + 'has been active in status for 90 days now. ' \
+                                                                 'If the fee structure needs to be adjusted please ' \
+                                                                 'see your Team Lead and book an appointment with ' \
+                                                                 'sales.'
+                link = '/clients/accounts/' + str(acc.id)
+                Todo.objects.create(member=member, description=description, link=link, type=2)
+
         # OVER/UNDER HOURS ON ACCOUNT NOTIFICATIONS
         for account in member_accounts:
             over_instances = account.over_under_hours_instances_member(member, today.month, today.year, 'over')
