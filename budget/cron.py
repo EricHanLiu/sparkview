@@ -13,8 +13,8 @@ from facebook_dashboard.cron import get_spend_by_facebook_account_custom_dates
 from bing_dashboard.cron import get_spend_by_bing_account_custom_daterange
 from client_area.models import PhaseTask, PhaseTaskAssignment
 from notifications.models import Notification, SentEmailRecord
-from client_area.models import AccountAllocatedHoursHistory
-from user_management.models import Member, MemberHourHistory
+from client_area.models import AccountAllocatedHoursHistory, ClientDashboardSnapshot
+from user_management.models import Member, MemberHourHistory, MemberDashboardSnapshot
 import datetime
 
 
@@ -613,6 +613,22 @@ def daily_context(self):
         account_budget_history.management_fee = account.current_fee
         account_budget_history.status = account.status
         account_budget_history.save()
+
+    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
+    ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
+    new_accounts = Client.objects.filter(created_at__gte=ninety_days_ago)
+    new_accounts_snapshot = []
+    for acc in new_accounts:  # need to store custom fields so create snapshot
+        snapshot, created = ClientDashboardSnapshot.objects.get_or_create(month=month, year=year,
+                                                                          num_days_onboarding=acc.num_days_onboarding,
+                                                                          num_times_flagged=acc.num_times_flagged,
+                                                                          tier=acc.tier, client_name=acc.client_name,
+                                                                          account_id=acc.id)
+        snapshot.members.set(acc.assigned_members_array)
+        new_accounts_snapshot.append(snapshot)
+    snapshot, created = MemberDashboardSnapshot.objects.get_or_create(month=month, year=year)
+    snapshot.outstanding_budget_accounts.set(outstanding_budget_accounts)
+    snapshot.new_accounts.set(new_accounts_snapshot)
 
     for member in members:
         record, created = MemberHourHistory.objects.get_or_create(member=member, month=month, year=year)

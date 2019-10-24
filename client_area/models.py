@@ -4,6 +4,7 @@ from .utils import days_in_month_in_daterange
 from .choices import PRIMARY_SERVICE_CHOICES
 import calendar
 import datetime
+from django.utils import timezone
 
 
 class ParentClient(models.Model):
@@ -847,3 +848,26 @@ class Pitch(models.Model):
         if self.is_primary:
             return self.get_primary_service_display()
         return str(self.additional_service)
+
+
+class ClientDashboardSnapshot(models.Model):
+    """
+    A snapshot of a Client model instance with simplified fields/properties for the member dashboards
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
+    account_id = models.IntegerField(default=None, null=True)
+    month = models.IntegerField(default=1, choices=MONTH_CHOICES)
+    year = models.PositiveSmallIntegerField(blank=True, default=1999)
+    num_days_onboarding = models.IntegerField(default=None, null=True)
+    num_times_flagged = models.IntegerField(default=0)
+    assigned_members_array = models.ManyToManyField('user_management.Member')
+    tier = models.IntegerField(default=1)
+    client_name = models.CharField(max_length=255, default='None')
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def onboarding_duration_elapsed(self):
+        now = timezone.now()
+        self.num_days_onboarding = (now - self.date_created).days + 1
+        return self.num_days_onboarding

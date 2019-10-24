@@ -4,7 +4,7 @@ from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.db.models import Q
 from client_area.models import PhaseTask, PhaseTaskAssignment, LifecycleEvent, Mandate, AccountHourRecord, \
-    MandateHourRecord, AccountAllocatedHoursHistory
+    MandateHourRecord, AccountAllocatedHoursHistory, ClientDashboardSnapshot
 from client_area.utils import days_in_month_in_daterange
 from bloom.utils.utils import num_business_days
 from bloom import settings
@@ -1067,6 +1067,16 @@ class MemberHourHistory(models.Model):
 
 class MemberDashboardSnapshot(models.Model):
     """
-    A snapshot of the member dashboard things that can't be stored/derived from the MemberHourHistory
+    A snapshot of the member dashboard things that can't be stored/derived from the MemberHourHistory or
+    AccountAllocatedHoursHistory
+    For now it only refers to new clients and outstanding renewed budgets for a given month
+    Things are kind of spread out, maybe everything could be eventually moved here
     """
-    pass
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
+    month = models.IntegerField(default=1, choices=MONTH_CHOICES)
+    year = models.PositiveSmallIntegerField(blank=True, default=1999)
+    new_accounts = models.ManyToManyField('budget.Client', related_name='new_accounts')
+    outstanding_budget_accounts = models.ManyToManyField('client_area.ClientDashboardSnapshot',
+                                                         related_name='outstanding_budget_accounts')
+    date_created = models.DateTimeField(auto_now_add=True, null=True)

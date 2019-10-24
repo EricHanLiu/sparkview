@@ -458,7 +458,13 @@
                         {% for account in new_accounts %}
                             <tr>
                                 <td>
-                                    <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                    {% if historical %}
+                                        <a href="/clients/accounts/{{ account.account_id }}">
+                                            {{ account.client_name }}
+                                        </a>
+                                    {% else %}
+                                        <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     {{ account.tier }}

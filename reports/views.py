@@ -5,7 +5,8 @@ from bloom.settings import TEMPLATE_DIR, EMAIL_HOST_USER
 from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Q
-from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason, InternalOops
+from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason, InternalOops, \
+    MemberDashboardSnapshot
 from adwords_dashboard.models import BadAdAlert
 from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
@@ -346,9 +347,13 @@ def cm_capacity(request):
     members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
                                                                       historical)
 
-    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
-    ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
-    new_accounts = Client.objects.filter(created_at__gte=ninety_days_ago)
+    try:
+        snapshot = MemberDashboardSnapshot.objects.get(month=selected_month, year=selected_year)
+        outstanding_budget_accounts = snapshot.outstanding_budget_accounts.all()
+        new_accounts = snapshot.new_accounts.all()
+    except MemberDashboardSnapshot.DoesNotExist:
+        outstanding_budget_accounts = None
+        new_accounts = None
 
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
