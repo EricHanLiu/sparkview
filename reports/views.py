@@ -140,7 +140,7 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             actual_aggregate += member.actual_hours_this_month
             allocated_aggregate += member.allocated_hours_this_month
             available_aggregate += member.hours_available
-            lifespan_aggregate += member.lifespan
+            lifespan_aggregate += member.lifespan(datetime.date.today())
 
             actual_hours = member.actual_hours_this_month
             allocated_hours = member.allocated_hours_this_month
@@ -159,7 +159,9 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             actual_aggregate += member.actual_hours_other_month(selected_month, selected_year)
             allocated_aggregate += member.allocated_hours_other_month(selected_month, selected_year)
             available_aggregate += member.hours_available_other_month(selected_month, selected_year)
-            lifespan_aggregate += member.lifespan
+            date = datetime.date(selected_year, selected_month,
+                                 calendar.monthrange(selected_year, selected_month)[1])
+            lifespan_aggregate += member.lifespan(date)
 
             actual_hours = member.actual_hours_other_month(selected_month, selected_year)
             allocated_hours = member.allocated_hours_other_month(selected_month, selected_year)
@@ -301,10 +303,10 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             spends[10 - i - 1] += tmpd['spend']
             fees[10 - i - 1] += tmpd['fee']
 
-            cur_month -= 1
-            if cur_month == 0:
-                cur_month = 12
-                cur_year -= 1
+        cur_month -= 1
+        if cur_month == 0:
+            cur_month = 12
+            cur_year -= 1
 
     department_stats.update({
         'overspenders': overspenders,

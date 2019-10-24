@@ -312,13 +312,14 @@ class Member(models.Model):
     deactivated = models.BooleanField(default=False)  # Alternative to deleting
     created = models.DateTimeField(auto_now_add=True)
 
-    @property
-    def lifespan(self):
+    def lifespan(self, date):
         """
-        Returns the number of days this member has existed for
+        Returns the number of days this member has existed for up to the given date
         """
         if not hasattr(self, '_lifespan'):
-            self._lifespan = (datetime.date.today() - self.created.date()).days
+            self._lifespan = (date - self.created.date()).days
+            if self._lifespan < 0:
+                return 0
         return self._lifespan
 
     @property
@@ -1062,3 +1063,10 @@ class MemberHourHistory(models.Model):
     num_active_accounts = models.FloatField(default=0.0)
     num_onboarding_accounts = models.FloatField(default=0.0)
     backup_hours_plus_minus = models.FloatField(default=0.0)
+
+
+class MemberDashboardSnapshot(models.Model):
+    """
+    A snapshot of the member dashboard things that can't be stored/derived from the MemberHourHistory
+    """
+    pass
