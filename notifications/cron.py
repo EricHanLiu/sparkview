@@ -62,6 +62,25 @@ def prepare_todos(self):
             for team_lead in team_leads:
                 Todo.objects.create(member=team_lead, description=description, link=link, type=5)
 
+        # OVER/UNDER HOURS ON ACCOUNT NOTIFICATIONS
+        for account in member_accounts:
+            over_instances = account.over_under_hours_instances_member(member, today.month, today.year, 'over')
+            under_instances = account.over_under_hours_instances_member(member, today.month, today.year, 'under')
+            if len(over_instances) >= 3:
+                description = account.client_name + ' - ' + member.user.get_full_name() + ' has gone over hours for' + len(
+                    over_instances) + ' months now.'
+                link = '/clients/accounts/' + str(account.id)
+                team_leads = member.team.team_leads
+                for team_lead in team_leads:
+                    Todo.objects.create(member=team_lead, description=description, link=link, type=5)
+            if len(under_instances) >= 3:
+                description = account.client_name + ' - ' + member.user.get_full_name() + ' has gone under hours for' + len(
+                    over_instances) + ' months now.'
+                link = '/clients/accounts/' + str(account.id)
+                team_leads = member.team.team_leads
+                for team_lead in team_leads:
+                    Todo.objects.create(member=team_lead, description=description, link=link, type=5)
+
         # NOTIFICATIONS
         notifications = Notification.objects.filter(member=member, created__gte=today_start, created__lte=today_end)
 

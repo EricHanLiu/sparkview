@@ -242,28 +242,24 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
         under_members = []
         for key, value in account.assigned_cms.items():
             member = account.assigned_cms[key]['member']
-            histories = list(AccountAllocatedHoursHistory.objects.filter(member=member, year__lte=selected_year,
-                                                                         account=account))
-            for x in histories:
-                if x.month > selected_month and x.year == selected_year:
-                    # exclude those whose months are after the selected
-                    histories.remove(x)
 
             if account.get_hours_remaining_this_month_member(member) < 0:
-                over_hours_freq = len([x for x in histories if x.over_hours])
+                over_hours_frequency = len(
+                    account.over_under_hours_instances_member(member, selected_month, selected_year, 'over'))
                 over_members.append({
                     'member': member,
                     'allocated_hours': account.get_allocation_this_month_member(member),
                     'actual_hours': account.get_hours_worked_this_month_member(member),
-                    'over_hours_frequency': over_hours_freq
+                    'over_hours_frequency': over_hours_frequency
                 })
             elif account.get_hours_remaining_this_month_member(member) > 0:
-                under_hours_freq = len([x for x in histories if x.under_hours])
+                under_hours_frequency = len(
+                    account.over_under_hours_instances_member(member, selected_month, selected_year, 'under'))
                 under_members.append({
                     'member': member,
                     'allocated_hours': account.get_allocation_this_month_member(member),
                     'actual_hours': account.get_hours_worked_this_month_member(member),
-                    'under_hours_frequency': under_hours_freq
+                    'under_hours_frequency': under_hours_frequency
                 })
 
         tmp = {

@@ -11,7 +11,8 @@ from facebook_dashboard import models as fb
 from user_management.models import Member, Team, Backup, BackupPeriod, Incident
 from client_area.models import Service, Industry, Language, ClientType, ClientContact, AccountHourRecord, \
     ParentClient, ManagementFeesStructure, OnboardingStep, OnboardingStepAssignment, OnboardingTaskAssignment, \
-    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord, Tag
+    OnboardingTask, PhaseTaskAssignment, SalesProfile, Mandate, MandateAssignment, MandateHourRecord, Tag, \
+    AccountAllocatedHoursHistory
 from dateutil.relativedelta import relativedelta
 from client_area.utils import days_in_month_in_daterange
 from django.db.models import Q
@@ -553,6 +554,24 @@ class Client(models.Model):
         hours = AccountHourRecord.objects.filter(member=member, account=self, month=now.month, year=now.year,
                                                  is_unpaid=True).aggregate(Sum('hours'))['hours__sum']
         return hours if hours is not None else 0
+
+    def over_under_hours_instances_member(self, member, month, year, over_or_under):
+        """
+        Returns the instances where the given member has gone over or under hours on this account up to the given month
+        and year, based on the flag
+        """
+        if not hasattr(self, '_over_under_hours_instances_member'):
+            histories = list(AccountAllocatedHoursHistory.objects.filter(member=member, year__lte=year,
+                                                                         account=self))
+            for x in histories:
+                if x.month > month and x.year == year:
+                    # exclude those whose months are after the selected
+                    histories.remove(x)
+            if over_or_under == 'over':
+                self._over_under_hours_instances_member = [x for x in histories if x.over_hours]
+            else:
+                self._over_under_hours_instances_member = [x for x in histories if x.under_hours]
+        return self._over_under_hours_instances_member
 
     @property
     def active_mandate_assignments(self):
