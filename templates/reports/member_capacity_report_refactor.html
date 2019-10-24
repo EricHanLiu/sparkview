@@ -52,8 +52,8 @@
                 <div class="card-content">
                     <div class="title is-4">Department Overall</div>
                     <hr>
-                    <div class="columns">
-                        <div class="column has-text-centered">
+                    <div class="columns is-multiline">
+                        <div class="column is-4 has-text-centered">
                             <div class="box">
                                 <p class="heading">
                                     Average Lifespan
@@ -63,7 +63,7 @@
                                 </h4>
                             </div>
                         </div>
-                        <div class="column has-text-centered">
+                        <div class="column is-4 has-text-centered">
                             <div class="box tooltip" data-tooltip="(Allocated Hours / Total Hours) - Buffers">
                                 <p class="heading">
                                     Total Capacity Rate
@@ -73,7 +73,7 @@
                                 </h4>
                             </div>
                         </div>
-                        <div class="column has-text-centered">
+                        <div class="column is-4 has-text-centered">
                             <div class="box tooltip"
                                  data-tooltip="(Actual Hours + Value Added Hours ) / Allocated Hours">
                                 <p class="heading">
@@ -84,23 +84,23 @@
                                 </h4>
                             </div>
                         </div>
-                        <div class="column has-text-centered">
+                        <div class="column is-6 has-text-centered">
                             <div class="box">
                                 <p class="heading">
                                     Revenue Growth/loss
                                 </p>
                                 <h4 class="title is-4">
-                                    GRAPH GOES HERE
+                                    <canvas id="revenue_growth_chart"></canvas>
                                 </h4>
                             </div>
                         </div>
-                        <div class="column has-text-centered">
+                        <div class="column is-6 has-text-centered">
                             <div class="box">
                                 <p class="heading">
                                     KPI % Completion
                                 </p>
                                 <h4 class="title is-4">
-                                    {{ 0 }}
+                                    N/A
                                 </h4>
                             </div>
                         </div>
@@ -211,11 +211,186 @@
                             </tbody>
                         </table>
                     </div>
+                    <hr>
+                    <table class="table is-hoverable is-fullwidth is-striped dataTable">
+                        <thead>
+                        <tr>
+                            <th>
+                                Member
+                            </th>
+                            <th>
+                                Member Certifications
+                            </th>
+                            <th>
+                                % KPIs
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for member in members %}
+                            <tr>
+                                <td>
+                                    <a href="/user_management/members/{{ member.id }}">
+                                        {{ member.user.get_full_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    N/A
+                                </td>
+                                <td>
+                                    N/A
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div class="card" style="margin-top: 2em">
                 <div class="card-content">
                     <div class="title is-4">Department Clients</div>
+                    <hr>
+                    <h5 class="title is-5">Top 10 Under-Efficient Accounts</h5>
+                    <table class="table dataTable is-hoverable is-fullwidth is-striped">
+                        <thead>
+                        <tr>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Tier
+                            </th>
+                            <th>
+                                Member(s)
+                            </th>
+                            <th>
+                                Member(s) Allocated Hours
+                            </th>
+                            <th>
+                                Member(s) Actual Hours
+                            </th>
+                            <th>
+                                Over Hours Frequency
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for dict in department_stats.overspenders %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ dict.account.id }}">{{ dict.account.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ dict.account.tier }}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.over_members %}
+                                        <a href="/user_management/members/{{ member_dict.member.id }}">
+                                            {{ member_dict.member.user.get_full_name }}
+                                        </a>{% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.over_members %}
+                                        {{ member_dict.allocated_hours }}
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.over_members %}
+                                        {{ member_dict.actual_hours }}
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.over_members %}
+                                        {{ member_dict.over_hours_frequency }}
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <p class="heading">To see more details please refer to the <a
+                                        href="/reports/over_under">Over & Under Report</a></p>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                    <hr>
+                    <h5 class="title is-5">Top 10 Efficient Accounts</h5>
+                    <table class="table dataTable is-hoverable is-fullwidth is-striped">
+                        <thead>
+                        <tr>
+                            <th>
+                                Account
+                            </th>
+                            <th>
+                                Tier
+                            </th>
+                            <th>
+                                Member(s)
+                            </th>
+                            <th>
+                                Member(s) Allocated Hours
+                            </th>
+                            <th>
+                                Member(s) Actual Hours
+                            </th>
+                            <th>
+                                Under Hours Frequency
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for dict in department_stats.underspenders %}
+                            <tr>
+                                <td>
+                                    <a href="/clients/accounts/{{ dict.account.id }}">{{ dict.account.client_name }}</a>
+                                </td>
+                                <td>
+                                    {{ dict.account.tier }}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.under_members %}
+                                        <a href="/user_management/members/{{ member_dict.member.id }}">
+                                            {{ member_dict.member.user.get_full_name }}
+                                        </a>{% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.under_members %}
+                                        {{ member_dict.allocated_hours }}
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.under_members %}
+                                        {{ member_dict.actual_hours }}
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for member_dict in dict.under_members %}
+                                        {{ member_dict.under_hours_frequency }}
+                                        {% if not forloop.last %},{% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="6">
+                                <p class="heading">To see more details please refer to the <a
+                                        href="/reports/over_under">Over & Under Report</a></p>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
                     <hr>
                     <h5 class="title is-5">Outstanding Renewed Budgets</h5>
                     <table class="table dataTable is-hoverable is-fullwidth is-striped">
@@ -309,4 +484,45 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        let ctx = document.getElementById('revenue_growth_chart').getContext('2d');
+        let months = [],
+            spends = [],
+            fees = [];
+        {% for month in department_stats.month_strs %}
+            months.push('{{ month }}');
+        {% endfor %}
+        {% for spend in department_stats.spends %}
+            spends.push(parseFloat('{{ spend }}'));
+        {% endfor %}
+        {% for fee in department_stats.fees %}
+            fees.push(parseFloat('{{ fee }}'));
+        {% endfor %}
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        data: spends,
+                        borderColor: 'tomato',
+                        label: 'Spend'
+                    },
+                    {
+                        data: fees,
+                        borderColor: 'lightskyblue',
+                        label: 'Management Fee'
+                    }
+                ],
+                options: {
+                    legend: {
+                        display: false
+                    },
+                }
+            }
+        });
+    </script>
 {% endblock %}

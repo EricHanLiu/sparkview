@@ -1054,6 +1054,7 @@ class MemberHourHistory(models.Model):
     allocated_hours = models.FloatField(default=0.0)
     available_hours = models.FloatField(default=0.0)
     added = models.DateTimeField(auto_now_add=True)
+
     buffer_multiplier = models.FloatField(default=0.0)
     training_buffer = models.FloatField(default=0.0)
     total_buffer = models.FloatField(default=0.0)

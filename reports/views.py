@@ -205,11 +205,108 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
     else:
         department_stats['utilization_rate'] = 100 * (actual_aggregate / allocated_aggregate)
 
-    department_stats['average_lifespan'] = lifespan_aggregate / members.count()
+    if members.count() == 0:
+        department_stats['average_lifespan'] = 0
+    else:
+        department_stats['average_lifespan'] = lifespan_aggregate / members.count()
     department_stats.update({
         'actual_aggregate': 0.0,
         'allocated_aggregate': 0.0,
         'available_aggregate': 0.0,
+    })
+
+    # top 10 under and over-efficient accounts
+    all_accounts = Client.objects.all().order_by('client_name')
+    overspenders = []
+    underspenders = []
+    for account in all_accounts:
+        allocated_history = AccountAllocatedHoursHistory.objects.filter(month=selected_month, year=selected_year,
+                                                                        account=account).values('account', 'year',
+                                                                                                'month').annotate(
+            sum_hours=Sum('allocated_hours'))
+        allocated_hours = 0.0
+        if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
+            allocated_hours = allocated_history[0]['sum_hours']
+
+        all_hours = account.all_hours_month_year(selected_month, selected_year)
+
+        if allocated_hours == 0:
+            continue
+
+        try:
+            actual_hours_ratio = all_hours / allocated_hours
+        except ZeroDivisionError:
+            actual_hours_ratio = 0.0
+
+        over_members = []
+        under_members = []
+        for key, value in account.assigned_cms.items():
+            member = account.assigned_cms[key]['member']
+            if account.get_hours_remaining_this_month_member(member) < 0:
+                over_members.append({
+                    'member': member,
+                    'allocated_hours': account.get_allocation_this_month_member(member),
+                    'actual_hours': account.get_hours_worked_this_month_member(member),
+                    'over_hours_frequency': 1  # TODO: get this based on historical snapshot
+                })
+            elif account.get_hours_remaining_this_month_member(member) > 0:
+                under_members.append({
+                    'member': member,
+                    'allocated_hours': account.get_allocation_this_month_member(member),
+                    'actual_hours': account.get_hours_worked_this_month_member(member),
+                    'under_hours_frequency': 1
+                })
+
+        tmp = {
+            'account': account,
+            'allocated_hours': allocated_hours,
+            'all_hours': all_hours,
+            'actual_hours_ratio': actual_hours_ratio,
+            'over_members': over_members,
+            'under_members': under_members
+        }
+
+        if float(actual_hours_ratio) > 1:
+            overspenders.append(tmp)
+        elif float(actual_hours_ratio) < 1:
+            underspenders.append(tmp)
+    overspenders.sort(key=lambda x: x['actual_hours_ratio'], reverse=True)
+    underspenders.sort(key=lambda x: x['actual_hours_ratio'])
+    overspenders = overspenders[:10]
+    underspenders = underspenders[:10]
+
+    # spend growth/loss trends
+    month_strs = []
+    cur_month = selected_month
+    cur_year = selected_year
+    spends = [0] * 10
+    fees = [0] * 10
+    for i in range(10):
+        month_strs.insert(0, str(calendar.month_name[cur_month]) + ', ' + str(cur_year))
+        for account in all_accounts:
+            tmpd = {}
+            try:
+                bh = AccountBudgetSpendHistory.objects.get(month=cur_month, year=cur_year, account=account)
+                tmpd['fee'] = round(bh.management_fee, 2)
+                tmpd['spend'] = round(bh.spend, 2)
+            except AccountBudgetSpendHistory.DoesNotExist:
+                tmpd['fee'] = 0.0
+                tmpd['spend'] = 0.0
+
+            spends[10 - i - 1] += tmpd['spend']
+            fees[10 - i - 1] += tmpd['fee']
+
+            cur_month -= 1
+            if cur_month == 0:
+                cur_month = 12
+                cur_year -= 1
+
+    department_stats.update({
+        'overspenders': overspenders,
+        'underspenders': underspenders,
+        'spends': spends,
+        'fees': fees,
+        'month_strs': month_strs
     })
 
     return members_stats, department_stats
@@ -234,9 +331,6 @@ def cm_capacity(request):
         selected_year = int(request.GET.get('year'))
         historical = True
 
-    # Probably has to be changed before production
-    # This badly has to be fixed when we implement proper roles
-    # TODO: Make this reasonable
     role = Role.objects.filter(
         Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
             name='PPC Team Lead') | Q(name='Team Lead'))
@@ -246,9 +340,6 @@ def cm_capacity(request):
                                                                       historical)
 
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
-
-    report_type = 'CM Member Dashboard'
-
     ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
     new_accounts = Client.objects.filter(created_at__gte=ninety_days_ago)
 
@@ -258,6 +349,7 @@ def cm_capacity(request):
         'month': selected_month,
         'year': selected_year
     }
+    report_type = 'CM Member Dashboard'
 
     context = {
         'title': 'CM Member Dashboard',
@@ -270,7 +362,7 @@ def cm_capacity(request):
         'years': years,
         'selected': selected,
         'historical': historical,
-        'members_stats': members_stats
+        'members_stats': members_stats,
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
@@ -300,12 +392,10 @@ def am_capacity(request):
         name='Team Lead - Client Services'))
     members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
-    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
-        build_member_stats_from_members(members, selected_month, selected_year, historical)
+    members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
+                                                                      historical)
 
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
-
-    report_type = 'AM Member Dashboard'
 
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
@@ -314,14 +404,12 @@ def am_capacity(request):
         'year': selected_year
     }
 
+    report_type = 'AM Member Dashboard'
+
     context = {
         'title': 'AM Member Dashboard',
         'members': members,
-        'actual_aggregate': actual_aggregate,
-        'capacity_rate': capacity_rate,
-        'utilization_rate': utilization_rate,
-        'allocated_aggregate': allocated_aggregate,
-        'available_aggregate': available_aggregate,
+        'department_stats': department_stats,
         'report_type': report_type,
         'outstanding_budget_accounts': outstanding_budget_accounts,
         'selected': selected,
@@ -364,8 +452,8 @@ def seo_capacity(request):
     seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
         Q(status=0) | Q(status=1)).order_by('client_name')
 
-    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
-        build_member_stats_from_members(members, selected_month, selected_year, historical)
+    members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
+                                                                      historical)
 
     for account in seo_accounts:
         if account.has_seo:
@@ -375,8 +463,6 @@ def seo_capacity(request):
 
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
 
-    report_type = 'SEO Member Dashboard'
-
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
     selected = {
@@ -384,14 +470,12 @@ def seo_capacity(request):
         'year': selected_year
     }
 
+    report_type = 'SEO Member Dashboard'
+
     context = {
         'title': 'SEO Member Dashboard',
         'members': members,
-        'actual_aggregate': actual_aggregate,
-        'capacity_rate': capacity_rate,
-        'utilization_rate': utilization_rate,
-        'allocated_aggregate': allocated_aggregate,
-        'available_aggregate': available_aggregate,
+        'department_stats': department_stats,
         'report_type': report_type,
         'seo_accounts': seo_accounts,
         'status_badges': status_badges,
@@ -405,23 +489,6 @@ def seo_capacity(request):
     }
 
     return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
-
-
-@login_required
-def seo_forecasting(request):
-    """
-    SEO Forecasting
-    :param request:
-    :return:
-    """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    context = {
-        'title': 'SEO Forecasting - SparkView'
-    }
-
-    return render(request, 'reports/seo_forecasting.html', context)
 
 
 @login_required
@@ -447,12 +514,10 @@ def strat_capacity(request):
     role = Role.objects.filter(Q(name='Strategist'))
     members = Member.objects.filter(role__in=role).order_by('user__first_name')
 
-    members_stats, capacity_rate, utilization_rate, actual_aggregate, allocated_aggregate, available_aggregate = \
-        build_member_stats_from_members(members, selected_month, selected_year, historical)
+    members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
+                                                                      historical)
 
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
-
-    report_type = 'Strat Member Dashboard'
 
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
@@ -460,15 +525,13 @@ def strat_capacity(request):
         'month': selected_month,
         'year': selected_year
     }
+    
+    report_type = 'Strat Member Dashboard'
 
     context = {
         'title': 'Strat Member Dashboard',
         'members': members,
-        'actual_aggregate': actual_aggregate,
-        'capacity_rate': capacity_rate,
-        'utilization_rate': utilization_rate,
-        'allocated_aggregate': allocated_aggregate,
-        'available_aggregate': available_aggregate,
+        'department_stats': department_stats,
         'report_type': report_type,
         'outstanding_budget_accounts': outstanding_budget_accounts,
         'members_stats': members_stats,
@@ -479,6 +542,23 @@ def strat_capacity(request):
     }
 
     return render(request, 'reports/member_capacity_report_refactor.html', context)
+
+
+@login_required
+def seo_forecasting(request):
+    """
+    SEO Forecasting
+    :param request:
+    :return:
+    """
+    if not request.user.is_staff:
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    context = {
+        'title': 'SEO Forecasting - SparkView'
+    }
+
+    return render(request, 'reports/seo_forecasting.html', context)
 
 
 @login_required
