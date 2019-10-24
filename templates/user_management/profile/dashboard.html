@@ -65,7 +65,8 @@
                                             <div class="level-item">
                                                 <div class="tags has-addons" data-account-id="{{ account.id }}"
                                                      {% if account.is_late_to_onboard %}style="cursor: pointer;"
-                                                     id="late_onboarding_button"{% endif %}>
+                                                     id="late_onboarding_button"
+                                                     data-reason="{{ account.late_onboard_reason }}"{% endif %}>
                                                     <span class="tag is-rounded tag-color-3">Onboarding</span>
                                                     <span class="tag is-rounded {% if account.is_late_to_onboard %}is-danger{% else %}tag-color-3{% endif %}">
                                                         {{ account.onboarding_duration_elapsed }}
@@ -134,7 +135,8 @@
                                             <div class="columns">
                                                 <div class="column">
                                                     <div class="progress-wrapper">
-                                                        <progress class="progress is-large {% if account.default_budget.underpacing_average %}is-warning{% elif account.default_budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
+                                                        <progress
+                                                                class="progress is-large {% if account.default_budget.underpacing_average %}is-warning{% elif account.default_budget.overpacing_average %}is-danger{% else %}is-success{% endif %}"
                                                                 value="{{ account.default_budget.spend_percentage }}"
                                                                 max="100"></progress>
                                                         <div class="progress-value">
@@ -316,7 +318,7 @@
                 <form id="late_onboarding_form">
                     <input name="account_id" id="reason_account_id" type="hidden"/>
                     <label class="reason">Reason:</label>
-                    <input type="text" name="late_reason" class="input" required/>
+                    <input type="text" name="late_reason" class="input" required id="late_reason_input"/>
                 </form>
             </div>
         </div>
@@ -459,7 +461,9 @@
         $('#late_onboarding_button').click(function () {
             $('#late_onboarding_modal').addClass('is-active');
             let account_id = $(this).data('account-id');
+            let reason = $(this).data('reason');
             $('#reason_account_id').val(account_id);
+            $('#late_reason_input').val(reason);
         });
 
         $body.on('click', '.resolve_task_button', function () {

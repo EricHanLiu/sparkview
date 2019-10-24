@@ -4,6 +4,7 @@ from .utils import days_in_month_in_daterange
 from .choices import PRIMARY_SERVICE_CHOICES
 import calendar
 import datetime
+from django.utils import timezone
 
 
 class ParentClient(models.Model):
@@ -222,6 +223,7 @@ class Promo(models.Model):
 class AccountAllocatedHoursHistory(models.Model):
     """
     Backs up account history allocation by account and member
+    Also stores hours worked to determine if member was over/under their allocation
     """
     MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
 
@@ -229,7 +231,27 @@ class AccountAllocatedHoursHistory(models.Model):
     member = models.ForeignKey('user_management.Member', on_delete=models.SET_NULL, null=True)
     month = models.IntegerField(choices=MONTH_CHOICES, default=1)
     year = models.PositiveSmallIntegerField(blank=True, null=True)
-    allocated_hours = models.FloatField(default=0)
+    allocated_hours = models.FloatField(default=0.0)
+    worked_hours = models.FloatField(default=0.0)
+
+    @property
+    def over_hours(self):
+        """
+        Returns true if the member has exceeded their allocated hours on the account given
+        """
+        return self.worked_hours > self.allocated_hours
+
+    @property
+    def under_hours(self):
+        """
+        Returns true if the member is under their allocated hours on the account given
+        """
+        if self.worked_hours == 0:  # worked hours was just added, don't want false positives
+            return False
+        return self.worked_hours < self.allocated_hours
+
+    def __str__(self):
+        return 'Hour archive for ' + str(self.member) + ' and ' + str(self.account)
 
 
 class OnboardingStep(models.Model):
@@ -826,3 +848,29 @@ class Pitch(models.Model):
         if self.is_primary:
             return self.get_primary_service_display()
         return str(self.additional_service)
+
+
+class ClientDashboardSnapshot(models.Model):
+    """
+    A snapshot of a Client model instance with simplified fields/properties for the member dashboards
+    Right now this is mainly to store the attributes for the new accounts table (days in onboarding, times flagged,
+    assigned members, etc.). Admittedly the days_in_onboarding could be calculated, but this is better if
+    more fields need to be tracked in the future
+    """
+    MONTH_CHOICES = [(i, calendar.month_name[i]) for i in range(1, 13)]
+
+    account_id = models.IntegerField(default=None, null=True)
+    month = models.IntegerField(default=1, choices=MONTH_CHOICES)
+    year = models.PositiveSmallIntegerField(blank=True, default=1999)
+    num_days_onboarding = models.IntegerField(default=None, null=True)
+    num_times_flagged = models.IntegerField(default=0)
+    assigned_members_array = models.ManyToManyField('user_management.Member')
+    tier = models.IntegerField(default=1)
+    client_name = models.CharField(max_length=255, default='None')
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def onboarding_duration_elapsed(self):
+        now = timezone.now()
+        self.num_days_onboarding = (now - self.date_created).days + 1
+        return self.num_days_onboarding
