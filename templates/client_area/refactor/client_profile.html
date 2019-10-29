@@ -473,40 +473,41 @@
                 <div class="column">
                     <div class="card page-card">
                         <div class="card-content">
-                            <div class="level">
-                                <div class="level-left">
+                            <div class="columns">
+                                <div class="column is-narrow">
                                     <h5 class="title is-5">Budgets</h5>
                                 </div>
-                                <div class="level-right">
+                                <div class="column" style="text-align: right;">
                                     {% if account.budget_updated_this_month %}
-                                        {% for additional_fee in account.additional_fee_objects_this_month %}
-                                            <div class="level-item">
-                                                <button class="button is-small is-rounded button-color-5 edit-additional-fee-button"
-                                                        data-id="{{ additional_fee.id }}"
-                                                        data-name="{{ additional_fee.name }}"
-                                                        data-fee="{{ additional_fee.fee }}"
-                                                        data-month="{{ additional_fee.month }}"
-                                                        data-year="{{ additional_fee.year }}">
-                                                    Additional Fee {{ additional_fee.name }}: ${{ additional_fee.fee }}
+                                        <div class="columns is-multiline">
+                                            {% for additional_fee in account.additional_fee_objects_this_month %}
+                                                <div class="column is-narrow">
+                                                    <button class="button is-small is-rounded button-color-5 edit-additional-fee-button"
+                                                            data-id="{{ additional_fee.id }}"
+                                                            data-name="{{ additional_fee.name }}"
+                                                            data-fee="{{ additional_fee.fee }}"
+                                                            data-month="{{ additional_fee.month }}"
+                                                            data-year="{{ additional_fee.year }}">
+                                                        Additional Fee {{ additional_fee.name }}:
+                                                        ${{ additional_fee.fee }}
+                                                    </button>
+                                                </div>
+                                            {% endfor %}
+                                            <div class="column">
+                                                <button class="button button-color-5 is-rounded is-small"
+                                                        id="additional_fee_button">
+                                                    Add Additional Fee
+                                                </button>
+                                                <button class="button is-small is-rounded button-color"
+                                                        id="overall_budget_button">
+                                                    <strong>
+                                                        <span style="margin: 0 0.5em;">AdWords: ${{ account.aw_budget }}</span>
+                                                        <span style="margin: 0 0.5em;">Facebook: ${{ account.fb_budget }}</span>
+                                                        <span style="margin: 0 0.5em;">Bing: ${{ account.bing_budget }}</span>
+                                                        <span style="margin: 0 0.5em;">Flex: ${{ account.flex_budget }}</span>
+                                                    </strong>
                                                 </button>
                                             </div>
-                                        {% endfor %}
-                                        <div class="level-item">
-                                            <button class="button button-color-5 is-rounded is-small"
-                                                    id="additional_fee_button">
-                                                Add Additional Fee
-                                            </button>
-                                        </div>
-                                        <div class="level-item">
-                                            <button class="button is-small is-rounded button-color"
-                                                    id="overall_budget_button">
-                                                <strong>
-                                                    <span style="margin: 0 0.5em;">AdWords: ${{ account.aw_budget }}</span>
-                                                    <span style="margin: 0 0.5em;">Facebook: ${{ account.fb_budget }}</span>
-                                                    <span style="margin: 0 0.5em;">Bing: ${{ account.bing_budget }}</span>
-                                                    <span style="margin: 0 0.5em;">Flex: ${{ account.flex_budget }}</span>
-                                                </strong>
-                                            </button>
                                         </div>
                                     {% else %}
                                         <button class="button is-rounded button-color is-fullwidth is-small"
