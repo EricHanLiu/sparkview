@@ -33,7 +33,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for dict in department_stats.overspenders %}
+                {% for dict in overspenders %}
                     <tr>
                         <td>
                             <a href="/clients/accounts/{{ dict.account.id }}">{{ dict.account.client_name }}</a>
@@ -104,7 +104,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for dict in department_stats.underspenders %}
+                {% for dict in underspenders %}
                     <tr>
                         <td>
                             <a href="/clients/accounts/{{ dict.account.id }}">{{ dict.account.client_name }}</a>
