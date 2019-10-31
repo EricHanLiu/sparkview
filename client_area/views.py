@@ -13,7 +13,8 @@ from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
     AccountChanges, ParentClient, ManagementFeeInterval, ManagementFeesStructure, OnboardingStepAssignment, \
     OnboardingStep, OnboardingTaskAssignment, OnboardingTask, LifecycleEvent, SalesProfile, OpportunityDescription, \
-    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch, Tag
+    PitchedDescription, MandateType, Mandate, MandateAssignment, MandateHourRecord, Opportunity, Pitch, Tag, SEOService, \
+    SEOServiceAssignment
 from insights.models import TenInsightsReport
 from .forms import NewClientForm
 from budget.cron import create_default_budget
@@ -1545,6 +1546,11 @@ def set_services(request):
         sales_profile.ppc_status = ppc
     if seo is not None:
         sales_profile.seo_status = seo
+        if seo == 1:
+            for service in SEOService.objects.all():
+                s, created = SEOServiceAssignment.objects.get_or_create(account=account, service=service)
+                s.active = False
+                s.save()
     if cro is not None:
         sales_profile.cro_status = cro
 
@@ -1554,6 +1560,31 @@ def set_services(request):
         create_default_budget(account_id)
 
     return redirect('/clients/accounts/' + str(account.id))
+
+
+@login_required
+def activate_seo_service(request):
+    """
+    Toggles active status for an seo service for an account
+    :param request:
+    :return:
+    """
+    if request.method != 'POST':
+        return HttpResponse('Invalid request type')
+
+    member = Member.objects.get(user=request.user)
+    account_id = request.POST.get('account_id')
+    if not request.user.is_staff and not member.has_account(account_id):
+        return HttpResponseForbidden('You do not have permission to view this page')
+
+    account = get_object_or_404(Client, id=account_id)
+
+    assignment_id = request.POST.get('assignment_id')
+    assignment = get_object_or_404(SEOServiceAssignment, id=assignment_id)
+    assignment.active = not assignment.active
+    assignment.save()
+
+    return HttpResponse()
 
 
 @login_required
