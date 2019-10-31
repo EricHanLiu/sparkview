@@ -1172,9 +1172,9 @@ def value_added_hours(request):
         # if (not request.user.is_staff and not member.has_account(account_id)):
         #     return HttpResponseForbidden('You do not have permission to add hours to this account')
         member = Member.objects.get(user=request.user)
-        hours = request.POST.get('hours')
-        month = request.POST.get('month')
-        year = request.POST.get('year')
+        hours = float(request.POST.get('hours'))
+        month = int(request.POST.get('month'))
+        year = int(request.POST.get('year'))
 
         is_onboarding = account.status == 0
         if hours > 0:

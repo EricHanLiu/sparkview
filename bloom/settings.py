@@ -328,11 +328,8 @@ if DEBUG:
 else:
     OOPS_HF_MAILING_LIST = {
         'lexi@makeitbloom.com',
-        'marina@makeitbloom.com',
         'xurxo@makeitbloom.com',
         'phil@makeitbloom.com',
-        'antoine@makeitbloom.com',
-        'jessica@makeitbloom.com',
         'franck@makeitbloom.com',
         'mike@makeitbloom.com',
         'nick@makeitbloom.com',
@@ -342,8 +339,7 @@ else:
         'jamie@makeitbloom.com',
         'genevieve.b@makeitbloom.com',
         'doriane@makeitbloom.com',
-        'avi@makeitbloom.com',
-        'keith@makeitbloom.com'
+        'avi@makeitbloom.com'
     }
 
 CELERY_RESULT_BACKEND = 'django-db'
