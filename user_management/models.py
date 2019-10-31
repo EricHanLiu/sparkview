@@ -1079,4 +1079,6 @@ class MemberDashboardSnapshot(models.Model):
     new_accounts = models.ManyToManyField('budget.Client', related_name='new_accounts')
     outstanding_budget_accounts = models.ManyToManyField('client_area.ClientDashboardSnapshot',
                                                          related_name='outstanding_budget_accounts')
+    aggregate_fee = models.FloatField(default=0.0)
+    aggregate_spend = models.FloatField(default=0.0)
     date_created = models.DateTimeField(auto_now_add=True, null=True)
