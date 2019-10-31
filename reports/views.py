@@ -251,8 +251,33 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
     return members_stats, department_stats
 
 
+def get_members_from_dashboard_type(dashboard):
+    """
+    Returns the appropriate list of members (cms, ams, or strategists) based on the dashboard type passed in
+    """
+    if dashboard == 'cm':
+        role = Role.objects.filter(
+            Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
+                name='PPC Team Lead') | Q(name='Team Lead'))
+        members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
+        report_type = title = 'CM Member Dashboard'
+    elif dashboard == 'am':
+        role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager') | Q(
+            name='Team Lead - Client Services'))
+        members = Member.objects.filter(role__in=role).order_by('user__first_name')
+        report_type = title = 'AM Member Dashboard'
+    elif dashboard == 'strat':
+        role = Role.objects.filter(Q(name='Strategist'))
+        members = Member.objects.filter(role__in=role).order_by('user__first_name')
+        report_type = title = 'Strat Member Dashboard'
+    else:
+        return HttpResponseNotFound('Invalid dashboard type!')
+
+    return members, title, report_type
+
+
 @login_required
-def cm_dashboard_overview(request):
+def member_dashboard_overview(request):
     """
     Creates report that shows the capacity of the PPC campaign managers on an aggregated and individual basis
     """
@@ -270,11 +295,8 @@ def cm_dashboard_overview(request):
         selected_year = int(request.GET.get('year'))
         historical = True
 
-    role = Role.objects.filter(
-        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead') | Q(name='Team Lead'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
-
+    dashboard = request.get_full_path().split('/')[2]
+    members, title, report_type = get_members_from_dashboard_type(dashboard)
     members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
                                                                       historical)
 
@@ -284,10 +306,9 @@ def cm_dashboard_overview(request):
         'month': selected_month,
         'year': selected_year
     }
-    report_type = 'CM Member Dashboard'
 
     context = {
-        'title': 'CM Member Dashboard',
+        'title': title,
         'members': members,
         'department_stats': department_stats,
         'report_type': report_type,
@@ -296,14 +317,14 @@ def cm_dashboard_overview(request):
         'selected': selected,
         'historical': historical,
         'members_stats': members_stats,
-        'dashboard': 'cm'
+        'dashboard': dashboard
     }
 
     return render(request, 'reports/member_dashboard_overview.html', context)
 
 
 @login_required
-def cm_dashboard_certifications(request):
+def member_dashboard_certifications(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
@@ -316,10 +337,8 @@ def cm_dashboard_certifications(request):
         selected_month = int(request.GET.get('month'))
         selected_year = int(request.GET.get('year'))
 
-    role = Role.objects.filter(
-        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead') | Q(name='Team Lead'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
+    dashboard = request.get_full_path().split('/')[2]
+    members, title, report_type = get_members_from_dashboard_type(dashboard)
 
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
@@ -327,23 +346,22 @@ def cm_dashboard_certifications(request):
         'month': selected_month,
         'year': selected_year
     }
-    report_type = 'CM Member Dashboard'
 
     context = {
-        'title': 'CM Member Dashboard',
+        'title': title,
         'report_type': report_type,
         'members': members,
         'months': months,
         'years': years,
         'selected': selected,
-        'dashboard': 'cm'
+        'dashboard': dashboard
     }
 
     return render(request, 'reports/member_dashboard_certifications.html', context)
 
 
 @login_required
-def cm_dashboard_efficiency(request):
+def member_dashboard_efficiency(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
@@ -356,10 +374,8 @@ def cm_dashboard_efficiency(request):
         selected_month = int(request.GET.get('month'))
         selected_year = int(request.GET.get('year'))
 
-    role = Role.objects.filter(
-        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead') | Q(name='Team Lead'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
+    dashboard = request.get_full_path().split('/')[2]
+    members, title, report_type = get_members_from_dashboard_type(dashboard)
 
     # top 10 under and over-efficient accounts
     all_accounts = Client.objects.all().order_by('client_name')
@@ -432,16 +448,15 @@ def cm_dashboard_efficiency(request):
         'month': selected_month,
         'year': selected_year
     }
-    report_type = 'CM Member Dashboard'
 
     context = {
-        'title': 'CM Member Dashboard',
+        'title': title,
         'report_type': report_type,
         'members': members,
         'months': months,
         'years': years,
         'selected': selected,
-        'dashboard': 'cm',
+        'dashboard': dashboard,
         'overspenders': overspenders,
         'underspenders': underspenders
     }
@@ -450,7 +465,7 @@ def cm_dashboard_efficiency(request):
 
 
 @login_required
-def cm_dashboard_budgets(request):
+def member_dashboard_budgets(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
@@ -463,10 +478,8 @@ def cm_dashboard_budgets(request):
         selected_month = int(request.GET.get('month'))
         selected_year = int(request.GET.get('year'))
 
-    role = Role.objects.filter(
-        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead') | Q(name='Team Lead'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
+    dashboard = request.get_full_path().split('/')[2]
+    members, title, report_type = get_members_from_dashboard_type(dashboard)
 
     try:
         snapshot = MemberDashboardSnapshot.objects.get(month=selected_month, year=selected_year)
@@ -480,24 +493,23 @@ def cm_dashboard_budgets(request):
         'month': selected_month,
         'year': selected_year
     }
-    report_type = 'CM Member Dashboard'
 
     context = {
-        'title': 'CM Member Dashboard',
+        'title': title,
         'report_type': report_type,
         'members': members,
         'months': months,
         'years': years,
         'selected': selected,
         'outstanding_budget_accounts': outstanding_budget_accounts,
-        'dashboard': 'cm'
+        'dashboard': dashboard
     }
 
     return render(request, 'reports/member_dashboard_budgets.html', context)
 
 
 @login_required
-def cm_dashboard_new_clients(request):
+def member_dashboard_new_clients(request):
     if not request.user.is_staff:
         return HttpResponseForbidden('You do not have permission to view this page')
 
@@ -510,10 +522,8 @@ def cm_dashboard_new_clients(request):
         selected_month = int(request.GET.get('month'))
         selected_year = int(request.GET.get('year'))
 
-    role = Role.objects.filter(
-        Q(name='CM') | Q(name='PPC Specialist') | Q(name='PPC Analyst') | Q(name='PPC Intern') | Q(
-            name='PPC Team Lead') | Q(name='Team Lead'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=35) | Q(id=25) | Q(id=45)).order_by('user__first_name')
+    dashboard = request.get_full_path().split('/')[2]
+    members, title, report_type = get_members_from_dashboard_type(dashboard)
 
     try:
         snapshot = MemberDashboardSnapshot.objects.get(month=selected_month, year=selected_year)
@@ -527,80 +537,19 @@ def cm_dashboard_new_clients(request):
         'month': selected_month,
         'year': selected_year
     }
-    report_type = 'CM Member Dashboard'
 
     context = {
-        'title': 'CM Member Dashboard',
+        'title': title,
         'report_type': report_type,
         'members': members,
         'months': months,
         'years': years,
         'selected': selected,
         'new_accounts': new_accounts,
-        'dashboard': 'cm'
+        'dashboard': dashboard
     }
 
     return render(request, 'reports/member_dashboard_new_clients.html', context)
-
-
-@login_required
-def am_capacity(request):
-    """
-    Creates report that shows the capacity of the account managers on an aggregated and individual basis
-    """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    now = datetime.datetime.now()
-    selected_month = now.month
-    selected_year = now.year
-    historical = False
-
-    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
-            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
-        selected_month = int(request.GET.get('month'))
-        selected_year = int(request.GET.get('year'))
-        historical = True
-
-    # Probably has to be changed before production
-    role = Role.objects.filter(Q(name='AM') | Q(name='Account Coordinator') | Q(name='Account Manager') | Q(
-        name='Team Lead - Client Services'))
-    members = Member.objects.filter(role__in=role).order_by('user__first_name')
-
-    members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
-                                                                      historical)
-
-    try:
-        snapshot = MemberDashboardSnapshot.objects.get(month=selected_month, year=selected_year)
-        outstanding_budget_accounts = snapshot.outstanding_budget_accounts.all()
-        new_accounts = snapshot.new_accounts.all()
-    except MemberDashboardSnapshot.DoesNotExist:
-        outstanding_budget_accounts = None
-        new_accounts = None
-
-    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
-    years = [i for i in range(2018, now.year + 1)]
-    selected = {
-        'month': selected_month,
-        'year': selected_year
-    }
-
-    report_type = 'AM Member Dashboard'
-
-    context = {
-        'title': 'AM Member Dashboard',
-        'members': members,
-        'department_stats': department_stats,
-        'report_type': report_type,
-        'outstanding_budget_accounts': outstanding_budget_accounts,
-        'selected': selected,
-        'months': months,
-        'years': years,
-        'members_stats': members_stats,
-        'historical': historical
-    }
-
-    return render(request, 'reports/member_dashboard_overview.html', context)
 
 
 @login_required
@@ -670,65 +619,6 @@ def seo_capacity(request):
     }
 
     return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
-
-
-@login_required
-def strat_capacity(request):
-    """
-    Creates report that shows the capacity of the strats on an aggregated and individual basis
-    """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    now = datetime.datetime.now()
-    selected_month = now.month
-    selected_year = now.year
-    historical = False
-
-    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
-            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
-        selected_month = int(request.GET.get('month'))
-        selected_year = int(request.GET.get('year'))
-        historical = True
-
-    # Probably has to be changed before production
-    role = Role.objects.filter(Q(name='Strategist'))
-    members = Member.objects.filter(role__in=role).order_by('user__first_name')
-
-    members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
-                                                                      historical)
-
-    try:
-        snapshot = MemberDashboardSnapshot.objects.get(month=selected_month, year=selected_year)
-        outstanding_budget_accounts = snapshot.outstanding_budget_accounts.all()
-        new_accounts = snapshot.new_accounts.all()
-    except MemberDashboardSnapshot.DoesNotExist:
-        outstanding_budget_accounts = None
-        new_accounts = None
-
-    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
-    years = [i for i in range(2018, now.year + 1)]
-    selected = {
-        'month': selected_month,
-        'year': selected_year
-    }
-
-    report_type = 'Strat Member Dashboard'
-
-    context = {
-        'title': 'Strat Member Dashboard',
-        'members': members,
-        'department_stats': department_stats,
-        'report_type': report_type,
-        'outstanding_budget_accounts': outstanding_budget_accounts,
-        'members_stats': members_stats,
-        'selected': selected,
-        'months': months,
-        'years': years,
-        'historical': historical
-    }
-
-    return render(request, 'reports/member_dashboard_overview.html', context)
 
 
 @login_required

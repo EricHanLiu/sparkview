@@ -26,15 +26,15 @@
                             <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                         </td>
                         <td>
-                            {% if report_type == 'CM Member Dashboard' %}
+                            {% if dashboard == 'cm' %}
                                 {{ account.assigned_cms.CM.member }}
                                 {{ account.assigned_cms.CM2.member }}
                                 {{ account.assigned_cms.CM3.member }}
-                            {% elif report_type == 'AM Member Dashboard' %}
+                            {% elif dashboard == 'am' %}
                                 {{ account.assigned_ams.AM.member }}
                                 {{ account.assigned_ams.AM2.member }}
                                 {{ account.assigned_ams.AM3.member }}
-                            {% elif report_type == 'Strat Member Dashboard' %}
+                            {% elif dashboard == 'strat' %}
                                 {{ account.assigned_strats.Strat.member }}
                                 {{ account.assigned_strats.Strat2.member }}
                                 {{ account.assigned_strats.Strat3.member }}
