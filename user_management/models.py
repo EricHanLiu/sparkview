@@ -322,6 +322,16 @@ class Member(models.Model):
                 return 0
         return self._lifespan
 
+    def seniority_buffer(self, month=None, year=None):
+        now = datetime.datetime.now()
+        if month == now.month and year == now.year:
+            return self.buffer_seniority_percentage
+        try:
+            mhh = MemberHourHistory.objects.get(month=month, year=year)
+            return mhh.seniority_buffer
+        except MemberHourHistory.DoesNotExist:
+            return None
+
     @property
     def is_locked_out(self):
         if self.user.is_superuser or self.last_updated_hours is None:
@@ -1058,6 +1068,7 @@ class MemberHourHistory(models.Model):
 
     buffer_multiplier = models.FloatField(default=0.0)
     training_buffer = models.FloatField(default=0.0)
+    seniority_buffer = models.FloatField(default=0.0)
     total_buffer = models.FloatField(default=0.0)
     # not the best place for these, but makes most sense
     num_active_accounts = models.FloatField(default=0.0)

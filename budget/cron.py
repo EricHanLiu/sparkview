@@ -647,6 +647,7 @@ def daily_context(self):
         record.buffer_multiplier = (member.buffer_total_percentage / 100.0) * (
                 (100.0 - member.buffer_percentage) / 100.0) * ((100.0 + member.buffer_seniority_percentage) / 100.0)
         record.training_buffer = member.buffer_trainers_percentage
+        record.seniority_buffer = member.buffer_seniority_percentage
         record.total_buffer = member.buffer_total_percentage
         record.num_active_accounts = member.active_accounts_including_backups_count
         record.num_onboarding_accounts = member.onboarding_accounts_count

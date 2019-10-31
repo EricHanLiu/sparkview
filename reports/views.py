@@ -154,7 +154,7 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             backup_hours_plus_minus = member.backup_hours_plus_minus
             last_updated_hours = member.last_updated_hours
             outstanding_ninety_days = member.phase_tasks.count
-            training_hours = member.training_hours_month
+            seniority_buffer = member.seniority_buffer(selected_month, selected_year)
             training_hours_assigned = member.training_hours_assigned
         else:
             actual_aggregate += member.actual_hours_other_month(selected_month, selected_year)
@@ -175,8 +175,8 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             onboarding_accounts_count = member.onboarding_accounts_count_other_month(selected_month, selected_year)
             backup_hours_plus_minus = member.backup_hours_plus_minus_other_month(selected_month, selected_year)
             last_updated_hours = 'N/A'
-            outstanding_ninety_days = member.phase_tasks_other_month(selected_month, selected_month).count()
-            training_hours = member.training_hours_other_month(selected_month, selected_year)
+            outstanding_ninety_days = member.phase_tasks_other_month(selected_month, selected_year).count()
+            seniority_buffer = member.seniority_buffer(selected_month, selected_year)
             training_hours_assigned = member.training_hours_assigned_other_month(selected_month, selected_year)
 
         members_stats.append({
@@ -192,7 +192,7 @@ def build_member_stats_from_members(members, selected_month, selected_year, hist
             'backup_hours_plus_minus': backup_hours_plus_minus,
             'last_updated_hours': last_updated_hours,
             'outstanding_ninety_days': outstanding_ninety_days,
-            'training_hours': training_hours,
+            'seniority_buffer': seniority_buffer,
             'training_hours_assigned': training_hours_assigned
         })
 
