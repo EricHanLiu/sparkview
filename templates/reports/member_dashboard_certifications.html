@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{% extends 'reports/member_dashboard_layout.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_content %}
+    <div class="card" style="margin-top: 2em;">
+        <div class="card-content">
+            <h4 class="title is-4">Member Certifications</h4>
+            <hr>
+            <table class="table is-hoverable is-fullwidth is-striped dataTable">
+                <thead>
+                <tr>
+                    <th>
+                        Member
+                    </th>
+                    <th>
+                        Member Certifications
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for member in members %}
+                    <tr>
+                        <td>
+                            <a href="/user_management/members/{{ member.id }}">
+                                {{ member.user.get_full_name }}
+                            </a>
+                        </td>
+                        <td>
+                            N/A
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#certifications_tab').addClass('is-active');
+    </script>
+{% endblock %}

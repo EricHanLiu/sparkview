@@ -473,40 +473,41 @@
                 <div class="column">
                     <div class="card page-card">
                         <div class="card-content">
-                            <div class="level">
-                                <div class="level-left">
+                            <div class="columns">
+                                <div class="column is-narrow">
                                     <h5 class="title is-5">Budgets</h5>
                                 </div>
-                                <div class="level-right">
+                                <div class="column" style="text-align: right;">
                                     {% if account.budget_updated_this_month %}
-                                        {% for additional_fee in account.additional_fee_objects_this_month %}
-                                            <div class="level-item">
-                                                <button class="button is-small is-rounded button-color-5 edit-additional-fee-button"
-                                                        data-id="{{ additional_fee.id }}"
-                                                        data-name="{{ additional_fee.name }}"
-                                                        data-fee="{{ additional_fee.fee }}"
-                                                        data-month="{{ additional_fee.month }}"
-                                                        data-year="{{ additional_fee.year }}">
-                                                    Additional Fee {{ additional_fee.name }}: ${{ additional_fee.fee }}
+                                        <div class="columns is-multiline">
+                                            {% for additional_fee in account.additional_fee_objects_this_month %}
+                                                <div class="column is-narrow">
+                                                    <button class="button is-small is-rounded button-color-5 edit-additional-fee-button"
+                                                            data-id="{{ additional_fee.id }}"
+                                                            data-name="{{ additional_fee.name }}"
+                                                            data-fee="{{ additional_fee.fee }}"
+                                                            data-month="{{ additional_fee.month }}"
+                                                            data-year="{{ additional_fee.year }}">
+                                                        Additional Fee {{ additional_fee.name }}:
+                                                        ${{ additional_fee.fee }}
+                                                    </button>
+                                                </div>
+                                            {% endfor %}
+                                            <div class="column">
+                                                <button class="button button-color-5 is-rounded is-small"
+                                                        id="additional_fee_button">
+                                                    Add Additional Fee
+                                                </button>
+                                                <button class="button is-small is-rounded button-color"
+                                                        id="overall_budget_button">
+                                                    <strong>
+                                                        <span style="margin: 0 0.5em;">AdWords: ${{ account.aw_budget }}</span>
+                                                        <span style="margin: 0 0.5em;">Facebook: ${{ account.fb_budget }}</span>
+                                                        <span style="margin: 0 0.5em;">Bing: ${{ account.bing_budget }}</span>
+                                                        <span style="margin: 0 0.5em;">Flex: ${{ account.flex_budget }}</span>
+                                                    </strong>
                                                 </button>
                                             </div>
-                                        {% endfor %}
-                                        <div class="level-item">
-                                            <button class="button button-color-5 is-rounded is-small"
-                                                    id="additional_fee_button">
-                                                Add Additional Fee
-                                            </button>
-                                        </div>
-                                        <div class="level-item">
-                                            <button class="button is-small is-rounded button-color"
-                                                    id="overall_budget_button">
-                                                <strong>
-                                                    <span style="margin: 0 0.5em;">AdWords: ${{ account.aw_budget }}</span>
-                                                    <span style="margin: 0 0.5em;">Facebook: ${{ account.fb_budget }}</span>
-                                                    <span style="margin: 0 0.5em;">Bing: ${{ account.bing_budget }}</span>
-                                                    <span style="margin: 0 0.5em;">Flex: ${{ account.flex_budget }}</span>
-                                                </strong>
-                                            </button>
                                         </div>
                                     {% else %}
                                         <button class="button is-rounded button-color is-fullwidth is-small"
@@ -962,8 +963,8 @@
                                 </div>
                             </div>
                             <div class="field">
-                                <div class="columns" id="account_status_row" style="display: none;">
-                                    <div class="column">
+                                <div class="columns is-multiline" id="account_status_row" style="display: none;">
+                                    <div class="column is-6">
                                         <label class="label">Inactive Reason</label>
                                         <div class="select is-fullwidth">
                                             <select name="account_inactive_reason" id="account_inactive_reason"
@@ -978,15 +979,15 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="column">
+                                    <div class="column is-6">
                                         <label class="label">Returning From Inactive (If Applicable)</label>
                                         <input type="text" class="input datepicker-here"
                                                placeholder="Set return date here"
                                                name="account_inactive_return" id="account_inactive_return" disabled
                                                data-language="en"
-                                               value="{{ account.inactive_return_date|date:'m/d/Y' }}">
+                                               value="{{ account.inactive_return_date|date:"m/d/Y" }}">
                                     </div>
-                                    <div class="column">
+                                    <div class="column is-6">
                                         <label class="label">Reason Lost</label>
                                         <div class="select is-fullwidth">
                                             <select name="account_lost_reason" id="account_lost_reason" disabled>
@@ -999,6 +1000,12 @@
                                                 {% endfor %}
                                             </select>
                                         </div>
+                                    </div>
+                                    <div class="column is-6">
+                                        <label class="label">Basecamp Link</label>
+                                        <input class="input" name="lost_bc" id="lost_bc" disabled
+                                               placeholder="Enter basecamp link here"
+                                               value="{{ account.lost_bc_link }}"/>
                                     </div>
                                 </div>
                             </div>
@@ -3109,6 +3116,15 @@
         });
 
         $('#management_confirm_button').click(() => {
+            let $lostBCLink = $('#lost_bc');
+            if (!$lostBCLink.prop('disabled') && $lostBCLink.val() === '') {
+                toastr.error('Basecamp link must be provided for lost accounts!');
+                return;
+            }
+            if (!$inactiveReturn.prop('disabled') && $inactiveReturn.val() === '') {
+                toastr.error('Please enter a return date!');
+                return;
+            }
             $.ajax({
                 type: 'POST',
                 url: '/clients/edit_management_details',
@@ -3150,6 +3166,7 @@
         let $statusRow = $('#account_status_row');
         let $inactiveReason = $('#account_inactive_reason');
         let $lostReason = $('#account_lost_reason');
+        let $lostBCLink = $('#lost_bc');
         let $inactiveReturn = $('#account_inactive_return');
 
         $statusSelect.change(function () {
@@ -3159,14 +3176,20 @@
                 $inactiveReason.prop('disabled', false);
                 $inactiveReturn.prop('disabled', false);
                 $lostReason.prop('disabled', true);
+                $lostBCLink.prop('disabled', true);
                 $statusRow.show();
             } else if (status === '3') {
                 $inactiveReason.prop('disabled', true);
                 $inactiveReturn.prop('disabled', true);
                 $lostReason.prop('disabled', false);
+                $lostBCLink.prop('disabled', false);
                 $statusRow.show();
             } else {
                 $statusRow.hide();
+                $inactiveReason.prop('disabled', true);
+                $inactiveReturn.prop('disabled', true);
+                $lostReason.prop('disabled', true);
+                $lostBCLink.prop('disabled', true);
             }
         });
 
@@ -3396,11 +3419,13 @@
                 $inactiveReason.prop('disabled', false);
                 $inactiveReturn.prop('disabled', false);
                 $lostReason.prop('disabled', true);
+                $lostBCLink.prop('disabled', true);
                 $statusRow.show();
             } else if (status === '3') {
                 $inactiveReason.prop('disabled', true);
                 $inactiveReturn.prop('disabled', true);
                 $lostReason.prop('disabled', false);
+                $lostBCLink.prop('disabled', false);
                 $statusRow.show();
             }
         });
