@@ -482,8 +482,10 @@ class UserTestCase(TestCase):
         self.assertEqual(t_regular.is_locked_out, False)
 
         now = datetime.datetime.now(pytz.UTC)
-        t_ahr = AccountHourRecord.objects.create(account=t_account, member=t_regular, month=now.month, year=now.year)
-        t_ahr2 = AccountHourRecord.objects.create(account=t_account, member=t_super, month=now.month, year=now.year)
+        t_ahr = AccountHourRecord.objects.create(account=t_account, member=t_regular, month=now.month, year=now.year,
+                                                 hours=5)
+        t_ahr2 = AccountHourRecord.objects.create(account=t_account, member=t_super, month=now.month, year=now.year,
+                                                  hours=5)
 
         t_super = Member.objects.get(user__username='test3')
         t_regular = Member.objects.get(user__username='test2')

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+{% extends 'reports/member_dashboard_layout.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_content %}
+    <div class="card" style="margin-top: 2em;">
+        <div class="card-content">
+            <div class="title is-4">Department Overall</div>
+            <hr>
+            <div class="columns is-multiline">
+                {#                        <div class="column is-4 has-text-centered">#}
+                {#                            <div class="box">#}
+                {#                                <p class="heading">#}
+                {#                                    Average Lifespan#}
+                {#                                </p>#}
+                {#                                <h4 class="title is-4">#}
+                {#                                    {{ department_stats.average_lifespan|round_to_two }}#}
+                {#                                </h4>#}
+                {#                            </div>#}
+                {#                        </div>#}
+                <div class="column is-6 has-text-centered">
+                    <div class="box tooltip" data-tooltip="(Allocated Hours / Total Hours) - Buffers">
+                        <p class="heading">
+                            Total Capacity Rate
+                        </p>
+                        <h4 class="title is-4">
+                            {{ department_stats.capacity_rate|round_to_two }}%
+                        </h4>
+                    </div>
+                </div>
+                <div class="column is-6 has-text-centered">
+                    <div class="box tooltip"
+                         data-tooltip="(Actual Hours + Value Added Hours ) / Allocated Hours">
+                        <p class="heading">
+                            Total Utilization Rate
+                        </p>
+                        <h4 class="title is-4">
+                            {{ department_stats.utilization_rate|round_to_two }}%
+                        </h4>
+                    </div>
+                </div>
+                <div class="column is-12 has-text-centered">
+                    <div class="box">
+                        <p class="heading">
+                            Revenue Growth/loss
+                        </p>
+                        <h4 class="title is-4">
+                            <canvas id="revenue_growth_chart"></canvas>
+                        </h4>
+                    </div>
+                </div>
+                {#                        <div class="column is-6 has-text-centered">#}
+                {#                            <div class="box">#}
+                {#                                <p class="heading">#}
+                {#                                    KPI % Completion#}
+                {#                                </p>#}
+                {#                                <h4 class="title is-4">#}
+                {#                                    N/A#}
+                {#                                </h4>#}
+                {#                            </div>#}
+                {#                        </div>#}
+            </div>
+        </div>
+    </div>
+    <div class="card" style="margin-top: 2em;">
+        <div class="card-content">
+            <div class="title is-4">Department Members</div>
+            <hr>
+            <div style="width: 100%; overflow: auto;">
+                <table class="table dataTable is-hoverable is-striped is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>
+                            Actual Hours
+                        </th>
+                        <th>
+                            Allocated Hours
+                        </th>
+                        <th>
+                            Available Hours
+                        </th>
+                        <th class="tooltip"
+                            data-tooltip="(Actual Hours + Value Added Hours ) / Allocated Hours">
+                            Utilization Rate
+                        </th>
+                        <th class="tooltip"
+                            data-tooltip="(Allocated Hours / Total Hours) - Buffers">
+                            Capacity Rate
+                        </th>
+                        <th>
+                            Value Added Hours
+                        </th>
+                        <th>
+                            Active Accounts
+                        </th>
+                        <th>
+                            Onboarding Accounts
+                        </th>
+                        <th>
+                            Backup Hours
+                        </th>
+                        <th>
+                            Last Updated Hours
+                        </th>
+                        <th>
+                            Seniority Buffer
+                        </th>
+                        <th>
+                            Training Hours Assigned
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for member_obj in members_stats %}
+                        <tr>
+                            <td>
+                                <a href="/user_management/members/{{ member_obj.member.id }}">
+                                    {{ member_obj.member.user.get_full_name }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ member_obj.actual_hours|round_to_two }}
+                            </td>
+                            <td>
+                                {{ member_obj.allocated_hours|round_to_two }}
+                            </td>
+                            <td>
+                                {{ member_obj.available_hours|round_to_two }}
+                            </td>
+                            <td>
+                                {{ member_obj.utilization_rate|round_to_two }}%
+                            </td>
+                            <td>
+                                {{ member_obj.capacity_rate|round_to_two }}%
+                            </td>
+                            <td>
+                                {{ member_obj.value_added_hours|round_to_two }}
+                            </td>
+                            <td>
+                                {{ member_obj.active_accounts_count }}
+                            </td>
+                            <td>
+                                {{ member_obj.onboarding_accounts_count }}
+                            </td>
+                            <td class="{% if member_obj.backup_hours_plus_minus > 0 %}text-success{% elif member_obj.backup_hours_plus_minus < 0 %}text-danger{% endif %}">
+                                {{ member_obj.backup_hours_plus_minus }}
+                            </td>
+                            <td>
+                                {{ member_obj.last_updated_hours }}
+                            </td>
+                            <td>
+                                {{ member_obj.seniority_buffer }}
+                            </td>
+                            <td>
+                                {{ member_obj.training_hours_assigned }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        let ctx = document.getElementById('revenue_growth_chart').getContext('2d');
+        let months = [],
+            spends = [],
+            fees = [];
+        {% for month in department_stats.month_strs %}
+            months.push('{{ month }}');
+        {% endfor %}
+        {% for spend in department_stats.spends %}
+            spends.push(parseFloat('{{ spend }}'));
+        {% endfor %}
+        {% for fee in department_stats.fees %}
+            fees.push(parseFloat('{{ fee }}'));
+        {% endfor %}
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        data: spends,
+                        borderColor: 'tomato',
+                        label: 'Spend'
+                    },
+                    {
+                        data: fees,
+                        borderColor: 'lightskyblue',
+                        label: 'Management Fee'
+                    }
+                ],
+                options: {
+                    legend: {
+                        display: false
+                    },
+                }
+            }
+        });
+
+        $('#overview_tab').addClass('is-active');
+    </script>
+{% endblock %}
