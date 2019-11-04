@@ -580,6 +580,8 @@ def daily_context(self):
     month = now.month
     year = now.year
 
+    aggregate_spend = 0.0
+    aggregate_fee = 0.0
     for account in accounts:
         # First do the allocated hours
         members = account.assigned_members
@@ -614,6 +616,10 @@ def daily_context(self):
         account_budget_history.status = account.status
         account_budget_history.save()
 
+        # aggregates for trends
+        aggregate_spend += account_budget_history.spend
+        aggregate_fee += account.current_fee
+
     outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
     ninety_days_ago = datetime.datetime.now() - datetime.timedelta(90)
     new_accounts = Client.objects.filter(created_at__gte=ninety_days_ago)
@@ -629,6 +635,9 @@ def daily_context(self):
     snapshot, created = MemberDashboardSnapshot.objects.get_or_create(month=month, year=year)
     snapshot.outstanding_budget_accounts.set(outstanding_budget_accounts)
     snapshot.new_accounts.set(new_accounts_snapshot)
+    snapshot.aggregate_spend = aggregate_spend
+    snapshot.aggregate_fee = aggregate_fee
+    snapshot.save()
 
     for member in members:
         record, created = MemberHourHistory.objects.get_or_create(member=member, month=month, year=year)
@@ -638,6 +647,7 @@ def daily_context(self):
         record.buffer_multiplier = (member.buffer_total_percentage / 100.0) * (
                 (100.0 - member.buffer_percentage) / 100.0) * ((100.0 + member.buffer_seniority_percentage) / 100.0)
         record.training_buffer = member.buffer_trainers_percentage
+        record.seniority_buffer = member.buffer_seniority_percentage
         record.total_buffer = member.buffer_total_percentage
         record.num_active_accounts = member.active_accounts_including_backups_count
         record.num_onboarding_accounts = member.onboarding_accounts_count

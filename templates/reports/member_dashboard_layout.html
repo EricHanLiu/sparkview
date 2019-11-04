@@ -1,0 +1,107 @@
+{% extends 'main_refactor.html' %}
+
+{% block main_body %}
+    <!-- TODO: this is a temp solution since the navbar takes up height -->
+    <div class="columns" style="min-height: 92vh; margin-bottom: 0; padding-bottom: 0;">
+        <div class="column is-1" style="padding: 2em 0;">
+            <aside class="menu">
+                <ul class="menu-list">
+                    <li>
+                        <a class="has-text-centered" href="/reports/{{ dashboard }}/overview" style="padding: 1.5em 0;"
+                           id="overview_tab">
+                            <div class="icon"><i class="fas fa-book"
+                                                 style="font-size: 1.3em; margin-bottom: 0.5em;"></i></div>
+                            <p style="font-size: 0.9em;">Overview</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="has-text-centered" href="/reports/{{ dashboard }}/certifications"
+                           style="padding: 1.5em 0;"
+                           id="certifications_tab">
+                            <div class="icon"><i class="fas fa-award"
+                                                 style="font-size: 1.3em; margin-bottom: 0.5em;"></i></div>
+                            <p style="font-size: 0.9em;">Certifications</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="has-text-centered" href="/reports/{{ dashboard }}/efficiency"
+                           style="padding: 1.5em 0;"
+                           id="efficiency_tab">
+                            <div class="icon"><i class="fas fa-hourglass-half"
+                                                 style="font-size: 1.3em; margin-bottom: 0.5em;"></i></div>
+                            <p style="font-size: 0.9em;">Efficiency</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="has-text-centered" href="/reports/{{ dashboard }}/budgets"
+                           style="padding: 1.5em 0;"
+                           id="budgets_tab">
+                            <div class="icon"><i class="fas fa-file-invoice-dollar"
+                                                 style="font-size: 1.3em; margin-bottom: 0.5em;"></i></div>
+                            <p style="font-size: 0.9em;">Budgets</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="has-text-centered" href="/reports/{{ dashboard }}/new_clients"
+                           style="padding: 1.5em 0;"
+                           id="new_clients_tab">
+                            <div class="icon"><i class="fas fa-user"
+                                                 style="font-size: 1.3em; margin-bottom: 0.5em;"></i></div>
+                            <p style="font-size: 0.9em;">New Clients</p>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+        </div>
+        <div class="column is-11 has-background-light">
+            <div class="section has-background-light" style="min-height: 90.5vh; margin-bottom: 0; padding-bottom: 0;">
+                <div class="container is-fluid">
+                    <div class="card">
+                        <div class="card-content">
+                            <h4 class="title is-3">
+                                {{ report_type }}
+                            </h4>
+                            <hr>
+                            <form method="GET">
+                                <div class="columns">
+                                    <div class="column is-3">
+                                        <label class="label">Month</label>
+                                        <div class="select is-fullwidth">
+                                            <select name="month">
+                                                {% for month_num, month_name in months %}
+                                                    <option value="{{ month_num }}"
+                                                            {% if selected.month == month_num %}selected{% endif %}>
+                                                        {{ month_name }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column is-3">
+                                        <label class="label">Year</label>
+                                        <div class="select is-fullwidth">
+                                            <select name="year">
+                                                {% for year in years %}
+                                                    <option value="{{ year }}"
+                                                            {% if selected.year == year %}selected{% endif %}>
+                                                        {{ year }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="column is-3">
+                                        <label class="label">&nbsp;</label>
+                                        <button class="button">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% block main_content %}
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

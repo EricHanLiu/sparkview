@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+{% extends 'reports/member_dashboard_layout.html' %}
+{% load staticfiles %}
+{% load template_filters %}
+
+{% block main_content %}
+    <div class="card" style="margin-top: 2em;">
+        <div class="card-content">
+            <h4 class="title is-4">Member Efficiency</h4>
+            <hr>
+            <h5 class="title is-5">Top 10 Under-Efficient Accounts</h5>
+            <table class="table dataTable is-hoverable is-fullwidth is-striped">
+                <thead>
+                <tr>
+                    <th>
+                        Account
+                    </th>
+                    <th>
+                        Tier
+                    </th>
+                    <th>
+                        Member(s)
+                    </th>
+                    <th>
+                        Member(s) Allocated Hours
+                    </th>
+                    <th>
+                        Member(s) Actual Hours
+                    </th>
+                    <th>
+                        Over Hours Frequency
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for dict in overspenders %}
+                    <tr>
+                        <td>
+                            <a href="/clients/accounts/{{ dict.account.id }}">{{ dict.account.client_name }}</a>
+                        </td>
+                        <td>
+                            {{ dict.account.tier }}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.over_members %}
+                                <a href="/user_management/members/{{ member_dict.member.id }}">
+                                    {{ member_dict.member.user.get_full_name }}
+                                </a>{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.over_members %}
+                                {{ member_dict.allocated_hours }}
+                                {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.over_members %}
+                                {{ member_dict.actual_hours }}
+                                {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.over_members %}
+                                {{ member_dict.over_hours_frequency }}
+                                {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="6">
+                        <p class="heading">To see more details please refer to the <a
+                                href="/reports/over_under">Over & Under Report</a></p>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+            <hr>
+            <h5 class="title is-5">Top 10 Efficient Accounts</h5>
+            <table class="table dataTable is-hoverable is-fullwidth is-striped">
+                <thead>
+                <tr>
+                    <th>
+                        Account
+                    </th>
+                    <th>
+                        Tier
+                    </th>
+                    <th>
+                        Member(s)
+                    </th>
+                    <th>
+                        Member(s) Allocated Hours
+                    </th>
+                    <th>
+                        Member(s) Actual Hours
+                    </th>
+                    <th>
+                        Under Hours Frequency
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for dict in underspenders %}
+                    <tr>
+                        <td>
+                            <a href="/clients/accounts/{{ dict.account.id }}">{{ dict.account.client_name }}</a>
+                        </td>
+                        <td>
+                            {{ dict.account.tier }}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.under_members %}
+                                <a href="/user_management/members/{{ member_dict.member.id }}">
+                                    {{ member_dict.member.user.get_full_name }}
+                                </a>{% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.under_members %}
+                                {{ member_dict.allocated_hours }}
+                                {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.under_members %}
+                                {{ member_dict.actual_hours }}
+                                {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for member_dict in dict.under_members %}
+                                {{ member_dict.under_hours_frequency }}
+                                {% if not forloop.last %},{% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="6">
+                        <p class="heading">To see more details please refer to the <a
+                                href="/reports/over_under">Over & Under Report</a></p>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extraJs %}
+    <script>
+        $('#efficiency_tab').addClass('is-active');
+    </script>
+{% endblock %}

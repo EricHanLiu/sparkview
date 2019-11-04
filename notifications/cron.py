@@ -27,6 +27,8 @@ def prepare_todos(self):
         ) | member.active_mandate_accounts | member.backup_accounts
         member_accounts = member_accounts.distinct()
 
+        # JAMIE 30 DAYS ACTIVE STATUS
+
         # PROMOS
         today = datetime.datetime.now().date()
         tomorrow = today + datetime.timedelta(1)

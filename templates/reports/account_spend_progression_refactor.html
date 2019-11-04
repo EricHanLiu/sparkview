@@ -65,24 +65,46 @@
                                     <a href="/clients/accounts/{{ account.id }}">{{ account.client_name }}</a>
                                 </td>
                                 <td>
-                                    ${{ account.current_budget|format_money }}
+                                    {% if account.default_budget is not None %}
+                                        ${{ account.default_budget.calculated_budget|format_money }}
+                                    {% else %}
+                                        ${{ account.current_budget|format_money }}
+                                    {% endif %}
                                 </td>
                                 <td>
-                                    ${{ account.current_spend|format_money }}
+                                    {% if account.default_budget is not None %}
+                                        ${{ account.default_budget.calculated_spend|format_money }}
+                                    {% else %}
+                                        ${{ account.current_spend|format_money }}
+                                    {% endif %}
                                 </td>
                                 <td>
-                                    ${{ account.project_yesterday|format_money }}
+                                    {% if account.default_budget is not None %}
+                                        ${{ account.default_budget.projected_spend_avg|format_money }}
+                                    {% else %}
+                                        ${{ account.project_yesterday|format_money }}
+                                    {% endif %}
                                 </td>
                                 <td>
                                     ${{ account.ppc_fee|format_money }}
                                 </td>
                                 <td>
-                                    ${{ account|get_fee_by_spend:account.project_yesterday|format_money }}
+                                    {% if account.default_budget is not None %}
+                                        ${{ account|get_fee_by_spend:account.default_budget.projected_spend_avg|format_money }}
+                                    {% else %}
+                                        ${{ account|get_fee_by_spend:account.project_yesterday|format_money }}
+                                    {% endif %}
                                 </td>
                                 <td>
-                                    {% with projected_fee=account|get_fee_by_spend:account.project_yesterday %}
-                                        ${{ account.ppc_fee|subtract:projected_fee|format_money }}
-                                    {% endwith %}
+                                    {% if account.default_budget is not None %}
+                                        {% with projected_fee=account|get_fee_by_spend:account.default_budget.projected_spend_avg %}
+                                            ${{ account.ppc_fee|subtract:projected_fee|format_money }}
+                                        {% endwith %}
+                                    {% else %}
+                                        {% with projected_fee=account|get_fee_by_spend:account.project_yesterday %}
+                                            ${{ account.ppc_fee|subtract:projected_fee|format_money }}
+                                        {% endwith %}
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
