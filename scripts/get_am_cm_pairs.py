@@ -34,10 +34,11 @@ def main():
     print('There are ' + str(len(am_cm_pairs)) + ' AM1/CM1 pairs')
 
     for key in am_cm_pairs:
-        print(key)
-        print(str(len(am_cm_pairs[key])) + ' accounts together')
-        print(am_cm_pairs[key])
-        print()
+        unpickle = key.split(', ')
+        cm = unpickle[0]
+        am = unpickle[1]
+        for a in am_cm_pairs[key]:
+            print(str(am) + '\t' + str(cm) + '\t' + a)
 
 
 main()

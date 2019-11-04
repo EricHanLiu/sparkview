@@ -119,16 +119,16 @@ class UserTestCase(TestCase):
         response = self.client.get('/reports/account_spend_progression')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/reports/cm_capacity')
+        response = self.client.get('/reports/cm/overview')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/reports/am_capacity')
+        response = self.client.get('/reports/am/overview')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/reports/seo_capacity')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/reports/strat_capacity')
+        response = self.client.get('/reports/strat/overview')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/reports/account_capacity')
@@ -568,3 +568,11 @@ class UserTestCase(TestCase):
         self.assertRedirects(response, url)
         report = MonthlyReport.objects.get(account=test_account)
         self.assertEqual(report.date_status, 1)
+
+    def test_capacity_rates(self):
+        user = User.objects.create(username='tu')
+        member = Member.objects.create(user=user, buffer_total_percentage=100)
+        BloomClient.objects.create(client_name='tc', cm1=member, cm1percent=100, status=1)
+
+        self.assertEqual(member.buffer_percentage, 0.0)
+        self.assertEqual(member.total_hours_minus_buffer, 140)

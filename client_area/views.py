@@ -1226,7 +1226,7 @@ def confirm_sent_am(request):
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
+    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'), year=request.POST.get('year'))
 
     report.date_sent_to_am = timezone.now()
     report.save()

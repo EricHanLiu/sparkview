@@ -574,7 +574,7 @@ def daily_context(self):
     :return:
     """
     accounts = Client.objects.all()
-    members = Member.objects.all()
+    all_members = Member.objects.all()
 
     now = datetime.datetime.now()
     month = now.month
@@ -639,10 +639,10 @@ def daily_context(self):
     snapshot.aggregate_fee = aggregate_fee
     snapshot.save()
 
-    for member in members:
+    for member in all_members:
         record, created = MemberHourHistory.objects.get_or_create(member=member, month=month, year=year)
-        record.allocated_hours = member.allocated_hours_month
-        record.actual_hours = member.actual_hours_month
+        record.allocated_hours = member.allocated_hours_month()
+        record.actual_hours = member.actual_hours_month()
         record.available_hours = member.hours_available
         record.buffer_multiplier = (member.buffer_total_percentage / 100.0) * (
                 (100.0 - member.buffer_percentage) / 100.0) * ((100.0 + member.buffer_seniority_percentage) / 100.0)
