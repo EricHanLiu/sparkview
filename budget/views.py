@@ -1241,22 +1241,22 @@ def assign_client_accounts(request):
 
     client = Client.objects.get(id=client_id)
 
+    client.adwords.clear()
     if adwords:
-        client.adwords.clear()
         for a in adwords:
             acc = DependentAccount.objects.get(dependent_account_id=a)
             client.adwords.add(acc)
             client.save()
 
+    client.bing.clear()
     if bing:
-        client.bing.clear()
         for b in bing:
             acc = BingAccounts.objects.get(account_id=b)
             client.bing.add(acc)
             client.save()
 
+    client.facebook.clear()
     if facebook:
-        client.facebook.clear()
         for f in facebook:
             acc = FacebookAccount.objects.get(account_id=f)
             client.facebook.add(acc)
