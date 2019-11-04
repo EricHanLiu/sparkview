@@ -40,16 +40,16 @@
                         </h4>
                     </div>
                 </div>
-                <div class="column is-12 has-text-centered">
-                    <div class="box">
-                        <p class="heading">
-                            Revenue Growth/loss
-                        </p>
-                        <h4 class="title is-4">
-                            <canvas id="revenue_growth_chart"></canvas>
-                        </h4>
-                    </div>
-                </div>
+{#                <div class="column is-12 has-text-centered">#}
+{#                    <div class="box">#}
+{#                        <p class="heading">#}
+{#                            Revenue Growth/loss#}
+{#                        </p>#}
+{#                        <h4 class="title is-4">#}
+{#                            <canvas id="revenue_growth_chart"></canvas>#}
+{#                        </h4>#}
+{#                    </div>#}
+{#                </div>#}
                 {#                        <div class="column is-6 has-text-centered">#}
                 {#                            <div class="box">#}
                 {#                                <p class="heading">#}
@@ -167,7 +167,7 @@
 
 {% block extraJs %}
     <script>
-        let ctx = document.getElementById('revenue_growth_chart').getContext('2d');
+        {#let ctx = document.getElementById('revenue_growth_chart').getContext('2d');#}
         let months = [],
             spends = [],
             fees = [];
@@ -180,29 +180,29 @@
         {% for fee in department_stats.fees %}
             fees.push(parseFloat('{{ fee }}'));
         {% endfor %}
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [
-                    {
-                        data: spends,
-                        borderColor: 'tomato',
-                        label: 'Spend'
-                    },
-                    {
-                        data: fees,
-                        borderColor: 'lightskyblue',
-                        label: 'Management Fee'
-                    }
-                ],
-                options: {
-                    legend: {
-                        display: false
-                    },
-                }
-            }
-        });
+        {#new Chart(ctx, {#}
+        {#    type: 'line',#}
+        {#    data: {#}
+        {#        labels: months,#}
+        {#        datasets: [#}
+        {#            {#}
+        {#                data: spends,#}
+        {#                borderColor: 'tomato',#}
+        {#                label: 'Spend'#}
+        {#            },#}
+        {#            {#}
+        {#                data: fees,#}
+        {#                borderColor: 'lightskyblue',#}
+        {#                label: 'Management Fee'#}
+        {#            }#}
+        {#        ],#}
+        {#        options: {#}
+        {#            legend: {#}
+        {#                display: false#}
+        {#            },#}
+        {#        }#}
+        {#    }#}
+        {#});#}
 
         $('#overview_tab').addClass('is-active');
     </script>

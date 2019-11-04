@@ -868,8 +868,10 @@ class Client(models.Model):
             return 0.0
         allocated = self.managementFee.initialFee / 125.0
         if member is None:
-            return allocated
-        return allocated * self.assigned_member_percentage(member) / 100.0
+            return allocated if allocated > 0 else 0
+        hours = allocated * self.assigned_member_percentage(member) / 100.0
+        hours = hours if hours > 0 else 0
+        return hours
 
     def assigned_member_percentage(self, member):
         """

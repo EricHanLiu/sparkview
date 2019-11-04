@@ -209,7 +209,8 @@
                     url: '/clients/reports/' + url,
                     data: {
                         'account_id': el.data('account'),
-                        'month': {{ reports.0.month }}
+                        'month': {{ reports.0.month }},
+                        'year': {{ reports.0.year }}
                     },
                     headers: {'X-CSRFToken': csrftoken},
                     type: 'POST',
