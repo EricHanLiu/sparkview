@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append('..')
 from googleads import adwords
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bloom.settings')
 import django

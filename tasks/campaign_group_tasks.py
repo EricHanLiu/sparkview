@@ -61,9 +61,19 @@ def update_budget_campaigns(self, budget_id):
             for adwords_campaign in adwords_campaigns:
                 if check_inclusions:
                     for positive_keyword in positive_keywords:
-                        if positive_keyword.strip().lower() in adwords_campaign.campaign_name.lower():
-                            if adwords_campaign not in aw_campaigns_in_group:
+                        if '&' in positive_keyword:
+                            and_keywords = positive_keyword.split('&')
+                            add_it = True
+                            for and_keyword in and_keywords:
+                                if and_keyword.strip().lower() not in adwords_campaign.campaign_name.lower():
+                                    add_it = False
+                                    break
+                            if add_it and adwords_campaign not in aw_campaigns_in_group:
                                 aw_campaigns_in_group.append(adwords_campaign)
+                        else:
+                            if positive_keyword.strip().lower() in adwords_campaign.campaign_name.lower():
+                                if adwords_campaign not in aw_campaigns_in_group:
+                                    aw_campaigns_in_group.append(adwords_campaign)
                 if check_exclusions:
                     for negative_keyword in negative_keywords:
                         if negative_keyword.strip().lower() in adwords_campaign.campaign_name.lower():
@@ -80,9 +90,19 @@ def update_budget_campaigns(self, budget_id):
             for facebook_campaign in facebook_campaigns:
                 if check_inclusions:
                     for positive_keyword in positive_keywords:
-                        if positive_keyword.strip().lower() in facebook_campaign.campaign_name.lower():
-                            if facebook_campaign not in fb_campaigns_in_group:
+                        if '&' in positive_keyword:
+                            and_keywords = positive_keyword.split('&')
+                            add_it = True
+                            for and_keyword in and_keywords:
+                                if and_keyword.strip().lower() not in facebook_campaign.campaign_name.lower():
+                                    add_it = False
+                                    break
+                            if add_it and facebook_campaign not in fb_campaigns_in_group:
                                 fb_campaigns_in_group.append(facebook_campaign)
+                        else:
+                            if positive_keyword.strip().lower() in facebook_campaign.campaign_name.lower():
+                                if facebook_campaign not in fb_campaigns_in_group:
+                                    fb_campaigns_in_group.append(facebook_campaign)
                 if check_exclusions:
                     for negative_keyword in negative_keywords:
                         if negative_keyword.strip().lower() in facebook_campaign.campaign_name.lower():
@@ -99,9 +119,19 @@ def update_budget_campaigns(self, budget_id):
             for bing_campaign in bing_campaigns:
                 if check_inclusions:
                     for positive_keyword in positive_keywords:
-                        if positive_keyword.strip().lower() in bing_campaign.campaign_name.lower():
-                            if bing_campaign not in bing_campaigns_in_group:
+                        if '&' in positive_keyword:
+                            and_keywords = positive_keyword.split('&')
+                            add_it = True
+                            for and_keyword in and_keywords:
+                                if and_keyword.strip().lower() not in bing_campaign.campaign_name.lower():
+                                    add_it = False
+                                    break
+                            if add_it and bing_campaign not in bing_campaigns_in_group:
                                 bing_campaigns_in_group.append(bing_campaign)
+                        else:
+                            if positive_keyword.strip().lower() in bing_campaign.campaign_name.lower():
+                                if bing_campaign not in bing_campaigns_in_group:
+                                    bing_campaigns_in_group.append(bing_campaign)
                 if check_exclusions:
                     for negative_keyword in negative_keywords:
                         if negative_keyword.strip().lower() in bing_campaign.campaign_name.lower():
