@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append('..')
 from redis.exceptions import ConnectionError as ReddisConnectionError
 from kombu.exceptions import OperationalError as KombuOperationalError
 
