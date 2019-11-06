@@ -741,7 +741,7 @@ def account_single(request, account_id):
         account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
         account_status_class = account_status_classes[account.status]
 
-        budgets = sorted(account.budgets, key=lambda b: b.projected_spend_avg - b.budget)
+        budgets = sorted(account.budgets, key=lambda b: b.projected_spend_avg / b.budget, reverse=True)
 
         context = {
             'account': account,
