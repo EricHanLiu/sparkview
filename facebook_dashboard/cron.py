@@ -330,14 +330,17 @@ def facebook_yesterday_campaign_spend(self):
     """
     accounts = active_facebook_accounts()
     for account in accounts:
-        try:
-            facebook_cron_campaign_stats.delay(account.account_id)
-        except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
-            logger = Logger()
-            warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(
-                account.account_name)
-            warning_desc = 'Failed to create celery task for facebook_ovu.py'
-            logger.send_warning_email(warning_message, warning_desc)
-            break
+        if settings.DEBUG:
+            facebook_cron_campaign_stats(account.account_id)
+        else:
+            try:
+                facebook_cron_campaign_stats.delay(account.account_id)
+            except (ConnectionRefusedError, ReddisConnectionError, KombuOperationalError):
+                logger = Logger()
+                warning_message = 'Failed to created celery task for facebook_ovu.py for account ' + str(
+                    account.account_name)
+                warning_desc = 'Failed to create celery task for facebook_ovu.py'
+                logger.send_warning_email(warning_message, warning_desc)
+                break
 
     return 'facebook_yesterday_campaign_spend'

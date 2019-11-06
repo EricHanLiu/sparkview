@@ -447,7 +447,7 @@ def bing_cron_campaign_stats(self, account_id):
     ys_stats = helper.map_campaign_stats(ys_report)
     for k, v in ys_stats.items():
         campaign_id = v[0]['campaignid']
-        campaign_name = v[0]['campaignname']
+        # campaign_name = v[0]['campaignname']
         campaign_cost = float(v[0]['spend'])
 
         cmp, created = BingCampaign.objects.get_or_create(
@@ -467,26 +467,26 @@ def bing_cron_campaign_stats(self, account_id):
         **this_month
     )
 
-    cmp_stats = helper.map_campaign_stats(report)
+    # cmp_stats = helper.map_campaign_stats(report)
 
-    for k, v in cmp_stats.items():
-
-        campaign_id = v[0]['campaignid']
-        campaign_name = v[0]['campaignname']
-        campaign_cost = float(v[0]['spend'])
-
-        cmp, created = BingCampaign.objects.get_or_create(
-            account=account,
-            campaign_id=campaign_id
-        )
-
-        # cmp.campaign_cost = campaign_cost
-        # cmp.save()
-
-        if created:
-            print('Added to DB - [' + cmp.campaign_name + '].')
-        else:
-            print('Matched in DB - [' + cmp.campaign_name + '].')
+    # for k, v in cmp_stats.items():
+    #
+    #     campaign_id = v[0]['campaignid']
+    #     campaign_name = v[0]['campaignname']
+    #     campaign_cost = float(v[0]['spend'])
+    #
+    #     cmp, created = BingCampaign.objects.get_or_create(
+    #         account=account,
+    #         campaign_id=campaign_id
+    #     )
+    #
+    #     # cmp.campaign_cost = campaign_cost
+    #     # cmp.save()
+    #
+    #     if created:
+    #         print('Added to DB - [' + cmp.campaign_name + '].')
+    #     else:
+    #         print('Matched in DB - [' + cmp.campaign_name + '].')
 
     # Loop through the campaigns in this account, if they're not actively being pulled, set their spend to 0
     all_cmps_this_account = BingCampaign.objects.filter(account=account)
