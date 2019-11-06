@@ -918,17 +918,17 @@ class AdwordsReporting(Reporting):
         fields = [
             'CampaignId',
             'CampaignName',
-            'Labels',
-            'Conversions',
-            'Impressions',
-            'Clicks',
+            # 'Labels',
+            # 'Conversions',
+            # 'Impressions',
+            # 'Clicks',
             'Cost',
-            'Ctr',
-            'CampaignStatus',
-            'CostPerConversion',
-            'AverageCpc',
-            'SearchImpressionShare',
-            'ServingStatus',
+            # 'Ctr',
+            # 'CampaignStatus',
+            # 'CostPerConversion',
+            # 'AverageCpc',
+            # 'SearchImpressionShare',
+            # 'ServingStatus',
         ]
 
         predicates = []

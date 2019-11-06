@@ -402,8 +402,16 @@ def member_dashboard_efficiency(request):
 
         over_members = []
         under_members = []
-        for key, value in account.assigned_cms.items():
-            member = account.assigned_cms[key]['member']
+
+        loop_items = account.assigned_cms.items()
+        if dashboard == 'am':
+            loop_items = account.assigned_ams.items()
+
+        for key, value in loop_items:
+            if dashboard == 'am':
+                member = account.assigned_ams[key]['member']
+            else:
+                member = account.assigned_cms[key]['member']
 
             if account.get_hours_remaining_this_month_member(member) < 0:
                 over_hours_frequency = len(

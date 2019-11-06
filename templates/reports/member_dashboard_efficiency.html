@@ -98,9 +98,6 @@
                     <th>
                         Member(s) Actual Hours
                     </th>
-                    <th>
-                        Under Hours Frequency
-                    </th>
                 </tr>
                 </thead>
                 <tbody>
@@ -128,12 +125,6 @@
                         <td>
                             {% for member_dict in dict.under_members %}
                                 {{ member_dict.actual_hours }}
-                                {% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% for member_dict in dict.under_members %}
-                                {{ member_dict.under_hours_frequency }}
                                 {% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
