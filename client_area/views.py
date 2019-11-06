@@ -741,6 +741,8 @@ def account_single(request, account_id):
         account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
         account_status_class = account_status_classes[account.status]
 
+        budgets = sorted(account.budgets, key=lambda b: b.projected_spend_avg - b.budget)
+
         context = {
             'account': account,
             'members': members,
@@ -767,7 +769,8 @@ def account_single(request, account_id):
             'additional_services': additional_services,
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView',
-            'account_status_class': account_status_class
+            'account_status_class': account_status_class,
+            'budgets': budgets
         }
 
         return render(request, 'client_area/refactor/client_profile.html', context)

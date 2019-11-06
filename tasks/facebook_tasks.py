@@ -324,11 +324,13 @@ def facebook_cron_campaign_stats(self, account_id):
         'date_stop',
     ]
 
-    filtering = [{
-        'field': 'campaign.spend',
-        'operator': 'GREATER_THAN',
-        'value': 0,
-    }]
+    # filtering = [{
+    #     'field': 'campaign.spend',
+    #     'operator': 'GREATER_THAN',
+    #     'value': 0,
+    # }]
+
+    filtering = []
 
     this_month = helper.set_params(
         time_range=helper.get_this_month_daterange(),

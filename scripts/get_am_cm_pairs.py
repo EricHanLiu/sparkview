@@ -29,7 +29,10 @@ def main():
         if key not in am_cm_pairs:
             am_cm_pairs[key] = []
 
-        am_cm_pairs[key].append(str(account))
+        am_cm_pairs[key].append(
+            str(account) + '\t' + str(account.tier) + '\t' + str(account.default_budget.budget) + '\t' + str(
+                account.clientType) + '\t' + str(round(account.ppc_hours * 0.25, 0)) + '\t' + str(
+                round(account.ppc_hours * 0.75, 0)))
 
     print('There are ' + str(len(am_cm_pairs)) + ' AM1/CM1 pairs')
 

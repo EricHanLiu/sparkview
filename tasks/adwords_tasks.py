@@ -793,14 +793,14 @@ def adwords_cron_campaign_stats(self, customer_id):
     client = get_client()
     helper = AdwordsReportingService(client)
 
-    daterange = helper.get_this_month_daterange()
+    # daterange = helper.get_this_month_daterange()
 
-    campaign_this_month = helper.get_campaign_performance(
-        customer_id=account.dependent_account_id,
-        dateRangeType='THIS_MONTH'
-        # dateRangeType='CUSTOM_DATE',
-        # **daterange
-    )
+    # campaign_this_month = helper.get_campaign_performance(
+    #     customer_id=account.dependent_account_id,
+    #     dateRangeType='THIS_MONTH'
+    #     # dateRangeType='CUSTOM_DATE',
+    #     # **daterange
+    # )
 
     campaigns_yesterday = helper.get_campaign_performance(
         customer_id=account.dependent_account_id,
@@ -816,21 +816,21 @@ def adwords_cron_campaign_stats(self, customer_id):
         cmps.append(cmp)
         cmp.save()
 
-    for campaign in campaign_this_month:
-        cmp, created = Campaign.objects.get_or_create(
-            account=account,
-            campaign_id=campaign['campaign_id']
-        )
-        # cmp.campaign_cost = helper.mcv(campaign['cost'])
-        cmp.campaign_name = campaign['campaign']
-        cmp.campaign_status = campaign['campaign_state']
-        cmp.campaign_serving_status = campaign['campaign_serving_status']
-        cmp.save()
-
-        if created:
-            print('Added to DB - [' + cmp.campaign_name + '].')
-        else:
-            print('Matched in DB - [' + cmp.campaign_name + '].')
+    # for campaign in campaign_this_month:
+    #     cmp, created = Campaign.objects.get_or_create(
+    #         account=account,
+    #         campaign_id=campaign['campaign_id']
+    #     )
+    #     # cmp.campaign_cost = helper.mcv(campaign['cost'])
+    #     cmp.campaign_name = campaign['campaign']
+    #     cmp.campaign_status = campaign['campaign_state']
+    #     cmp.campaign_serving_status = campaign['campaign_serving_status']
+    #     cmp.save()
+    #
+    #     if created:
+    #         print('Added to DB - [' + cmp.campaign_name + '].')
+    #     else:
+    #         print('Matched in DB - [' + cmp.campaign_name + '].')
 
     # Loop through the campaigns in this account, if they're not actively being pulled, set their spend to 0
     all_cmps_this_account = Campaign.objects.filter(account=account)
