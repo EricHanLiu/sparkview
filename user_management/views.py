@@ -11,7 +11,7 @@ from .models import Member, Incident, Team, Role, Skill, SkillEntry, BackupPerio
     HighFive, TrainingGroup, SkillHistory, SkillCategory, Badge
 from budget.models import Client
 from client_area.models import AccountHourRecord, MonthlyReport, Promo, PhaseTaskAssignment, MandateHourRecord, \
-    Mandate, OnboardingStep
+    Mandate, OnboardingStep, SEOService
 from notifications.models import Todo
 from bloom.utils.utils import member_locked_out
 
@@ -701,6 +701,7 @@ def members_single(request, member_id=0):
     todos = Todo.objects.filter(member=member, completed=False, date_created=today)
 
     onboarding_steps = OnboardingStep.objects.all()
+    seo_services = SEOService.objects.all()
 
     # sort by account name alphabetical
     sorted_dict = sorted(master_accounts_dictionary.items(), key=lambda kv: kv[1]['account'].client_name)
@@ -716,6 +717,7 @@ def members_single(request, member_id=0):
         'todos': todos,
         'flagged_accounts_count': flagged_accounts.count(),
         'onboarding_steps': onboarding_steps,
+        'seo_services': seo_services,
         'title': 'Dashboard - SparkView'
     }
 
