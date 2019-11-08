@@ -1478,6 +1478,13 @@ class Client(models.Model):
         return self._sales_profile
 
     @property
+    def seo_profile(self):
+        if not hasattr(self, '_seo_profile'):
+            profile, created = SEOServiceProfile.objects.get_or_create(account=self)
+            self._seo_profile = profile
+        return self._seo_profile
+
+    @property
     def services_str(self):
         profile = self.sales_profile
         if profile is None:
