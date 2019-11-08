@@ -60,6 +60,13 @@ class Client(models.Model):
                      (2, 'Two'),
                      (3, 'Three')]
 
+    REGION_CHOICES = [(1, 'QC'),
+                      (2, 'ON'),
+                      (3, 'US'),
+                      (4, 'BC'),
+                      (5, 'AB'),
+                      (6, 'SK')]
+
     client_name = models.CharField(max_length=255, default='None')
     adwords = models.ManyToManyField(adwords_a.DependentAccount, blank=True)
     bing = models.ManyToManyField(bing_a.BingAccounts, blank=True)
@@ -151,6 +158,7 @@ class Client(models.Model):
     phase_day = models.IntegerField(default=0)
     ninety_day_cycle = models.IntegerField(default=1)
     budget_updated = models.BooleanField(default=False)  # should be True if the budget has been updated this month
+    region = models.IntegerField(default=1, choices=REGION_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Member attributes (we'll see if there's a better way to do this)
