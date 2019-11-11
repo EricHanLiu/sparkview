@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^accounts/(\d*)/insights$', views.ten_insights_report, name='ten_insights_report'),
     url(r'^accounts/onboard/(\d*)$', views.onboard_account, name='onboard_account'),
     url(r'^accounts/complete_onboarding_step$', views.complete_onboarding_step, name='complete_onboarding_step'),
+    url(r'^accounts/activate_seo_service$', views.activate_seo_service, name='activate_seo_service'),
     url(r'^accounts/assign_members$', views.account_assign_members, name='account_assign_members'),
     url(r'^accounts/report_hours$', views.add_hours_to_account, name='add_hours_to_account'),
     url(r'^accounts/report_value_added_hours$', views.value_added_hours, name='value_added_hours'),

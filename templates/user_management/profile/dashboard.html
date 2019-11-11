@@ -230,6 +230,24 @@
                                         </tbody>
                                     </table>
                                 {% endif %}
+                                {% if account.has_seo %}
+                                    <h6 class="title is-6">SEO Services</h6>
+                                    <div class="columns">
+                                        {% for service in seo_services %}
+                                            {% with assignment=account|get_seo_service_assignment:service %}
+                                                <div class="column" style="margin: 0 2em;">
+                                                    <button class="button is-rounded is-fullwidth {% if assignment.active %}button-color-4{% endif %} seo-service-button"
+                                                            data-assignment-id="{{ assignment.id }}"
+                                                            data-service-name="{{ service.name }}"
+                                                            data-account-id="{{ account.id }}"
+                                                            id="{{ assignment.id }}">
+                                                        {{ service.name }}
+                                                    </button>
+                                                </div>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                                 {% if account_dict.is_onboarding %}
                                     <div class="columns">
                                         {% for step in onboarding_steps %}
@@ -386,6 +404,27 @@
             </div>
         </div>
     </div>
+    <div class="modal modal-fx-fadeInScale" id="seo_service_modal">
+        <div class="modal-background"></div>
+        <div class="modal-content">
+            <div class="box">
+                <div class="level">
+                    <div class="level-left">
+                        <h5 class="title is-5">SEO Service</h5>
+                    </div>
+                    <div class="level-right">
+                        <button class="button button-color" id="seo_service_confirm_button">Toggle Active</button>
+                    </div>
+                </div>
+                <p>
+                    <input type="hidden" id="seo_account_id">
+                    <input type="hidden" id="seo_assignment_id">
+                    <input type="hidden" id="seo_element_id">
+                    Toggle the active status of service <strong id="service_name"></strong>?
+                </p>
+            </div>
+        </div>
+    </div>
     <div class="modal modal-fx-fadeInScale" id="reopen_mandate_modal">
         <div class="modal-background"></div>
         <div class="modal-content">
@@ -458,6 +497,14 @@
             $('#step_element_id').val(this.id);
         });
 
+        $('.seo-service-button').click(function () {
+            $('#seo_service_modal').addClass('is-active');
+            $('#service_name').text($(this).data('service-name'));
+            $('#seo_assignment_id').val($(this).data('assignment-id'));
+            $('#seo_account_id').val($(this).data('account-id'));
+            $('#seo_element_id').val(this.id);
+        });
+
         $('#late_onboarding_button').click(function () {
             $('#late_onboarding_modal').addClass('is-active');
             let account_id = $(this).data('account-id');
@@ -506,6 +553,24 @@
                             location.reload();
                         }, 500);
                     }
+                }
+            });
+        });
+
+        $('#seo_service_confirm_button').click(() => {
+            let seoElementID = $('#seo_element_id').val();
+            $.ajax({
+                url: '/clients/accounts/activate_seo_service',
+                data: {
+                    'account_id': $('#seo_account_id').val(),
+                    'assignment_id': $('#seo_assignment_id').val(),
+                },
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                type: 'POST',
+                success: () => {
+                    toastr.success('Successfully updated service ' + $('#service_name').text() + '!');
+                    $('#' + seoElementID).toggleClass('button-color-4');
+                    $('.modal').removeClass('is-active');
                 }
             });
         });

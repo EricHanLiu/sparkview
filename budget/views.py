@@ -1023,12 +1023,9 @@ def edit_budget(request):
     budget.is_edited = True
     budget.save()
 
-    if 'google_ads' in request.POST:
-        budget.has_adwords = True
-    if 'facebook_ads' in request.POST:
-        budget.has_facebook = True
-    if 'bing_ads' in request.POST:
-        budget.has_bing = True
+    budget.has_adwords = 'google_ads' in request.POST
+    budget.has_facebook = 'facebook_ads' in request.POST
+    budget.has_bing = 'bing_ads' in request.POST
 
     grouping_type = request.POST.get('grouping_type').split('_')[1]  # grouping type has edit in it
 

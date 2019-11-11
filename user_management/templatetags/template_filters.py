@@ -1,6 +1,6 @@
 from django import template
 from user_management.models import SkillEntry, Backup
-from client_area.models import OnboardingStepAssignment
+from client_area.models import OnboardingStepAssignment, SEOServiceAssignment
 import calendar
 
 register = template.Library()
@@ -134,3 +134,8 @@ def just_date(dt):
 @register.filter
 def get_onboarding_step_assignment(account, step):
     return OnboardingStepAssignment.objects.get(step=step, account=account)
+
+
+@register.filter
+def get_seo_service_assignment(account, service):
+    return SEOServiceAssignment.objects.get(service=service, account=account)

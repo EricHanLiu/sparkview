@@ -254,6 +254,28 @@ class AccountAllocatedHoursHistory(models.Model):
         return 'Hour archive for ' + str(self.member) + ' and ' + str(self.account)
 
 
+class SEOService(models.Model):
+    """
+    An SEO service that a client can enslist
+    """
+    name = models.CharField(max_length=255, default='', blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class SEOServiceAssignment(models.Model):
+    """
+    An assignment between an account and a service
+    """
+    account = models.ForeignKey('budget.Client', on_delete=models.CASCADE, default=None, null=True)
+    service = models.ForeignKey(SEOService, on_delete=models.SET_NULL, default=None, null=True)
+    active = models.BooleanField(default=False)
+
+    def __str__(self):
+        return 'SEO service assignment for ' + self.account.client_name
+
+
 class OnboardingStep(models.Model):
     """
     Step in the onboarding process for a service. Only complete when all subtasks are complete
