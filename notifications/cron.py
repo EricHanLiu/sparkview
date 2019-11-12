@@ -27,8 +27,6 @@ def prepare_todos(self):
         ) | member.active_mandate_accounts | member.backup_accounts
         member_accounts = member_accounts.distinct()
 
-        # JAMIE 30 DAYS ACTIVE STATUS
-
         # PROMOS
         today = datetime.datetime.now().date()
         tomorrow = today + datetime.timedelta(1)
@@ -218,6 +216,14 @@ def prepare_todos(self):
                 Todo.objects.create(member=member, description=description, link=link, type=2)
 
         print('Successfully created todos for member %s' % str(member))
+
+    # JAMIE 30 DAYS ACTIVE STATUS
+    jamie = Member.objects.get(id=5)
+    for account in Client.objects.filter(status=1):
+        if account.days_active == 30:
+            description = '30 Day Notification for ' + account.client_name + ' client - followup for onboarding.'
+            link = '/clients/accounts/' + str(account.id)
+            Todo.objects.create(member=jamie, description=description, link=link, type=2)
 
     return 'prepare_todos'
 

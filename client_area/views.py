@@ -2038,6 +2038,14 @@ def edit_management_details(request):
     old_status = account.status
     account.status = int(request.POST.get('account_status'))
 
+    if account.status == 1 and old_status != 1:
+        """
+        Account is now active
+        """
+        now = datetime.datetime.now()
+        account.last_active_date = now
+        account.save()
+
     if old_status != 2 and account.status == 2:
         """
         Account is now inactive
