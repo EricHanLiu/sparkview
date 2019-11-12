@@ -112,20 +112,17 @@
                         <td>
                             {% for member_dict in dict.under_members %}
                                 <a href="/user_management/members/{{ member_dict.member.id }}">
-                                    {{ member_dict.member.user.get_full_name }}
-                                </a>{% if not forloop.last %},{% endif %}
+                                    {{ member_dict.member.user.get_full_name }}</a>{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for member_dict in dict.under_members %}
-                                {{ member_dict.allocated_hours }}
-                                {% if not forloop.last %},{% endif %}
+                                {{ member_dict.allocated_hours }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
                         <td>
                             {% for member_dict in dict.under_members %}
-                                {{ member_dict.actual_hours }}
-                                {% if not forloop.last %},{% endif %}
+                                {{ member_dict.actual_hours }}{% if not forloop.last %},{% endif %}
                             {% endfor %}
                         </td>
                     </tr>
