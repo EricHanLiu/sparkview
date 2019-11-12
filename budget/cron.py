@@ -634,12 +634,12 @@ def daily_context(self):
                                                                           num_times_flagged=acc.num_times_flagged,
                                                                           tier=acc.tier, client_name=acc.client_name,
                                                                           account_id=acc.id)
-        snapshot.members.set(acc.assigned_members_array)
+        snapshot.assigned_members_array.set(acc.assigned_members_array)
         new_accounts_snapshot.append(snapshot)
     seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
         Q(status=0) | Q(status=1))
     for acc in seo_accounts:
-        snapshot, created = ClientDashboardSnapshot.objects.get_or_create(month=month, year=year)
+        snapshot, created = ClientDashboardSnapshot.objects.get_or_create(month=month, year=year, account_id=acc.id)
         snapshot.seo_hours = acc.seo_hours
         snapshot.has_seo = acc.has_seo
         snapshot.cro_hours = acc.cro_hours
