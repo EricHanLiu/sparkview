@@ -270,6 +270,11 @@ def get_members_from_dashboard_type(dashboard):
         role = Role.objects.filter(Q(name='Strategist'))
         members = Member.objects.filter(role__in=role).order_by('user__first_name')
         report_type = title = 'Strat Member Dashboard'
+    elif dashboard == 'seo':
+        role = Role.objects.filter(
+            Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern') | Q(name='Team Lead - SEO'))
+        members = Member.objects.filter(Q(role__in=role) | Q(id=15)).order_by('user__first_name')
+        report_type = title = 'SEO Member Dashboard'
     else:
         return HttpResponseNotFound('Invalid dashboard type!')
 
@@ -300,6 +305,16 @@ def member_dashboard_overview(request):
     members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
                                                                       historical)
 
+    total_seo_hours, total_cro_hours, seo_accounts = 0.0, 0.0, None
+    if dashboard == 'seo':
+        seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
+            Q(status=0) | Q(status=1)).order_by('client_name')
+        for account in seo_accounts:
+            if account.has_seo:
+                total_seo_hours += account.seo_hours
+            if account.has_cro:
+                total_cro_hours += account.cro_hours
+
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
     selected = {
@@ -317,7 +332,10 @@ def member_dashboard_overview(request):
         'selected': selected,
         'historical': historical,
         'members_stats': members_stats,
-        'dashboard': dashboard
+        'dashboard': dashboard,
+        'total_seo_hours': total_seo_hours,
+        'total_cro_hours': total_cro_hours,
+        'seo_accounts': seo_accounts
     }
 
     return render(request, 'reports/member_dashboard_overview.html', context)
