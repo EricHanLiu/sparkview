@@ -742,7 +742,8 @@ def account_single(request, account_id):
         account_status_classes = ['is-info', 'is-success', 'is-warning', 'is-danger']
         account_status_class = account_status_classes[account.status]
 
-        budgets = sorted(account.budgets, key=lambda b: b.projected_spend_avg / b.budget, reverse=True)
+        budgets = sorted(account.budgets, key=lambda b: b.projected_spend_avg / b.budget if b.budget != 0.0 else 0,
+                         reverse=True)
 
         context = {
             'account': account,
@@ -1255,7 +1256,7 @@ def confirm_sent_client(request):
     if not request.user.is_staff and not member.has_account(account_id) and not member.teams_have_accounts(account_id):
         return HttpResponseForbidden('You do not have permission to view this page')
 
-    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'))
+    report = MonthlyReport.objects.get(account=account, month=request.POST.get('month'), year=request.POST.get('year'))
 
     report.date_sent_by_am = timezone.now()
     report.save()

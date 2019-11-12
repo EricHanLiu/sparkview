@@ -245,19 +245,23 @@ def create_default_budget(self, account_id):
     except Client.DoesNotExist:
         return
 
-    budget = Budget.objects.create(name='Default Budget', account=account, is_monthly=True, grouping_type=2,
-                                   is_default=True)
-    if account.has_adwords:
-        budget.has_adwords = True
-    if account.has_fb:
-        budget.has_facebook = True
-    if account.has_bing:
-        budget.has_bing = True
+    budget, created = Budget.objects.get_or_create(name='Default Budget', account=account, is_monthly=True,
+                                                   grouping_type=2,
+                                                   is_default=True)
+    if created:
+        if account.has_adwords:
+            budget.has_adwords = True
+        if account.has_fb:
+            budget.has_facebook = True
+        if account.has_bing:
+            budget.has_bing = True
 
-    budget.budget = account.current_budget
-    budget.save()
+        budget.budget = account.current_budget
+        budget.save()
 
-    message = 'Created default budget for ' + str(account)
+        message = 'Created default budget for ' + str(account)
+    else:
+        message = str(account) + ' already had a default budget.'
     print(message)
 
     return message
