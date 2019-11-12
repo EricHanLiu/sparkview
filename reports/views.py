@@ -8,7 +8,8 @@ from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason, InternalOops, \
     MemberDashboardSnapshot
 from adwords_dashboard.models import BadAdAlert
-from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag
+from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag, \
+    ClientDashboardSnapshot
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification, Todo
 from django.conf import settings
@@ -307,8 +308,11 @@ def member_dashboard_overview(request):
 
     total_seo_hours, total_cro_hours, seo_accounts = 0.0, 0.0, None
     if dashboard == 'seo':
-        seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
-            Q(status=0) | Q(status=1)).order_by('client_name')
+        if not historical:
+            seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
+                Q(status=0) | Q(status=1)).order_by('client_name')
+        else:
+            seo_accounts = ClientDashboardSnapshot.objects.filter(Q(has_seo=True) | Q(has_cro=True))
         for account in seo_accounts:
             if account.has_seo:
                 total_seo_hours += account.seo_hours

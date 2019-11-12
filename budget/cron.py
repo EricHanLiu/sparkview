@@ -633,7 +633,9 @@ def daily_context(self):
                                                                           num_days_onboarding=acc.num_days_onboarding,
                                                                           num_times_flagged=acc.num_times_flagged,
                                                                           tier=acc.tier, client_name=acc.client_name,
-                                                                          account_id=acc.id)
+                                                                          account_id=acc.id, has_seo=acc.has_seo,
+                                                                          has_cro=acc.has_cro, seo_hours=acc.seo_hours,
+                                                                          cro_hours=acc.cro_hours)
         snapshot.members.set(acc.assigned_members_array)
         new_accounts_snapshot.append(snapshot)
     snapshot, created = MemberDashboardSnapshot.objects.get_or_create(month=month, year=year)

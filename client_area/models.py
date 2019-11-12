@@ -889,6 +889,10 @@ class ClientDashboardSnapshot(models.Model):
     assigned_members_array = models.ManyToManyField('user_management.Member')
     tier = models.IntegerField(default=1)
     client_name = models.CharField(max_length=255, default='None')
+    seo_hours = models.FloatField(default=0.0)
+    cro_hours = models.FloatField(default=0.0)
+    has_seo = models.BooleanField(default=False)
+    has_cro = models.BooleanField(default=False)
     date_created = models.DateTimeField(auto_now_add=True)
 
     @property
