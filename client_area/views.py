@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.utils import timezone
 import calendar
 import datetime
-from budget.models import Client
+from budget.models import Client, AccountBudgetSpendHistory, AccountAllocatedHoursHistory
 from user_management.models import Member, Team, BackupPeriod, Backup
 from notifications.models import Notification
 from .models import Promo, MonthlyReport, ClientType, Industry, Language, Service, ClientContact, AccountHourRecord, \
@@ -798,6 +798,78 @@ def account_single(request, account_id):
                                              is_onboarding=is_onboarding)
 
         return HttpResponse()
+
+
+@login_required
+def month_over_month_async(request):
+    """
+    Fetches month over month data from an ajax request and returns to be appended to a table
+    """
+    now = datetime.datetime.now()
+    first = now.replace(day=1)
+    # Default to last month
+    last_month = first - datetime.timedelta(days=1)
+
+    month = last_month.month
+    year = last_month.year
+    account_id = request.POST.get('account_id')
+
+    try:
+        account = Client.objects.get(id=account_id)
+    except Client.DoesNotExist:
+        return HttpResponseNotFound('Client does not exist!')
+
+    month_strs = []
+    cur_month = month
+    cur_year = year
+
+    # Prepare the report
+    report = []
+
+    for i in range(10):
+        month_strs.insert(0, str(calendar.month_name[cur_month]) + ', ' + str(cur_year))
+        tmpd = {}
+        try:
+            bh = AccountBudgetSpendHistory.objects.get(month=cur_month, year=cur_year, account=account)
+            tmpd['fee'] = round(bh.management_fee, 2)
+            tmpd['spend'] = round(bh.spend, 2)
+            tmpd['aw_spend'] = round(bh.aw_spend, 2)
+            tmpd['fb_spend'] = round(bh.fb_spend, 2)
+            tmpd['bing_spend'] = round(bh.bing_spend, 2)
+        except AccountBudgetSpendHistory.DoesNotExist:
+            tmpd['fee'] = 0.0
+            tmpd['spend'] = 0.0
+
+        tmpd['actual'] = account.all_hours_month_year(cur_month, cur_year)
+        allocated_history = AccountAllocatedHoursHistory.objects.filter(month=cur_month, year=cur_year,
+                                                                        account=account).values('account', 'year',
+                                                                                                'month').annotate(
+            sum_hours=Sum('allocated_hours'))
+        allocated_hours = 0.0
+        if allocated_history.count() > 0 and 'sum_hours' in allocated_history[0]:
+            allocated_hours = allocated_history[0]['sum_hours']
+
+        tmpd['allocated'] = allocated_hours
+        try:
+            tmpd['ratio'] = tmpd['actual'] / tmpd['allocated']
+        except ZeroDivisionError:
+            tmpd['ratio'] = 0.0
+
+        report.insert(0, tmpd)
+
+        cur_month -= 1
+        if cur_month == 0:
+            cur_month = 12
+            cur_year -= 1
+
+    response = {
+        'month_strs': month_strs,
+        'report': report
+    }
+
+    print(response)
+
+    return JsonResponse(response)
 
 
 @login_required

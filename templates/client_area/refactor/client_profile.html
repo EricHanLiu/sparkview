@@ -94,6 +94,11 @@
                                 </a>
                             </div>
                             <div class="level-item">
+                                <a class="button is-rounded is-small button-color" id="month_over_month_button">
+                                    MoM
+                                </a>
+                            </div>
+                            <div class="level-item">
                                 <a class="button is-rounded is-small button-color"
                                    id="assign_members_button">Team</a>
                             </div>
@@ -807,6 +812,72 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal modal-fx-fadeInScale" id="month_over_month_modal">
+                <div class="modal-background"></div>
+                <div class="modal-content" style="width: 95vw;">
+                    <div class="box">
+                        <div class="level">
+                            <div class="level-left">
+                                <h5 class="title is-5">Month Over Month</h5>
+                            </div>
+                        </div>
+                        <table class="table is-fullwidth is-hoverable is-striped" id="month_over_month_table">
+                            <thead>
+                            <tr id="month_over_month_table_header">
+                                <th>
+                                    Metric
+                                </th>
+                                {% for month_str in month_strs %}
+                                    <th>{{ month_str }}</th>
+                                {% endfor %}
+                            </tr>
+                            </thead>
+                            <tbody id="month_over_month_table_body">
+                            <tr>
+                                <td>
+                                    Actual Hours
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Allocated Hours
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Actual/Allocated
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Spend
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Google Ads Spend
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Facebook Spend
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Bing Spend
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Fee
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -2822,6 +2893,46 @@
 
         $('#flag_account_button').click(() => {
             $('#flag_account_modal').addClass('is-active');
+        });
+
+        $('#month_over_month_button').click(() => {
+            $.ajax({
+                url: '/clients/month_over_month_async',
+                data: {
+                    'account_id': '{{ account.id }}'
+                },
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                type: 'POST',
+                success: (data) => {
+                    let monthStrings = data['month_strs'];
+                    let report = data['report'];
+                    let attrs = ['actual', 'allocated', 'ratio', 'spend', 'aw_spend', 'fb_spend', 'bing_spend', 'fee'];
+
+                    let tableHeader = document.querySelector('#month_over_month_table_header');
+                    let tableBody = document.querySelector('#month_over_month_table_body');
+
+                    for (let i = 0; i < monthStrings.length; i++) {
+                        let month = monthStrings[i];
+
+                        let th = document.createElement('th');
+                        th.innerText = month;
+                        tableHeader.appendChild(th);
+                    }
+
+                    for (let i = 0; i < tableBody.children.length; i++) {
+                        let row = tableBody.children[i];
+                        for (let r of report) {
+                            let cell = row.insertCell();
+                            cell.innerText = (parseFloat(r[attrs[i]]).toFixed(2)).toString();
+                            cell.appendChild(text);
+                        }
+                    }
+                }
+            });
+
+            $('#month_over_month_modal').addClass('is-active');
         });
 
         $('.edit-additional-fee-button').click(function () {
