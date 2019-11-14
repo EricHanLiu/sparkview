@@ -130,9 +130,9 @@
 When Lexi requests a list of all such accounts in a given month, run the following in production (`shell_plus`)
 ```python
 import datetime
-month = datetime.datetime(yyyy, mm, dd)
+month = datetime.datetime(2019, 10, 1)
 lexi = Member.objects.get(id=24)
-notifs = Notification.objects.filter(Q(message__contains='won'| Q(message__contains='lost') | Q(message__contains='inactive'), member=lexi, created__gte=month))
+notifs = Notification.objects.filter(Q(message__contains='won') | Q(message__contains='lost') | Q(message__contains='inactive'), member=lexi, created__gte=month)
 for n in notifs:
     print(n.message)
 ```
