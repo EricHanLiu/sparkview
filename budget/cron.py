@@ -245,19 +245,23 @@ def create_default_budget(self, account_id):
     except Client.DoesNotExist:
         return
 
-    budget = Budget.objects.create(name='Default Budget', account=account, is_monthly=True, grouping_type=2,
-                                   is_default=True)
-    if account.has_adwords:
-        budget.has_adwords = True
-    if account.has_fb:
-        budget.has_facebook = True
-    if account.has_bing:
-        budget.has_bing = True
+    budget, created = Budget.objects.get_or_create(name='Default Budget', account=account, is_monthly=True,
+                                                   grouping_type=2,
+                                                   is_default=True)
+    if created:
+        if account.has_adwords:
+            budget.has_adwords = True
+        if account.has_fb:
+            budget.has_facebook = True
+        if account.has_bing:
+            budget.has_bing = True
 
-    budget.budget = account.current_budget
-    budget.save()
+        budget.budget = account.current_budget
+        budget.save()
 
-    message = 'Created default budget for ' + str(account)
+        message = 'Created default budget for ' + str(account)
+    else:
+        message = str(account) + ' already had a default budget.'
     print(message)
 
     return message
@@ -630,8 +634,17 @@ def daily_context(self):
                                                                           num_times_flagged=acc.num_times_flagged,
                                                                           tier=acc.tier, client_name=acc.client_name,
                                                                           account_id=acc.id)
-        snapshot.members.set(acc.assigned_members_array)
+        snapshot.assigned_members_array.set(acc.assigned_members_array)
         new_accounts_snapshot.append(snapshot)
+    seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
+        Q(status=0) | Q(status=1))
+    for acc in seo_accounts:
+        snapshot, created = ClientDashboardSnapshot.objects.get_or_create(month=month, year=year, account_id=acc.id)
+        snapshot.seo_hours = acc.seo_hours
+        snapshot.has_seo = acc.has_seo
+        snapshot.cro_hours = acc.cro_hours
+        snapshot.has_cro = acc.has_cro
+        snapshot.save()
     snapshot, created = MemberDashboardSnapshot.objects.get_or_create(month=month, year=year)
     snapshot.outstanding_budget_accounts.set(outstanding_budget_accounts)
     snapshot.new_accounts.set(new_accounts_snapshot)

@@ -9,16 +9,6 @@
             <div class="title is-4">Department Overall</div>
             <hr>
             <div class="columns is-multiline">
-                {#                        <div class="column is-4 has-text-centered">#}
-                {#                            <div class="box">#}
-                {#                                <p class="heading">#}
-                {#                                    Average Lifespan#}
-                {#                                </p>#}
-                {#                                <h4 class="title is-4">#}
-                {#                                    {{ department_stats.average_lifespan|round_to_two }}#}
-                {#                                </h4>#}
-                {#                            </div>#}
-                {#                        </div>#}
                 <div class="column is-6 has-text-centered">
                     <div class="box tooltip" data-tooltip="(Allocated Hours / Total Hours) - Buffers">
                         <p class="heading">
@@ -40,26 +30,16 @@
                         </h4>
                     </div>
                 </div>
-{#                <div class="column is-12 has-text-centered">#}
-{#                    <div class="box">#}
-{#                        <p class="heading">#}
-{#                            Revenue Growth/loss#}
-{#                        </p>#}
-{#                        <h4 class="title is-4">#}
-{#                            <canvas id="revenue_growth_chart"></canvas>#}
-{#                        </h4>#}
-{#                    </div>#}
-{#                </div>#}
-                {#                        <div class="column is-6 has-text-centered">#}
-                {#                            <div class="box">#}
-                {#                                <p class="heading">#}
-                {#                                    KPI % Completion#}
-                {#                                </p>#}
-                {#                                <h4 class="title is-4">#}
-                {#                                    N/A#}
-                {#                                </h4>#}
-                {#                            </div>#}
-                {#                        </div>#}
+                {#                <div class="column is-12 has-text-centered">#}
+                {#                    <div class="box">#}
+                {#                        <p class="heading">#}
+                {#                            Revenue Growth/loss#}
+                {#                        </p>#}
+                {#                        <h4 class="title is-4">#}
+                {#                            <canvas id="revenue_growth_chart"></canvas>#}
+                {#                        </h4>#}
+                {#                    </div>#}
+                {#                </div>#}
             </div>
         </div>
     </div>
@@ -163,11 +143,74 @@
             </div>
         </div>
     </div>
+    {% if dashboard == 'seo' %}
+        <div class="card" style="margin-top: 2em;">
+            <div class="card-content">
+                <div class="title is-4">SEO Clients</div>
+                <hr>
+                <table class="table dataTable is-hoverable is-striped is-fullwidth">
+                    <thead>
+                    <tr>
+                        <th>
+                            Account
+                        </th>
+                        <th>
+                            Has SEO
+                        </th>
+                        <th>
+                            Has CRO
+                        </th>
+                        <th>
+                            SEO Hours
+                        </th>
+                        <th>
+                            CRO Hours
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for account in seo_accounts %}
+                        <tr>
+                            <td>
+                                {{ account.client_name }}
+                            </td>
+                            <td>
+                                {{ account.has_seo }}
+                            </td>
+                            <td>
+                                {{ account.has_cro }}
+                            </td>
+                            <td>
+                                {{ account.seo_hours }}
+                            </td>
+                            <td>
+                                {{ account.cro_hours }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th>TOTALS:</th>
+                        <th></th>
+                        <th></th>
+                        <th>
+                            {{ total_seo_hours }}
+                        </th>
+                        <th>
+                            {{ total_cro_hours }}
+                        </th>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block extraJs %}
     <script>
-        {#let ctx = document.getElementById('revenue_growth_chart').getContext('2d');#}
+        // let ctx = document.getElementById('revenue_growth_chart').getContext('2d');
         let months = [],
             spends = [],
             fees = [];
@@ -180,29 +223,29 @@
         {% for fee in department_stats.fees %}
             fees.push(parseFloat('{{ fee }}'));
         {% endfor %}
-        {#new Chart(ctx, {#}
-        {#    type: 'line',#}
-        {#    data: {#}
-        {#        labels: months,#}
-        {#        datasets: [#}
-        {#            {#}
-        {#                data: spends,#}
-        {#                borderColor: 'tomato',#}
-        {#                label: 'Spend'#}
-        {#            },#}
-        {#            {#}
-        {#                data: fees,#}
-        {#                borderColor: 'lightskyblue',#}
-        {#                label: 'Management Fee'#}
-        {#            }#}
-        {#        ],#}
-        {#        options: {#}
-        {#            legend: {#}
-        {#                display: false#}
-        {#            },#}
-        {#        }#}
-        {#    }#}
-        {#});#}
+        /* new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        data: spends,
+                        borderColor: 'tomato',
+                        label: 'Spend'
+                    },
+                    {
+                        data: fees,
+                        borderColor: 'lightskyblue',
+                        label: 'Management Fee'
+                    }
+                ],
+                options: {
+                    legend: {
+                        display: false
+                    },
+                }
+            }
+        }); */
 
         $('#overview_tab').addClass('is-active');
     </script>

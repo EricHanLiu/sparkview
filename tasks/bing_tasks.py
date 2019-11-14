@@ -424,7 +424,7 @@ def bing_cron_campaign_stats(self, account_id):
 
     cmps = []
 
-    this_month = helper.get_this_month_daterange()
+    # this_month = helper.get_this_month_daterange()
 
     fields = [
         'CampaignName',
@@ -438,8 +438,8 @@ def bing_cron_campaign_stats(self, account_id):
 
     ys_report = helper.get_campaign_performance(
         account_id,
-        dateRangeType="CUSTOM_DATE",
-        report_name="campaign_stats_tm",
+        dateRangeType='CUSTOM_DATE',
+        report_name='campaign_stats_tm',
         extra_fields=fields,
         **yesterday
     )
@@ -459,13 +459,13 @@ def bing_cron_campaign_stats(self, account_id):
         cmp.campaign_yesterday_cost = campaign_cost
         cmp.save()
 
-    report = helper.get_campaign_performance(
-        account_id,
-        dateRangeType="CUSTOM_DATE",
-        report_name="campaign_stats_tm",
-        extra_fields=fields,
-        **this_month
-    )
+    # report = helper.get_campaign_performance(
+    #     account_id,
+    #     dateRangeType="CUSTOM_DATE",
+    #     report_name="campaign_stats_tm",
+    #     extra_fields=fields,
+    #     **this_month
+    # )
 
     # cmp_stats = helper.map_campaign_stats(report)
 

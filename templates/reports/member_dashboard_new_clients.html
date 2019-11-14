@@ -47,7 +47,7 @@
                             {{ account.onboarding_duration_elapsed }}
                         </td>
                         <td>
-                            {% for member in account.assigned_members_array %}
+                            {% for member in account.assigned_members_array.all %}
                                 <a href="/user_management/members/{{ member.id }}">
                                     {{ member.user.get_full_name }}{% if not forloop.last %}, {% endif %}
                                 </a>

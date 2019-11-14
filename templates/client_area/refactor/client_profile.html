@@ -3117,7 +3117,7 @@
 
         $('#management_confirm_button').click(() => {
             let $lostBCLink = $('#lost_bc');
-            if (!$lostBCLink.prop('disabled') && $lostBCLink.val() === '') {
+            if (!$lostBCLink.prop('disabled') && ($lostBCLink.val() === '' || $lostBCLink.val() === 'None')) {
                 toastr.error('Basecamp link must be provided for lost accounts!');
                 return;
             }

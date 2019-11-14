@@ -8,7 +8,8 @@ from django.db.models import Sum, Q
 from user_management.models import Member, Team, Incident, Role, HighFive, IncidentReason, InternalOops, \
     MemberDashboardSnapshot
 from adwords_dashboard.models import BadAdAlert
-from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag
+from client_area.models import AccountAllocatedHoursHistory, AccountHourRecord, Promo, MonthlyReport, Opportunity, Tag, \
+    ClientDashboardSnapshot
 from budget.models import Client, AccountBudgetSpendHistory, TierChangeProposal, SalesProfile
 from notifications.models import Notification, Todo
 from django.conf import settings
@@ -270,6 +271,11 @@ def get_members_from_dashboard_type(dashboard):
         role = Role.objects.filter(Q(name='Strategist'))
         members = Member.objects.filter(role__in=role).order_by('user__first_name')
         report_type = title = 'Strat Member Dashboard'
+    elif dashboard == 'seo':
+        role = Role.objects.filter(
+            Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern') | Q(name='Team Lead - SEO'))
+        members = Member.objects.filter(Q(role__in=role) | Q(id=15)).order_by('user__first_name')
+        report_type = title = 'SEO Member Dashboard'
     else:
         return HttpResponseNotFound('Invalid dashboard type!')
 
@@ -300,6 +306,19 @@ def member_dashboard_overview(request):
     members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
                                                                       historical)
 
+    total_seo_hours, total_cro_hours, seo_accounts = 0.0, 0.0, None
+    if dashboard == 'seo':
+        if not historical:
+            seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
+                Q(status=0) | Q(status=1)).order_by('client_name')
+        else:
+            seo_accounts = ClientDashboardSnapshot.objects.filter(Q(has_seo=True) | Q(has_cro=True))
+        for account in seo_accounts:
+            if account.has_seo:
+                total_seo_hours += account.seo_hours
+            if account.has_cro:
+                total_cro_hours += account.cro_hours
+
     months = [(i, calendar.month_name[i]) for i in range(1, 13)]
     years = [i for i in range(2018, now.year + 1)]
     selected = {
@@ -317,7 +336,10 @@ def member_dashboard_overview(request):
         'selected': selected,
         'historical': historical,
         'members_stats': members_stats,
-        'dashboard': dashboard
+        'dashboard': dashboard,
+        'total_seo_hours': total_seo_hours,
+        'total_cro_hours': total_cro_hours,
+        'seo_accounts': seo_accounts
     }
 
     return render(request, 'reports/member_dashboard_overview.html', context)
@@ -558,75 +580,6 @@ def member_dashboard_new_clients(request):
     }
 
     return render(request, 'reports/member_dashboard_new_clients.html', context)
-
-
-@login_required
-def seo_capacity(request):
-    """
-    Creates report that shows the capacity of the account managers on an aggregated and individual basis
-    """
-    if not request.user.is_staff:
-        return HttpResponseForbidden('You do not have permission to view this page')
-
-    now = datetime.datetime.now()
-    selected_month = now.month
-    selected_year = now.year
-    historical = False
-
-    if 'month' in request.GET and 'year' in request.GET and (int(request.GET.get(
-            'month')) != selected_month or int(request.GET.get('year')) != selected_year):
-        selected_month = int(request.GET.get('month'))
-        selected_year = int(request.GET.get('year'))
-        historical = True
-
-    # Probably has to be changed before production
-    role = Role.objects.filter(Q(name='SEO') | Q(name='SEO Analyst') | Q(name='SEO Intern') | Q(name='Team Lead - SEO'))
-    members = Member.objects.filter(Q(role__in=role) | Q(id=15)).order_by('user__first_name')
-
-    total_seo_hours = 0.0
-    total_cro_hours = 0.0
-
-    status_badges = ['info', 'primary', 'warning', 'danger']
-    seo_accounts = Client.objects.filter(Q(salesprofile__seo_status=1) | Q(salesprofile__cro_status=1)).filter(
-        Q(status=0) | Q(status=1)).order_by('client_name')
-
-    members_stats, department_stats = build_member_stats_from_members(members, selected_month, selected_year,
-                                                                      historical)
-
-    for account in seo_accounts:
-        if account.has_seo:
-            total_seo_hours += account.seo_hours
-        if account.has_cro:
-            total_cro_hours += account.cro_hours
-
-    outstanding_budget_accounts = Client.objects.filter(status=1, budget_updated=False)
-
-    months = [(i, calendar.month_name[i]) for i in range(1, 13)]
-    years = [i for i in range(2018, now.year + 1)]
-    selected = {
-        'month': selected_month,
-        'year': selected_year
-    }
-
-    report_type = 'SEO Member Dashboard'
-
-    context = {
-        'title': 'SEO Member Dashboard',
-        'members': members,
-        'department_stats': department_stats,
-        'report_type': report_type,
-        'seo_accounts': seo_accounts,
-        'status_badges': status_badges,
-        'total_seo_hours': total_seo_hours,
-        'total_cro_hours': total_cro_hours,
-        'outstanding_budget_accounts': outstanding_budget_accounts,
-        'members_stats': members_stats,
-        'selected': selected,
-        'months': months,
-        'years': years
-    }
-
-    return render(request, 'reports/seo_member_capacity_report_refactor.html', context)
 
 
 @login_required
