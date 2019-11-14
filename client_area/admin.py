@@ -3,7 +3,7 @@ from .models import Promo, MonthlyReport, Service, Language, ClientType, Industr
     ManagementFeeInterval, ClientContact, ParentClient, AccountHourRecord, OnboardingTask, OnboardingTaskAssignment, \
     OnboardingStep, OnboardingStepAssignment, PhaseTaskAssignment, PhaseTask, LifecycleEvent, SalesProfile, \
     SalesProfileChange, OpportunityDescription, PitchedDescription, MandateType, Mandate, MandateHourRecord, \
-    MandateAssignment, Tag
+    MandateAssignment, Tag, SEOService, SEOServiceAssignment
 
 
 @admin.register(OpportunityDescription)
@@ -18,6 +18,16 @@ class PitchedDescriptionAdmin(admin.ModelAdmin):
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(SEOServiceAssignment)
+class SEOServiceAssignmentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(SEOService)
+class SEOServiceAdmin(admin.ModelAdmin):
     pass
 
 
