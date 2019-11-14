@@ -745,6 +745,8 @@ def account_single(request, account_id):
         budgets = sorted(account.budgets, key=lambda b: b.projected_spend_avg / b.budget if b.budget != 0.0 else 0,
                          reverse=True)
 
+        regions = Client.REGION_CHOICES
+
         context = {
             'account': account,
             'members': members,
@@ -772,7 +774,8 @@ def account_single(request, account_id):
             'opp_reasons': opp_reasons,
             'title': str(account) + ' - SparkView',
             'account_status_class': account_status_class,
-            'budgets': budgets
+            'budgets': budgets,
+            'regions': regions
         }
 
         return render(request, 'client_area/refactor/client_profile.html', context)
@@ -2324,6 +2327,7 @@ def set_client_details(request):
     industry_id = request.POST.get('industry')
     team_ids = request.POST.getlist('teams')
     tags = request.POST.getlist('tags')
+    region = request.POST.get('region')
 
     account = Client.objects.get(id=account_id)
     account.client_name = account_name
@@ -2335,6 +2339,7 @@ def set_client_details(request):
     teams = Team.objects.filter(pk__in=team_ids)
     account.team.set(teams)
     account.tags.set(tags)
+    account.region = region
 
     for i, contact in enumerate(account.contactInfo.all()):
         contact.name = contact_names[i]
