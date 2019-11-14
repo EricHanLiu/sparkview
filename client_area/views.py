@@ -2063,15 +2063,15 @@ def edit_management_details(request):
         staff_users = User.objects.filter(is_staff=True)
         staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
         account.save()
-        message = str(account.client_name) + ' is now inactive (paused).'
+        subject = 'Inactive Alert - ' + account.client_name + ' Client'
         for staff_member in staff_members:
             link = '/clients/accounts/' + str(account.id)
-            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+            Notification.objects.create(member=staff_member, link=link, message=subject, type=0, severity=3)
 
         logger = Logger()
         in_reason_id, in_reason_display = Client.INACTIVE_CHOICES[int(account.inactive_reason)]
-        short_desc = account.client_name + ' is now inactive for the following reason: ' + in_reason_display
-        logger.send_account_lost_email(short_desc, message)
+        message = account.client_name + ' is now inactive for the following reason: ' + in_reason_display
+        logger.send_account_lost_email(subject, message)
 
         sp = account.sales_profile
 
@@ -2109,16 +2109,16 @@ def edit_management_details(request):
             account.lost_bc_link = lost_bc
         staff_users = User.objects.filter(is_staff=True)
         staff_members = Member.objects.filter(user__in=staff_users, deactivated=False)
-        message = str(account.client_name) + ' has been lost.'
+        subject = 'Lost Alert - ' + str(account.client_name) + ' Client'
         account.save()
         for staff_member in staff_members:
             link = '/clients/accounts/' + str(account.id)
-            Notification.objects.create(member=staff_member, link=link, message=message, type=0, severity=3)
+            Notification.objects.create(member=staff_member, link=link, message=subject, type=0, severity=3)
 
         logger = Logger()
         lost_reason_id, lost_reason_display = Client.LOST_CHOICES[int(account.lost_reason)]
-        short_desc = account.client_name + ' is now lost for the following reason: ' + lost_reason_display
-        logger.send_account_lost_email(short_desc, message)
+        message = account.client_name + ' is now lost for the following reason: ' + lost_reason_display
+        logger.send_account_lost_email(subject, message)
 
         sp = account.sales_profile
 
