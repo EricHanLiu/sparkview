@@ -16,6 +16,7 @@ from adwords_dashboard.cron import get_spend_by_campaign_custom, get_spend_by_ca
 import calendar
 import datetime
 import json
+from freezegun import freeze_time
 
 
 class AccountTestCase(TestCase):
@@ -627,7 +628,8 @@ class AccountTestCase(TestCase):
                                                            dependent_account_name='test aw23',
                                                            desired_spend=1000.0)
 
-        aw_cmp_and1 = Campaign.objects.create(campaign_id='1234111', campaign_name='foo hello', account=test_aw_account2,
+        aw_cmp_and1 = Campaign.objects.create(campaign_id='1234111', campaign_name='foo hello',
+                                              account=test_aw_account2,
                                               campaign_cost=1, campaign_yesterday_cost=3)
         aw_cmp_and2 = Campaign.objects.create(campaign_id='10111232323', campaign_name='sam123',
                                               account=test_aw_account2,
@@ -928,3 +930,20 @@ class AccountTestCase(TestCase):
         #                                           end_date=t_budget.end_date)
         # self.assertEqual(csdr.spend, t_budget.calculated_spend)
         # self.assertEqual(t_budget.calculated_spend, 2175.58)
+
+    def test_days_active(self):
+        """
+        Tests the days_active property on a Client object
+        :return:
+        """
+        test_account = BloomClient.objects.get(client_name='test client')
+        d1 = datetime.datetime(2019, 7, 15, 0, 0, 0, tzinfo=datetime.timezone.utc)
+        test_account.last_active_date = d1
+        test_account.status = 1
+        test_account.save()
+        with freeze_time(d1):
+            self.assertEqual(test_account.days_active, 0)
+
+        d2 = datetime.datetime(2019, 8, 1, 0, 0, 0)
+        with freeze_time(d2):
+            self.assertEqual(test_account.days_active, 17)

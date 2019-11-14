@@ -1087,7 +1087,7 @@ class MemberDashboardSnapshot(models.Model):
 
     month = models.IntegerField(default=1, choices=MONTH_CHOICES)
     year = models.PositiveSmallIntegerField(blank=True, default=1999)
-    new_accounts = models.ManyToManyField('budget.Client', related_name='new_accounts')
+    new_accounts = models.ManyToManyField('client_area.ClientDashboardSnapshot', related_name='new_accounts')
     outstanding_budget_accounts = models.ManyToManyField('budget.Client', related_name='outstanding_budget_accounts')
     aggregate_fee = models.FloatField(default=0.0)
     aggregate_spend = models.FloatField(default=0.0)

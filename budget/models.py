@@ -204,10 +204,18 @@ class Client(models.Model):
 
     num_days_onboarding = models.IntegerField(default=None, null=True)
     num_times_flagged = models.IntegerField(default=0)
+    last_active_date = models.DateTimeField(null=True, default=None)  # last time this account was switched to active
 
     @property
     def is_active(self):
         return self.status == 1
+
+    @property
+    def days_active(self):
+        if not self.is_active:
+            return 0
+        now = datetime.datetime.now(datetime.timezone.utc)
+        return (now - self.last_active_date).days
 
     @property
     def is_onboarding(self):

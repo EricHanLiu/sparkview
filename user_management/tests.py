@@ -125,7 +125,7 @@ class UserTestCase(TestCase):
         response = self.client.get('/reports/am/overview')
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('/reports/seo_capacity')
+        response = self.client.get('/reports/seo/overview')
         self.assertEqual(response.status_code, 200)
 
         response = self.client.get('/reports/strat/overview')
