@@ -3121,10 +3121,10 @@
                 toastr.error('Basecamp link must be provided for lost accounts!');
                 return;
             }
-            if (!$inactiveReturn.prop('disabled') && $inactiveReturn.val() === '') {
-                toastr.error('Please enter a return date!');
-                return;
-            }
+            {#if (!$inactiveReturn.prop('disabled') && $inactiveReturn.val() === '') {#}
+            {#    toastr.error('Please enter a return date!');#}
+            {#    return;#}
+            {# } #}
             $.ajax({
                 type: 'POST',
                 url: '/clients/edit_management_details',
