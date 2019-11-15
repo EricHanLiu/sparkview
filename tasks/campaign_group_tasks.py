@@ -30,6 +30,14 @@ def update_budget_campaigns(self, budget_id):
     budget.is_new = False
     budget.is_edited = False
     budget.save()
+
+    if budget.is_default:
+        account = budget.account
+        budget.has_adwords = account.has_adwords
+        budget.has_facebook = account.has_fb
+        budget.has_bing = account.has_bing
+        budget.save()
+
     if budget.grouping_type == 0:
         #  manual, do not have to do anything
         pass
