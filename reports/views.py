@@ -400,10 +400,14 @@ def member_dashboard_efficiency(request):
     members, title, report_type = get_members_from_dashboard_type(dashboard)
 
     # top 10 under and over-efficient accounts
-    all_accounts = Client.objects.all().order_by('client_name')
+    accounts = Client.objects.filter(
+        Q(cm1__in=members) | Q(cm2__in=members) | Q(cm3__in=members) |
+        Q(am1__in=members) | Q(am2__in=members) | Q(am3__in=members) |
+        Q(seo1__in=members) | Q(seo2__in=members) | Q(seo3__in=members) |
+        Q(strat1__in=members) | Q(strat2__in=members) | Q(strat3__in=members))
     overspenders = []
     underspenders = []
-    for account in all_accounts:
+    for account in accounts:
         allocated_history = AccountAllocatedHoursHistory.objects.filter(month=selected_month, year=selected_year,
                                                                         account=account).values('account', 'year',
                                                                                                 'month').annotate(
@@ -428,10 +432,14 @@ def member_dashboard_efficiency(request):
         loop_items = account.assigned_cms.items()
         if dashboard == 'am':
             loop_items = account.assigned_ams.items()
+        elif dashboard == 'seo':
+            loop_items = account.assigned_seos.items()
 
         for key, value in loop_items:
             if dashboard == 'am':
                 member = account.assigned_ams[key]['member']
+            elif dashboard == 'seo':
+                member = account.assigned_seos[key]['member']
             else:
                 member = account.assigned_cms[key]['member']
 
@@ -463,9 +471,9 @@ def member_dashboard_efficiency(request):
             'under_members': under_members
         }
 
-        if float(actual_hours_ratio) > 1:
+        if float(actual_hours_ratio) > 1 and over_members:
             overspenders.append(tmp)
-        elif float(actual_hours_ratio) < 1:
+        elif float(actual_hours_ratio) < 1 and under_members:
             underspenders.append(tmp)
     overspenders.sort(key=lambda x: x['actual_hours_ratio'], reverse=True)
     underspenders.sort(key=lambda x: x['actual_hours_ratio'])
