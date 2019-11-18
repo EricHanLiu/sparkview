@@ -512,9 +512,9 @@ def account_edit_temp(request, id):
         sp.save()
 
         if request.user.is_staff:
-            if fee_override != 'None':
+            if fee_override != 'None' and fee_override != '':
                 account.management_fee_override = float(fee_override)
-            if hours_override != 'None':
+            if hours_override != 'None' and hours_override != '':
                 account.allocated_ppc_override = float(hours_override)
             else:
                 account.allocated_ppc_override = None
