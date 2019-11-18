@@ -146,7 +146,8 @@ def account_new(request):
             'members': members,
             'services': services,
             'tiers': tiers,
-            'fee_structures': fee_structures
+            'fee_structures': fee_structures,
+            'title': 'Add a new client - SparkView'
         }
 
         return render(request, 'client_area/refactor/account_new.html', context)
@@ -159,7 +160,7 @@ def account_new(request):
             'language': request.POST.get('language'),
             'tier': request.POST.get('tier'),
             'sold_by': request.POST.get('sold_by'),
-            'status': request.POST.get('status'),
+            'status': request.POST.get('status')
         }
 
         form = NewClientForm(form_data)
@@ -203,8 +204,8 @@ def account_new(request):
             account.parentClient = client
 
             # set teams
-            # teams = [cleaned_inputs['team']]
-            # account.team.set(teams)
+            teams = [cleaned_inputs['team']]
+            account.team.set(teams)
 
             # set languages
             languages = [cleaned_inputs['language']]
@@ -275,6 +276,8 @@ def account_new(request):
             if request.POST.get('ppc_check'):
                 sp.ppc_status = 0
                 sp.save()
+
+            account.tier = request.POST.get('tier')
 
             account.has_gts = True
             account.has_budget = True
