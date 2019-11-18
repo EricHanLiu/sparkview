@@ -42,5 +42,6 @@ urlpatterns = [
     url(r'^edit_management_details', views.edit_management_details, name='edit_management_fee_structure'),
     url(r'^get_client_details_objects$', views.get_client_details_objects, name='get_client_details_objects'),
     url(r'^set_client_details$', views.set_client_details, name='set_client_details'),
-    url(r'^set_tags$', views.set_tags, name='set_tags')
+    url(r'^set_tags$', views.set_tags, name='set_tags'),
+    url(r'^month_over_month_async$', views.month_over_month_async, name='month_over_month_async'),
 ]
