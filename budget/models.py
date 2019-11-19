@@ -1774,6 +1774,8 @@ class Budget(models.Model):
         else:
             days_in_date_range = (self.end_date - self.start_date).days
             days_elapsed = (now - self.start_date).days
+            if days_in_date_range == 0:
+                return 50.0
             percentage = days_elapsed / days_in_date_range * 100.0
         return percentage
 
