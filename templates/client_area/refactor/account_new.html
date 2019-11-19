@@ -61,6 +61,30 @@
                         <div class="field">
                             <div class="columns">
                                 <div class="column is-6">
+                                    <label for="tier" class="label">Tier:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="tier" required>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="column is-6">
+                                    <label for="team" class="label">Team:</label>
+                                    <div class="select is-fullwidth">
+                                        <select name="team" required>
+                                            {% for team in teams %}
+                                                <option value="{{ team.id }}">{{ team.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="columns">
+                                <div class="column is-6">
                                     <label for="industry" class="label">Industry:</label>
                                     <div class="select is-fullwidth">
                                         <select name="industry" required>

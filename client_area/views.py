@@ -146,7 +146,8 @@ def account_new(request):
             'members': members,
             'services': services,
             'tiers': tiers,
-            'fee_structures': fee_structures
+            'fee_structures': fee_structures,
+            'title': 'Add a new client - SparkView'
         }
 
         return render(request, 'client_area/refactor/account_new.html', context)
@@ -159,7 +160,7 @@ def account_new(request):
             'language': request.POST.get('language'),
             'tier': request.POST.get('tier'),
             'sold_by': request.POST.get('sold_by'),
-            'status': request.POST.get('status'),
+            'status': request.POST.get('status')
         }
 
         form = NewClientForm(form_data)
@@ -203,8 +204,8 @@ def account_new(request):
             account.parentClient = client
 
             # set teams
-            # teams = [cleaned_inputs['team']]
-            # account.team.set(teams)
+            teams = [cleaned_inputs['team']]
+            account.team.set(teams)
 
             # set languages
             languages = [cleaned_inputs['language']]
@@ -275,6 +276,8 @@ def account_new(request):
             if request.POST.get('ppc_check'):
                 sp.ppc_status = 0
                 sp.save()
+
+            account.tier = request.POST.get('tier')
 
             account.has_gts = True
             account.has_budget = True
@@ -509,9 +512,9 @@ def account_edit_temp(request, id):
         sp.save()
 
         if request.user.is_staff:
-            if fee_override != 'None':
+            if fee_override != 'None' and fee_override != '':
                 account.management_fee_override = float(fee_override)
-            if hours_override != 'None':
+            if hours_override != 'None' and hours_override != '':
                 account.allocated_ppc_override = float(hours_override)
             else:
                 account.allocated_ppc_override = None
@@ -2233,9 +2236,11 @@ def edit_management_details(request):
     hours_override = request.POST.get('hours_override')
 
     if request.user.is_staff:
-        if fee_override != 'None':
+        if fee_override != 'None' and fee_override != '':
             account.management_fee_override = float(fee_override)
-        if hours_override != 'None':
+        else:
+            account.management_fee_override = None
+        if hours_override != 'None' and hours_override != '':
             account.allocated_ppc_override = float(hours_override)
         else:
             account.allocated_ppc_override = None

@@ -202,9 +202,9 @@ class Client(models.Model):
     onboarding_hours_allocated_updated_timestamp = models.DateTimeField(null=True, default=None)
     tags = models.ManyToManyField(Tag, blank=True)
 
-    num_days_onboarding = models.IntegerField(default=None, null=True)
+    num_days_onboarding = models.IntegerField(default=None, null=True, blank=True)
     num_times_flagged = models.IntegerField(default=0)
-    last_active_date = models.DateTimeField(null=True, default=None)  # last time this account was switched to active
+    last_active_date = models.DateTimeField(null=True, default=None, blank=True)  # last time this account was switched to active
 
     @property
     def is_active(self):
