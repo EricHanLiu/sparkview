@@ -1,4 +1,5 @@
-# Bloom Platform by HyperDigital.io
+# SparkView platform by Sam Creamer
+This is a project I worked on in 2019, created by Sam Creamer and further maintained/updated by the two of us.
 
 
 ## Development environment setup
